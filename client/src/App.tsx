@@ -25,8 +25,9 @@ function App() {
         <ChannelSidebar />
         <Chat />
         <MemberList />
+        {/* #5865f2 */}
       </div>
-      {/* <div className="flex flex-col items-center p-4">
+      <div className="flex flex-col items-center p-4">
         <h1 className="text-4xl font-bold mb-4">Users</h1>
         <ul className="list-disc pl-8">
           {users.map((user) => (
@@ -35,7 +36,7 @@ function App() {
             </li>
           ))}
         </ul>
-      </div> */}
+      </div>
     </>
   );
 }

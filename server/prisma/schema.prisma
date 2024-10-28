@@ -14,7 +14,113 @@ datasource db {
 }
 
 model User {
-  id    Int    @id @default(autoincrement())
-  name  String
-  email String @unique
+  id        Int      @id @default(autoincrement())
+  username  String   @unique
+  email     String   @unique
+  password  String
+  avatarUrl String? // Optional profile picture
+  createdAt DateTime @default(now())
+
+  // Relationships
+  memberships ServerMember[]
+  messages    Message[]
+  reactions   Reaction[]
+
+  friends  Friend[] @relation("UserFriends") // Friends where the user is the initiator
+  friendOf Friend[] @relation("FriendUsers") // Friends where the user is the recipient
+}
+
+model Server {
+  id        Int      @id @default(autoincrement())
+  name      String
+  iconUrl   String?
+  createdAt DateTime @default(now())
+
+  // Relationships
+  channels Channel[]
+  members  ServerMember[]
+  Role     Role[]
+}
+
+model ServerMember {
+  id       Int      @id @default(autoincrement())
+  userId   Int
+  serverId Int
+  joinedAt DateTime @default(now())
+
+  // Relationships
+  user   User   @relation(fields: [userId], references: [id])
+  server Server @relation(fields: [serverId], references: [id])
+  Role   Role?  @relation(fields: [roleId], references: [id])
+  roleId Int?
+
+  @@unique([userId, serverId]) // Ensures a user can't join the same server twice
+}
+
+model Channel {
+  id        Int      @id @default(autoincrement())
+  serverId  Int
+  name      String
+  isVoice   Boolean  @default(false) // Boolean to distinguish between text and voice channels
+  createdAt DateTime @default(now())
+
+  // Relationships
+  server   Server    @relation(fields: [serverId], references: [id])
+  messages Message[]
+}
+
+model Message {
+  id        Int      @id @default(autoincrement())
+  content   String
+  createdAt DateTime @default(now())
+  channelId Int
+  userId    Int
+
+  // Relationships
+  user    User    @relation(fields: [userId], references: [id])
+  channel Channel @relation(fields: [channelId], references: [id])
+
+  reactions Reaction[]
+}
+
+model Friend {
+  id       Int @id @default(autoincrement())
+  userId   Int
+  friendId Int
+
+  user   User @relation("UserFriends", fields: [userId], references: [id])
+  friend User @relation("FriendUsers", fields: [friendId], references: [id])
+
+  @@unique([userId, friendId])
+}
+
+model Reaction {
+  id        Int      @id @default(autoincrement())
+  emoji     String
+  messageId Int
+  userId    Int
+  createdAt DateTime @default(now())
+
+  // Relationships
+  message Message @relation(fields: [messageId], references: [id])
+  user    User    @relation(fields: [userId], references: [id])
+
+  @@unique([userId, messageId, emoji]) // Ensures a user can only react with a given emoji once per message
+}
+
+model Role {
+  id           Int            @id @default(autoincrement())
+  name         String
+  serverId     Int // Assuming a server ID is needed
+  server       Server         @relation(fields: [serverId], references: [id])
+  permissions  Permission[] // Assuming permissions are another model
+  ServerMember ServerMember[]
+}
+
+model Permission {
+  id       Int  @id @default(autoincrement())
+  serverId Int
+  userId   Int
+  roleId   Int
+  role     Role @relation(fields: [roleId], references: [id])
 }
