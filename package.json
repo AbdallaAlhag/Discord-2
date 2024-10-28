@@ -1,0 +1,12 @@
+{
+  "name": "discord-2",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "install-all": "npm install --workspaces",
+    "start": "npm run dev --workspace=server"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC"
+}
