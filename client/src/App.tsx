@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
-
+import { Sidebar, ChannelSidebar, Chat, MemberList } from "./Components";
 interface User {
   id: number;
   name: string;
@@ -19,16 +19,24 @@ function App() {
   }, [API_URL]);
 
   return (
-    <div className="flex flex-col items-center p-4">
-      <h1 className="text-4xl font-bold mb-4">Users</h1>
-      <ul className="list-disc pl-8">
-        {users.map((user) => (
-          <li key={user.id} className="py-2">
-            {user.name}
-          </li>
-        ))}
-      </ul>
-    </div>
+    <>
+      <div className="flex h-screen">
+        <Sidebar />
+        <ChannelSidebar />
+        <Chat />
+        <MemberList />
+      </div>
+      {/* <div className="flex flex-col items-center p-4">
+        <h1 className="text-4xl font-bold mb-4">Users</h1>
+        <ul className="list-disc pl-8">
+          {users.map((user) => (
+            <li key={user.id} className="py-2">
+              {user.name}
+            </li>
+          ))}
+        </ul>
+      </div> */}
+    </>
   );
 }
 export default App;
