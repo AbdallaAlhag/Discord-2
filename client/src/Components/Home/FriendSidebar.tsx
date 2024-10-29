@@ -1,4 +1,5 @@
 import { Users, Plus } from "lucide-react";
+import SettingsButton from "../Profile/SettingsButton";
 
 interface DirectMessage {
   id: string;
@@ -102,6 +103,7 @@ export default function Sidebar() {
           <div className="text-white text-sm font-medium">User</div>
           <div className="text-[#b9bbbe] text-xs">#0001</div>
         </div>
+        <SettingsButton />
       </div>
     </div>
   );

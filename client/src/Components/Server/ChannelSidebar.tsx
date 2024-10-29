@@ -1,4 +1,6 @@
-import { Hash, Settings } from "lucide-react";
+import { Hash } from "lucide-react";
+import SettingsButton from "../Profile/SettingsButton";
+
 const ChannelSidebar: React.FC = () => {
   return (
     <div className="w-60 bg-[#2f3136] flex flex-col">
@@ -23,7 +25,7 @@ const ChannelSidebar: React.FC = () => {
           <div className="text-white text-sm font-medium">User</div>
           <div className="text-[#b9bbbe] text-xs">#0001</div>
         </div>
-        <Settings className="w-5 h-5 text-[#b9bbbe] cursor-pointer" />
+        <SettingsButton />
       </div>
     </div>
   );
