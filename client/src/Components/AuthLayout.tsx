@@ -1,4 +1,5 @@
-import { DiscIcon } from 'lucide-react';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faDiscord } from '@fortawesome/free-brands-svg-icons'; // For brand icons
 
 interface AuthLayoutProps {
   children: React.ReactNode;
@@ -27,7 +28,7 @@ export function AuthLayout({ children }: AuthLayoutProps) {
 
       {/* Logo */}
       <div className="absolute top-8 left-8">
-        <DiscIcon className="w-8 h-8 text-white" />
+      <FontAwesomeIcon icon={faDiscord} className="w-8 h-8 text-white" />
       </div>
 
       {/* Content */}
