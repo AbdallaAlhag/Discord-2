@@ -1,5 +1,5 @@
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faDiscord } from '@fortawesome/free-brands-svg-icons'; // For brand icons
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faDiscord } from "@fortawesome/free-brands-svg-icons"; // For brand icons
 
 interface AuthLayoutProps {
   children: React.ReactNode;
@@ -15,12 +15,12 @@ export function AuthLayout({ children }: AuthLayoutProps) {
             key={i}
             className="absolute rounded-full bg-white/10 animate-float"
             style={{
-              width: Math.random() * 100 + 20 + 'px',
-              height: Math.random() * 100 + 20 + 'px',
-              left: Math.random() * 100 + '%',
-              top: Math.random() * 100 + '%',
-              animationDelay: Math.random() * 5 + 's',
-              animationDuration: Math.random() * 10 + 10 + 's',
+              width: Math.random() * 100 + 20 + "px",
+              height: Math.random() * 100 + 20 + "px",
+              left: Math.random() * 100 + "%",
+              top: Math.random() * 100 + "%",
+              animationDelay: Math.random() * 5 + "s",
+              animationDuration: Math.random() * 10 + 10 + "s",
             }}
           />
         ))}
@@ -28,7 +28,7 @@ export function AuthLayout({ children }: AuthLayoutProps) {
 
       {/* Logo */}
       <div className="absolute top-8 left-8">
-      <FontAwesomeIcon icon={faDiscord} className="w-8 h-8 text-white" />
+        <FontAwesomeIcon icon={faDiscord} className="w-8 h-8 text-white" />
       </div>
 
       {/* Content */}

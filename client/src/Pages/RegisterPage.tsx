@@ -1,22 +1,66 @@
 import React, { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { AuthLayout, AuthButton, AuthInput } from "../Components";
+import axios from "axios";
 
 export function RegisterPage() {
   const [formData, setFormData] = useState({
     email: "",
-    displayName: "",
     username: "",
     password: "",
+    confirmPassword: "",
     month: "",
     day: "",
     year: "",
   });
+  const [error, setError] = useState<string | null>(null);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const navigate = useNavigate();
+  const baseURL = import.meta.env.VITE_API_BASE_URL;
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // Handle registration logic here
-    console.log("Register:", formData);
+    setError(null); // Clear any existing errors
+
+    const { username, email, password, confirmPassword } = formData;
+
+    if (!username || !email || !password || !confirmPassword) {
+      setError("Please fill in all fields");
+      return;
+    }
+
+    const date = new Date(`${formData.year}-${formData.month}-${formData.day}`);
+    if (date.getTime() > Date.now() - 1000 * 60 * 60 * 24 * 365 * 13) {
+      setError("You must be at least 13 years old to register");
+      return;
+    }
+    if (password !== confirmPassword) {
+      setError("Passwords do not match");
+      return;
+    }
+
+    try {
+      const res = await axios.post(`${baseURL}/auth/register`, {
+        username,
+        email,
+        password,
+        confirmPassword,
+      });
+
+      if (res.status === 200) {
+        navigate("/login", { replace: true });
+      } else {
+        setError("Sign-up failed. Please try again.");
+      }
+    } catch (err) {
+      if (axios.isAxiosError(err) && err.response) {
+        setError(
+          err.response.data.message || "Sign-up failed. Please try again."
+        );
+      } else {
+        setError("An unexpected error occurred. Please try again.");
+      }
+    }
   };
 
   return (
@@ -26,7 +70,14 @@ export function RegisterPage() {
           <h1 className="text-2xl font-bold text-white mb-6">
             Create an account
           </h1>
-
+          {error && (
+            <div
+              className="mb-4 bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative"
+              role="alert"
+            >
+              <span className="block sm:inline">{error}</span>
+            </div>
+          )}
           <form onSubmit={handleSubmit}>
             <AuthInput
               label="Email"
@@ -39,15 +90,6 @@ export function RegisterPage() {
             />
 
             <AuthInput
-              label="Display Name"
-              type="text"
-              value={formData.displayName}
-              onChange={(e) =>
-                setFormData({ ...formData, displayName: e.target.value })
-              }
-            />
-
-            <AuthInput
               label="Username"
               type="text"
               required
@@ -55,6 +97,7 @@ export function RegisterPage() {
               onChange={(e) =>
                 setFormData({ ...formData, username: e.target.value })
               }
+              autoComplete="username"
             />
 
             <AuthInput
@@ -65,6 +108,17 @@ export function RegisterPage() {
               onChange={(e) =>
                 setFormData({ ...formData, password: e.target.value })
               }
+              autoComplete="new-password"
+            />
+            <AuthInput
+              label="Confirm Password"
+              type="password"
+              required
+              value={formData.confirmPassword}
+              onChange={(e) =>
+                setFormData({ ...formData, confirmPassword: e.target.value })
+              }
+              autoComplete="new-password"
             />
 
             <div className="mb-6">
@@ -141,12 +195,12 @@ export function RegisterPage() {
             <AuthButton type="submit">Continue</AuthButton>
 
             <p className="mt-4 text-sm text-gray-400">
-              By registering, you agree to Discord's{" "}
-              <a href="#" className="text-blue-500 hover:underline">
+              By registering, you agree to Discord-2's{" "}
+              <a className="text-blue-500 hover:underline cursor-pointer">
                 Terms of Service
               </a>{" "}
               and{" "}
-              <a href="#" className="text-blue-500 hover:underline">
+              <a className="text-blue-500 hover:underline cursor-pointer">
                 Privacy Policy
               </a>
               .

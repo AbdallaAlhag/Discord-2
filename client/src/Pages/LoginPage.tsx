@@ -1,18 +1,77 @@
 import React, { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { QrCode } from "lucide-react";
 import { AuthLayout, AuthButton, AuthInput } from "../Components";
+import axios from "axios";
 
 export function LoginPage() {
   const [formData, setFormData] = useState({
     email: "",
     password: "",
   });
+  const [error, setError] = useState<string | null>(null);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const navigate = useNavigate();
+  const baseURL = import.meta.env.VITE_API_BASE_URL;
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // Handle login logic here
-    console.log("Login:", formData);
+    setError(null); // Clear any existing errors
+
+    if (!formData.email || !formData.password) {
+      setError("Please fill in all fields");
+      return;
+    }
+
+    try {
+      const res = await axios.post(`${baseURL}/auth/login`, {
+        email: formData.email,
+        password: formData.password,
+      });
+      if (res.status === 200) {
+        const token = res.data.token;
+        localStorage.setItem("token", token);
+        navigate("/", { replace: true });
+      } else {
+        setError("Login failed. Please try again.");
+      }
+    } catch (err) {
+      if (axios.isAxiosError(err) && err.response) {
+        setError(
+          err.response.data.message || "Login failed. Please try again."
+        );
+      } else {
+        setError("An unexpected error occurred. Please try again.");
+      }
+    }
+  };
+
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const handleGuestLogin = () => {
+    // Here you would handle guest login logic
+    // console.log('Guest login attempted');
+    axios
+      .post(`${baseURL}/auth/login/guest`, {})
+      // .post(`${baseURL}/auth/login/guest`, { username, password })
+      .then((res) => {
+        if (res.status === 200) {
+          // Successfully logged in
+          // Assuming the server returns a token in the response
+          const token = res.data.token;
+
+          // Save token to localStorage
+          localStorage.setItem("token", token); // Or use sessionStorage or cookies
+
+          navigate("/", { replace: true });
+        } else {
+          setError("Guest login failed. Please try again.");
+          console.log("Login failed");
+        }
+      })
+      .catch((err) => {
+        console.log("Login failed", err);
+        setError("Guest login failed. Please try again.");
+      });
   };
 
   return (
@@ -26,7 +85,14 @@ export function LoginPage() {
             <p className="text-gray-400 mb-6">
               We're so excited to see you again!
             </p>
-
+            {error && (
+              <div
+                className="mb-4 bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative"
+                role="alert"
+              >
+                <span className="block sm:inline">{error}</span>
+              </div>
+            )}
             <form onSubmit={handleSubmit}>
               <AuthInput
                 label="Email or Phone Number"
@@ -36,6 +102,7 @@ export function LoginPage() {
                 onChange={(e) =>
                   setFormData({ ...formData, email: e.target.value })
                 }
+                autoComplete="email"
               />
 
               <AuthInput
@@ -46,6 +113,7 @@ export function LoginPage() {
                 onChange={(e) =>
                   setFormData({ ...formData, password: e.target.value })
                 }
+                autoComplete="current-password"
               />
 
               <a
@@ -74,7 +142,7 @@ export function LoginPage() {
               Log in with QR Code
             </h2>
             <p className="text-gray-400">
-              Scan this with the Discord mobile app to log in instantly.
+              Scan this with the Discord-2 mobile app to log in instantly.
             </p>
           </div>
         </div>

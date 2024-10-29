@@ -9,7 +9,7 @@ const router: Router = express.Router();
 
 // router.post('/signup', signupValidationRules, validateSignup, signUp);
 
-router.post('/signup', (req: Request, res: Response, next: NextFunction) => {
+router.post('/register', (req: Request, res: Response, next: NextFunction) => {
     signUp(req, res, next);
   });
 
