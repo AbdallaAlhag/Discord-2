@@ -1,29 +1,64 @@
 import { MessageSquare, Phone, Video, MoreVertical } from "lucide-react";
+import axios from "axios";
+import { useEffect, useMemo, useState } from "react";
+import { useAuth } from "../../AuthContext";
 
 export function FriendsList() {
-  const friends = [
-    {
-      id: 1,
-      name: "viperndgrass",
-      status: "Online",
-      activity: "Playing Valorant",
-    },
-    {
-      id: 2,
-      name: "Admiral Audacious",
-      status: "Online",
-      activity: "In Voice Channel",
-    },
-    {
-      id: 3,
-      name: "Ethanqg",
-      status: "Online",
-      activity: "Visual Studio Code",
-    },
-    { id: 4, name: "Abwbkr Alhag", status: "Online", activity: "Spotify" },
-    { id: 5, name: "aotmika", status: "Online", activity: "League of Legends" },
-    { id: 6, name: "qwertea", status: "Online", activity: "In Voice Channel" },
-  ];
+  const [friends, setFriends] = useState<
+    { id: number; name: string; activity: string }[]
+  >([]);
+  const { userId } = useAuth();
+  const API_URL = import.meta.env.VITE_API_BASE_URL;
+  const testFriends = useMemo(
+    () => [
+      {
+        id: 1,
+        name: "viperndgrass",
+        status: "Online",
+        activity: "Playing Valorant",
+      },
+      {
+        id: 2,
+        name: "Admiral Audacious",
+        status: "Online",
+        activity: "In Voice Channel",
+      },
+      {
+        id: 3,
+        name: "Ethanqg",
+        status: "Online",
+        activity: "Visual Studio Code",
+      },
+      { id: 4, name: "Abwbkr Alhag", status: "Online", activity: "Spotify" },
+      {
+        id: 5,
+        name: "aotmika",
+        status: "Online",
+        activity: "League of Legends",
+      },
+      {
+        id: 6,
+        name: "qwertea",
+        status: "Online",
+        activity: "In Voice Channel",
+      },
+    ],
+    []
+  );
+
+  useEffect(() => {
+    const fetchFriends = async () => {
+      if (!userId) return;
+      try {
+        const response = await axios.get(`${API_URL}/friends/${userId}`);
+        setFriends(response.data.length > 0 ? response.data : testFriends);
+      } catch (err) {
+        console.log("Error fetching friends ", err);
+        setFriends(testFriends);
+      }
+    };
+    fetchFriends();
+  }, [API_URL, testFriends, userId]);
 
   return (
     <div className="flex-1 overflow-y-auto">

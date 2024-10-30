@@ -35,6 +35,36 @@ export const getChannels = async (userId: number) => {
     throw error;
   }
 };
+
+export const getFriends = async (userId: number) => {
+  try {
+    // Retrieve friends where the user is the initiator or recipient in the Friend relationship
+    const userWithFriends = await prisma.user.findUnique({
+      where: { id: userId },
+      include: {
+        friends: {
+          include: { friend: true }, // Include details about the friend
+        },
+        friendOf: {
+          include: { user: true }, // Include details about the friend
+        },
+      },
+    });
+
+    // Format the response to combine both friend lists
+    const friendsList = [
+      ...(userWithFriends?.friends.map((f) => f.friend) || []),
+      ...(userWithFriends?.friendOf.map((f) => f.user) || []),
+    ];
+
+    // console.log("friendsList", friendsList);
+    return friendsList;
+  } catch (error) {
+    console.error("Error fetching friends:", error);
+    throw error;
+  }
+};
+
 export const getMessages = async (channelId: number) =>
   await prisma.message.findMany({
     where: { channelId },

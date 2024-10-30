@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { MessageSquare, Plus } from "lucide-react";
 import axios from "axios";
 import { useAuth } from "../AuthContext";
+import { Link } from "react-router-dom";
 
 interface Server {
   id: number;
@@ -25,9 +26,11 @@ const ServerSidebar: React.FC = () => {
 
   return (
     <div className="w-[72px] bg-[#202225] flex flex-col items-center py-3 space-y-2">
-      <div className="w-12 h-12 bg-[#36393f] rounded-[24px] hover:rounded-[16px] transition-all duration-200 flex items-center justify-center cursor-pointer">
-        <MessageSquare className="w-6 h-6 text-[#dcddde]" />
-      </div>
+      <Link to='/'>
+        <div className="w-12 h-12 bg-[#36393f] rounded-[24px] hover:rounded-[16px] transition-all duration-200 flex items-center justify-center cursor-pointer">
+          <MessageSquare className="w-6 h-6 text-[#dcddde]" />
+        </div>
+      </Link>
       <div className="w-12 h-[2px] bg-[#36393f] rounded-full" />
       {server?.length > 0 &&
         server.map((serv: Server) => (

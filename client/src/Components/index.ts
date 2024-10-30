@@ -1,6 +1,6 @@
 import ActiveNow from "./Home/ActiveNow";
 import ChannelSidebar from "./Server/ChannelSidebar";
-import Chat from "./Server/Chat";
+import Chat from "./Chat";
 import FriendSidebar from "./Home/FriendSidebar";
 import { FriendsList } from "./Home/FriendsList";
 import FriendsNavBar from "./Home/FriendsNavBar";

@@ -10,6 +10,10 @@ interface DirectMessage {
   memberCount?: number;
 }
 
+interface FriendSidebarProps {
+  toggleChatSection: (id: number | null) => void;
+}
+
 const directMessages: DirectMessage[] = [
   { id: "1", name: "viperndgrass", avatar: "🎮", status: "online" },
   { id: "2", name: "Admiral Audacious", avatar: "👤", status: "online" },
@@ -44,7 +48,9 @@ function StatusIndicator({ status }: { status: DirectMessage["status"] }) {
   );
 }
 
-export default function Sidebar() {
+export default function FriendSidebar({
+  toggleChatSection,
+}: FriendSidebarProps) {
   return (
     <div className="w-60 bg-[#2f3136] flex flex-col">
       <div className="h-12 shadow-md flex items-center px-4">
@@ -57,7 +63,10 @@ export default function Sidebar() {
 
       <div className="flex-1 overflow-y-auto space-y-2 pt-4">
         <div className="px-2">
-          <button className="w-full flex items-center px-2 py-1 text-[#dcddde] hover:bg-[#42464D] rounded group">
+          <button
+            className="w-full flex items-center px-2 py-1 text-[#dcddde] hover:bg-[#42464D] rounded group"
+            onClick={() => toggleChatSection(null)}
+          >
             <Users className="w-5 h-5 mr-4" />
             <span className="text-sm">Friends</span>
           </button>
