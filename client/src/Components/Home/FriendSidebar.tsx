@@ -1,5 +1,8 @@
 import { Users, Plus } from "lucide-react";
 import SettingsButton from "../Profile/SettingsButton";
+import { useAuth } from "@/AuthContext";
+import axios from "axios";
+import { useState, useEffect } from "react";
 
 interface DirectMessage {
   id: string;
@@ -51,6 +54,22 @@ function StatusIndicator({ status }: { status: DirectMessage["status"] }) {
 export default function FriendSidebar({
   toggleChatSection,
 }: FriendSidebarProps) {
+  const [friends, setFriends] = useState<DirectMessage[]>([]);
+  const { userId } = useAuth();
+  const API_URL = import.meta.env.VITE_API_BASE_URL;
+  useEffect(() => {
+    const fetchFriends = async () => {
+      if (!userId) return;
+      try {
+        const response = await axios.get(`${API_URL}/friends/${userId}`);
+        setFriends(response.data.length > 0 ? response.data : directMessages);
+      } catch (err) {
+        console.log("Error fetching friends ", err);
+        setFriends(directMessages);
+      }
+    };
+    fetchFriends();
+  }, [API_URL, userId]);
   return (
     <div className="w-60 bg-[#2f3136] flex flex-col">
       <div className="h-12 shadow-md flex items-center px-4">
@@ -81,7 +100,7 @@ export default function FriendSidebar({
           </div>
 
           <div className="mt-2 space-y-0.5">
-            {directMessages.map((dm) => (
+            {friends.map((dm) => (
               <button
                 key={dm.id}
                 className="w-full flex items-center px-2 py-1 text-[#96989d] hover:text-[#dcddde] hover:bg-[#42464D] rounded group"
