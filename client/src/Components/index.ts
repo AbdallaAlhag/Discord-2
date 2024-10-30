@@ -5,7 +5,7 @@ import FriendSidebar from "./Home/FriendSidebar";
 import { FriendsList } from "./Home/FriendsList";
 import FriendsNavBar from "./Home/FriendsNavBar";
 import MemberList from "./Server/MemberList";
-import Sidebar from "./Sidebar";
+import ServerSidebar from "./ServerSidebar";
 import { AuthButton } from "./Auth/AuthButton";
 import { AuthInput } from "./Auth/AuthInput";
 import { AuthLayout } from "./Auth/AuthLayout";
@@ -20,7 +20,7 @@ export {
   FriendsList,
   FriendsNavBar,
   MemberList,
-  Sidebar,
+  ServerSidebar,
   AuthButton,
   AuthInput,
   AuthLayout,

@@ -3,6 +3,7 @@ import dotenv from "dotenv";
 import prisma from "./db/prisma";
 import cors from "cors";
 import authRouter from "./Routes/AuthRouter";
+import appRouter from "./Routes/AppRouter";
 import { errorHandler } from "./Middleware/ErrorHandler"; // Import your error handler
 import passport from "./Auth/passportConfig";
 
@@ -18,7 +19,6 @@ app.use(
   })
 );
 app.use(passport.initialize()); // Initialize passport middleware
-app.use(errorHandler);
 
 app.use((req, res, next) => {
   res.setHeader("Access-Control-Allow-Origin", "*");
@@ -46,18 +46,11 @@ process.on("SIGTERM", async () => {
   process.exit(0);
 });
 
-//  FIX these two routes
-app.get("/", (req, res) => {
-  res.send("Hello from the API");
-});
-
-app.get("/users", async (req, res) => {
-  const users = await prisma.user.findMany();
-  res.json(users);
-});
+app.use("/", appRouter);
 
 app.use("/auth", authRouter);
 
+app.use(errorHandler);
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
   console.log(`Server running on http://localhost:${PORT}`);

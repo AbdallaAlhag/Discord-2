@@ -3,6 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { QrCode } from "lucide-react";
 import { AuthLayout, AuthButton, AuthInput } from "../Components";
 import axios from "axios";
+import { useAuth } from "../AuthContext";
 
 export function LoginPage() {
   const [formData, setFormData] = useState({
@@ -13,6 +14,7 @@ export function LoginPage() {
 
   const navigate = useNavigate();
   const baseURL = import.meta.env.VITE_API_BASE_URL;
+  const { setUserId } = useAuth();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -31,6 +33,9 @@ export function LoginPage() {
       if (res.status === 200) {
         const token = res.data.token;
         localStorage.setItem("token", token);
+        localStorage.setItem("userId", res.data.user.id);
+        setUserId(res.data.user.id);
+
         navigate("/", { replace: true });
       } else {
         setError("Login failed. Please try again.");
@@ -46,33 +51,32 @@ export function LoginPage() {
     }
   };
 
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const handleGuestLogin = () => {
-    // Here you would handle guest login logic
-    // console.log('Guest login attempted');
-    axios
-      .post(`${baseURL}/auth/login/guest`, {})
-      // .post(`${baseURL}/auth/login/guest`, { username, password })
-      .then((res) => {
-        if (res.status === 200) {
-          // Successfully logged in
-          // Assuming the server returns a token in the response
-          const token = res.data.token;
+  // const handleGuestLogin = () => {
+  //   // Here you would handle guest login logic
+  //   // console.log('Guest login attempted');
+  //   axios
+  //     .post(`${baseURL}/auth/login/guest`, {})
+  //     // .post(`${baseURL}/auth/login/guest`, { username, password })
+  //     .then((res) => {
+  //       if (res.status === 200) {
+  //         // Successfully logged in
+  //         // Assuming the server returns a token in the response
+  //         const token = res.data.token;
 
-          // Save token to localStorage
-          localStorage.setItem("token", token); // Or use sessionStorage or cookies
+  //         // Save token to localStorage
+  //         localStorage.setItem("token", token); // Or use sessionStorage or cookies
 
-          navigate("/", { replace: true });
-        } else {
-          setError("Guest login failed. Please try again.");
-          console.log("Login failed");
-        }
-      })
-      .catch((err) => {
-        console.log("Login failed", err);
-        setError("Guest login failed. Please try again.");
-      });
-  };
+  //         navigate("/", { replace: true });
+  //       } else {
+  //         setError("Guest login failed. Please try again.");
+  //         console.log("Login failed");
+  //       }
+  //     })
+  //     .catch((err) => {
+  //       console.log("Login failed", err);
+  //       setError("Guest login failed. Please try again.");
+  //     });
+  // };
 
   return (
     <AuthLayout>

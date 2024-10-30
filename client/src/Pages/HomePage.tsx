@@ -1,5 +1,5 @@
 import {
-  Sidebar,
+  ServerSidebar,
   FriendsNavBar,
   FriendsList,
   ActiveNow,
@@ -8,7 +8,7 @@ import {
 function HomePage() {
   return (
     <div className="flex h-screen">
-      <Sidebar />
+      <ServerSidebar />
       <FriendSidebar />
       <div className="flex-1 bg-[#36393f] flex flex-col">
         <FriendsNavBar />
