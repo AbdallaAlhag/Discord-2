@@ -22,12 +22,13 @@ model User {
   createdAt DateTime @default(now())
 
   // Relationships
-  memberships ServerMember[]
-  messages    Message[]
-  reactions   Reaction[]
-
-  friends  Friend[] @relation("UserFriends") // Friends where the user is the initiator
-  friendOf Friend[] @relation("FriendUsers") // Friends where the user is the recipient
+  memberships      ServerMember[]
+  sentMessages     Message[]      @relation("MessageSender")
+  receivedMessages Message[]      @relation("MessageRecipient")
+  reactions        Reaction[]
+  friends          Friend[]       @relation("UserFriends")
+  friendOf         Friend[]       @relation("FriendUsers")
+  permissions      Permission[]
 }
 
 model Server {
@@ -37,9 +38,10 @@ model Server {
   createdAt DateTime @default(now())
 
   // Relationships
-  channels Channel[]
-  members  ServerMember[]
-  Role     Role[]
+  channels    Channel[]
+  members     ServerMember[]
+  roles       Role[]
+  permissions Permission[]
 }
 
 model ServerMember {
@@ -47,21 +49,21 @@ model ServerMember {
   userId   Int
   serverId Int
   joinedAt DateTime @default(now())
+  roleId   Int?
 
   // Relationships
   user   User   @relation(fields: [userId], references: [id])
   server Server @relation(fields: [serverId], references: [id])
-  Role   Role?  @relation(fields: [roleId], references: [id])
-  roleId Int?
+  role   Role?  @relation(fields: [roleId], references: [id])
 
-  @@unique([userId, serverId]) // Ensures a user can't join the same server twice
+  @@unique([userId, serverId])
 }
 
 model Channel {
   id        Int      @id @default(autoincrement())
   serverId  Int
   name      String
-  isVoice   Boolean  @default(false) // Boolean to distinguish between text and voice channels
+  isVoice   Boolean  @default(false)
   createdAt DateTime @default(now())
 
   // Relationships
@@ -70,17 +72,24 @@ model Channel {
 }
 
 model Message {
-  id        Int      @id @default(autoincrement())
-  content   String
-  createdAt DateTime @default(now())
-  channelId Int
-  userId    Int
+  id          Int         @id @default(autoincrement())
+  content     String
+  createdAt   DateTime    @default(now())
+  channelId   Int? // Nullable for private messages
+  userId      Int
+  recipientId Int? // Nullable for channel messages
+  messageType MessageType // Using enum instead of String
 
   // Relationships
-  user    User    @relation(fields: [userId], references: [id])
-  channel Channel @relation(fields: [channelId], references: [id])
-
+  user      User       @relation("MessageSender", fields: [userId], references: [id])
+  recipient User?      @relation("MessageRecipient", fields: [recipientId], references: [id])
+  channel   Channel?   @relation(fields: [channelId], references: [id])
   reactions Reaction[]
+}
+
+enum MessageType {
+  CHANNEL
+  PRIVATE
 }
 
 model Friend {
@@ -105,22 +114,28 @@ model Reaction {
   message Message @relation(fields: [messageId], references: [id])
   user    User    @relation(fields: [userId], references: [id])
 
-  @@unique([userId, messageId, emoji]) // Ensures a user can only react with a given emoji once per message
+  @@unique([userId, messageId, emoji])
 }
 
 model Role {
-  id           Int            @id @default(autoincrement())
-  name         String
-  serverId     Int // Assuming a server ID is needed
-  server       Server         @relation(fields: [serverId], references: [id])
-  permissions  Permission[] // Assuming permissions are another model
-  ServerMember ServerMember[]
+  id       Int    @id @default(autoincrement())
+  name     String
+  serverId Int
+
+  // Relationships
+  server        Server         @relation(fields: [serverId], references: [id])
+  permissions   Permission[]
+  serverMembers ServerMember[]
 }
 
 model Permission {
-  id       Int  @id @default(autoincrement())
+  id       Int @id @default(autoincrement())
   serverId Int
   userId   Int
   roleId   Int
-  role     Role @relation(fields: [roleId], references: [id])
+
+  // Relationships
+  role   Role   @relation(fields: [roleId], references: [id])
+  server Server @relation(fields: [serverId], references: [id])
+  user   User   @relation(fields: [userId], references: [id])
 }

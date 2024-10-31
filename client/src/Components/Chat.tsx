@@ -1,8 +1,51 @@
-import { Hash, Bell, Pin, Users, Search, Plus, Gift, ImagePlus, Smile } from "lucide-react";
-import { useState } from "react";
+import {
+  Hash,
+  Bell,
+  Pin,
+  Users,
+  Search,
+  Plus,
+  Gift,
+  ImagePlus,
+  Smile,
+} from "lucide-react";
+import { useEffect, useState } from "react";
+import { io } from "socket.io-client";
+
+// Define the types for the message
+interface Message {
+  id: number;
+  content: string;
+}
+
+const VITE_API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+
+const socket = io(VITE_API_BASE_URL); // Adjust this URL based on your server setup
 
 const Chat: React.FC = function () {
   const [message, setMessage] = useState("");
+  const [messages, setMessages] = useState<Message[]>([]);
+  const [channelId, setChannelId] = useState(0);
+  
+  // Effect to listen for incoming messages
+  useEffect(() => {
+    socket.on("receiveMessage", (newMessage: Message) => {
+      setMessages((prevMessages) => [...prevMessages, newMessage]);
+    });
+
+    // Cleanup the event listener on component unmount
+    return () => {
+      socket.off("receiveMessage");
+    };
+  }, []);
+
+  const sendMessage = () => {
+    if (message.trim()) {
+      const newMessage: Message = { id: Date.now(), content: message }; // Create message object
+      socket.emit("sendMessage", newMessage); // Send the message to the server
+      setMessage(""); // Clear the input field
+    }
+  };
 
   return (
     <div className="flex-1 bg-[#36393f] flex flex-col">
@@ -18,16 +61,18 @@ const Chat: React.FC = function () {
       </div>
 
       <div className="flex-1 overflow-y-auto px-4 py-6">
-        <div className="flex items-start mb-6">
-          <div className="w-10 h-10 rounded-full bg-[#2f3136] mr-4"></div>
-          <div>
-            <div className="flex items-center">
-              <span className="text-white font-medium mr-2">User</span>
-              <span className="text-xs text-[#72767d]">Today at 12:00 PM</span>
+        {messages.map((msg) => (
+          <div className="flex items-start mb-6" key={msg.id}>
+            <div className="w-10 h-10 rounded-full bg-[#2f3136] mr-4"></div>
+            <div>
+              <div className="flex items-center">
+                <span className="text-white font-medium mr-2">User</span>
+                <span className="text-xs text-[#72767d]">Just now</span>
+              </div>
+              <p className="text-[#dcddde] mt-1">{msg.content}</p>
             </div>
-            <p className="text-[#dcddde] mt-1">Welcome to Discord Clone! 👋</p>
           </div>
-        </div>
+        ))}
       </div>
 
       <div className="px-4 pb-6">
@@ -37,6 +82,11 @@ const Chat: React.FC = function () {
             type="text"
             value={message}
             onChange={(e) => setMessage(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === "Enter") {
+                sendMessage(); // Send message on Enter key press
+              }
+            }}
             placeholder="Message #general"
             className="flex-1 bg-transparent text-[#dcddde] placeholder-[#72767d] outline-none"
           />
@@ -47,6 +97,6 @@ const Chat: React.FC = function () {
       </div>
     </div>
   );
-}
+};
 
 export default Chat;

@@ -5,7 +5,7 @@ import axios from "axios";
 import { useState, useEffect } from "react";
 
 interface DirectMessage {
-  id: string;
+  id: number;
   name: string;
   avatar: string;
   status: "online" | "offline" | "idle" | "dnd";
@@ -18,22 +18,22 @@ interface FriendSidebarProps {
 }
 
 const directMessages: DirectMessage[] = [
-  { id: "1", name: "viperndgrass", avatar: "🎮", status: "online" },
-  { id: "2", name: "Admiral Audacious", avatar: "👤", status: "online" },
-  { id: "3", name: "Ethanqg", avatar: "💻", status: "offline" },
-  { id: "4", name: "Abwbkr Alhag", avatar: "🎯", status: "idle" },
+  { id: 1, name: "viperndgrass", avatar: "🎮", status: "online" },
+  { id: 2, name: "Admiral Audacious", avatar: "👤", status: "online" },
+  { id: 3, name: "Ethanqg", avatar: "💻", status: "offline" },
+  { id: 4, name: "Abwbkr Alhag", avatar: "🎯", status: "idle" },
   {
-    id: "5",
+    id: 5,
     name: "LeetCode",
     avatar: "📚",
     status: "online",
     isGroup: true,
     memberCount: 5,
   },
-  { id: "6", name: "aj", avatar: "🎮", status: "dnd" },
-  { id: "7", name: "aotmika", avatar: "🎨", status: "online" },
-  { id: "8", name: "SamFieri", avatar: "🔥", status: "offline" },
-  { id: "9", name: "qwertea", avatar: "☕", status: "online" },
+  { id: 6, name: "aj", avatar: "🎮", status: "dnd" },
+  { id: 7, name: "aotmika", avatar: "🎨", status: "online" },
+  { id: 8, name: "SamFieri", avatar: "🔥", status: "offline" },
+  { id: 9, name: "qwertea", avatar: "☕", status: "online" },
 ];
 
 function StatusIndicator({ status }: { status: DirectMessage["status"] }) {
@@ -104,6 +104,7 @@ export default function FriendSidebar({
               <button
                 key={dm.id}
                 className="w-full flex items-center px-2 py-1 text-[#96989d] hover:text-[#dcddde] hover:bg-[#42464D] rounded group"
+                onClick={() => toggleChatSection(dm.id)}
               >
                 <div className="w-8 h-8 rounded-full bg-[#36393f] flex items-center justify-center relative mr-3">
                   <span>{dm.avatar}</span>

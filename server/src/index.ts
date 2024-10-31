@@ -4,21 +4,48 @@ import prisma from "./db/prisma";
 import cors from "cors";
 import authRouter from "./Routes/AuthRouter";
 import appRouter from "./Routes/AppRouter";
-import { errorHandler } from "./Middleware/ErrorHandler"; // Import your error handler
+import chatRouter from "./Routes/ChatRouter"; // Import chatRouter
+import { errorHandler } from "./Middleware/ErrorHandler";
 import passport from "./Auth/passportConfig";
+import http from "http";
+import { Server } from "socket.io";
 
 dotenv.config();
 
 const app = express();
+const PORT = process.env.PORT || 3000;
+
+// socket.io setup
+const server = http.createServer(app); // Create HTTP server with Express app
+// Socket.IO cors Configuration: Added CORS settings specifically for the Socket.IO instance, targeting http://localhost:5173 (the default for Vite) to avoid connection issues.
+
+const io = new Server(server, {
+  cors: {
+    origin: "http://localhost:5173", // Client origin for CORS policy
+    methods: ["GET", "POST"],
+  },
+});
+
+io.on("connection", (socket) => {
+  console.log("A user connected");
+
+  socket.on("chat message", (msg) => {
+    io.emit("chat message", msg); // Broadcast message to all clients
+  });
+
+  socket.on("disconnect", () => {
+    console.log("A user disconnected");
+  });
+});
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(
   cors({
-    origin: "http://localhost:5173", // or use '*' to allow all origins (not recommended for production)
+    origin: "http://localhost:5173", // Client origin for CORS policy
   })
 );
-app.use(passport.initialize()); // Initialize passport middleware
+app.use(passport.initialize());
 
 app.use((req, res, next) => {
   res.setHeader("Access-Control-Allow-Origin", "*");
@@ -27,31 +54,27 @@ app.use((req, res, next) => {
   next();
 });
 
-// The following code is for handling graceful shutdowns of the server
-// We use these events to disconnect from the database before the process exits
-// This is important because Prisma will otherwise throw an error when the process
-// is killed, as it will not be able to properly disconnect from the database.
+// Set up routing and middleware
+app.use("/", appRouter);
+app.use("/auth", authRouter);
+app.use("/chat", chatRouter); // Add the chat router
+app.use(errorHandler);
 
-// Handle SIGINT (e.g. Ctrl+C in the terminal)
+// Handle graceful shutdowns for Prisma
 process.on("SIGINT", async () => {
   console.log("Received SIGINT, disconnecting from database");
   await prisma.$disconnect();
   process.exit(0);
 });
 
-// Handle SIGTERM (e.g. kill command in the terminal)
 process.on("SIGTERM", async () => {
   console.log("Received SIGTERM, disconnecting from database");
   await prisma.$disconnect();
   process.exit(0);
 });
 
-app.use("/", appRouter);
-
-app.use("/auth", authRouter);
-
-app.use(errorHandler);
-const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => {
+// Start the combined HTTP and WebSocket server
+// Single server.listen Call: We call server.listen(PORT) instead of app.listen, ensuring that both the Express and WebSocket servers are served from the same port.
+server.listen(PORT, () => {
   console.log(`Server running on http://localhost:${PORT}`);
 });
