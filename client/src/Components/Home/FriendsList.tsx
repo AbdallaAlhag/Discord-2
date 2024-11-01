@@ -3,10 +3,21 @@ import axios from "axios";
 import { useEffect, useMemo, useState } from "react";
 import { useAuth } from "../../AuthContext";
 
-export function FriendsList() {
-  const [friends, setFriends] = useState<
-    { id: number; name: string; activity: string }[]
-  >([]);
+interface Friend {
+  id: number;
+  name: string;
+  status: string;
+  activity: string;
+}
+
+interface FriendsListProps {
+  filter: "online" | "all" | "pending" | "blocked";
+}
+
+export function FriendsList({ filter }: FriendsListProps) {
+  const [friends, setFriends] = useState<Friend[]>([]);
+  const [pendingRequests, setPendingRequests] = useState<Friend[]>([]);
+  const [blockedUsers, setBlockedUsers] = useState<Friend[]>([]);
   const { userId } = useAuth();
   const API_URL = import.meta.env.VITE_API_BASE_URL;
   const testFriends = useMemo(
@@ -50,23 +61,59 @@ export function FriendsList() {
     const fetchFriends = async () => {
       if (!userId) return;
       try {
-        const response = await axios.get(`${API_URL}/friends/${userId}`);
-        setFriends(response.data.length > 0 ? response.data : testFriends);
+        const [friendsRes, pendingRes, blockedRes] = await Promise.all([
+          axios.get(`${API_URL}/friends/${userId}`),
+          axios.get(`${API_URL}/friends/pending/${userId}`),
+          axios.get(`${API_URL}/friends/blocked/${userId}`),
+        ]);
+
+        setFriends(friendsRes.data.length > 0 ? friendsRes.data : testFriends);
+        setPendingRequests(pendingRes.data);
+        setBlockedUsers(blockedRes.data);
       } catch (err) {
-        console.log("Error fetching friends ", err);
+        console.log("Error fetching friends data", err);
         setFriends(testFriends);
       }
     };
     fetchFriends();
   }, [API_URL, testFriends, userId]);
 
+  const displayedFriends = () => {
+    switch (filter) {
+      case "online":
+        return friends.filter((f) => f.status === "Online");
+      case "pending":
+        return pendingRequests;
+      case "blocked":
+        return blockedUsers;
+      case "all":
+      default:
+        return friends;
+    }
+  };
+
+  const renderFriendCount = () => {
+    switch (filter) {
+      case "online":
+        return `Online — ${
+          friends.filter((f) => f.status === "Online").length
+        }`;
+      case "pending":
+        return `Pending — ${pendingRequests.length}`;
+      case "blocked":
+        return `Blocked — ${blockedUsers.length}`;
+      case "all":
+        return `All Friends — ${friends.length}`;
+    }
+  };
+
   return (
     <div className="flex-1 overflow-y-auto">
       <div className="px-4 py-2">
         <h2 className="text-[#B9BBBE] text-xs font-semibold uppercase mb-2">
-          Online — {friends.length}
+          {renderFriendCount()}
         </h2>
-        {friends.map((friend) => (
+        {displayedFriends().map((friend) => (
           <div
             key={friend.id}
             className="flex items-center p-2 hover:bg-[#42464D] rounded cursor-pointer group"

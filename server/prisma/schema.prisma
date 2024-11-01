@@ -29,6 +29,10 @@ model User {
   friends          Friend[]       @relation("UserFriends")
   friendOf         Friend[]       @relation("FriendUsers")
   permissions      Permission[]
+
+  // Friend request relations
+  sentRequests     FriendRequest[] @relation("SentRequests")
+  receivedRequests FriendRequest[] @relation("ReceivedRequests")
 }
 
 model Server {
@@ -101,6 +105,18 @@ model Friend {
   friend User @relation("FriendUsers", fields: [friendId], references: [id])
 
   @@unique([userId, friendId])
+}
+
+model FriendRequest {
+  id          Int      @id @default(autoincrement())
+  senderId    Int
+  recipientId Int
+  status      String   @default("PENDING") // PENDING, ACCEPTED, REJECTED
+  createdAt   DateTime @default(now())
+
+  // Relationships
+  sender    User @relation("SentRequests", fields: [senderId], references: [id])
+  recipient User @relation("ReceivedRequests", fields: [recipientId], references: [id])
 }
 
 model Reaction {

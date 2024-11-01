@@ -57,6 +57,7 @@ export default function FriendSidebar({
   const [friends, setFriends] = useState<DirectMessage[]>([]);
   const { userId } = useAuth();
   const API_URL = import.meta.env.VITE_API_BASE_URL;
+
   useEffect(() => {
     const fetchFriends = async () => {
       if (!userId) return;
@@ -70,6 +71,7 @@ export default function FriendSidebar({
     };
     fetchFriends();
   }, [API_URL, userId]);
+
   return (
     <div className="w-60 bg-[#2f3136] flex flex-col">
       <div className="h-12 shadow-md flex items-center px-4">
@@ -104,7 +106,7 @@ export default function FriendSidebar({
               <button
                 key={dm.id}
                 className="w-full flex items-center px-2 py-1 text-[#96989d] hover:text-[#dcddde] hover:bg-[#42464D] rounded group"
-                onClick={() => toggleChatSection(dm.id)}
+                onClick={() => toggleChatSection(dm.id)} // Use user ID to toggle chat room
               >
                 <div className="w-8 h-8 rounded-full bg-[#36393f] flex items-center justify-center relative mr-3">
                   <span>{dm.avatar}</span>

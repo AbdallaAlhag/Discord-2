@@ -4,7 +4,8 @@ import prisma from "./db/prisma";
 import cors from "cors";
 import authRouter from "./Routes/AuthRouter";
 import appRouter from "./Routes/AppRouter";
-import chatRouter from "./Routes/ChatRouter"; // Import chatRouter
+import chatRouter from "./Routes/ChatRouter";
+import friendRouter from "./Routes/FriendRouter";
 import { errorHandler } from "./Middleware/ErrorHandler";
 import passport from "./Auth/passportConfig";
 import http from "http";
@@ -36,6 +37,16 @@ io.on("connection", (socket) => {
   socket.on("disconnect", () => {
     console.log("A user disconnected");
   });
+
+  socket.on("private_message", async ({ content, senderId, recipientId }) => {
+    // Save message in the database
+    const message = await prisma.message.create({
+      data: { content, userId: senderId, recipientId, messageType: "PRIVATE" },
+    });
+
+    // Emit message to the recipient
+    io.to(recipientId.toString()).emit("private_message", message);
+  });
 });
 
 app.use(express.json());
@@ -57,7 +68,8 @@ app.use((req, res, next) => {
 // Set up routing and middleware
 app.use("/", appRouter);
 app.use("/auth", authRouter);
-app.use("/chat", chatRouter); // Add the chat router
+app.use("/chat", chatRouter);
+app.use("/friend", friendRouter);
 app.use(errorHandler);
 
 // Handle graceful shutdowns for Prisma

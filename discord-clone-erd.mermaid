@@ -1,0 +1,88 @@
+erDiagram
+    User {
+        int id PK
+        string username
+        string email
+        string password
+        string avatarUrl
+        datetime createdAt
+    }
+    
+    Server {
+        int id PK
+        string name
+        string iconUrl
+        datetime createdAt
+    }
+    
+    ServerMember {
+        int id PK
+        int userId FK
+        int serverId FK
+        int roleId FK
+        datetime joinedAt
+    }
+    
+    Channel {
+        int id PK
+        int serverId FK
+        string name
+        boolean isVoice
+        datetime createdAt
+    }
+    
+    Message {
+        int id PK
+        string content
+        datetime createdAt
+        int channelId FK
+        int userId FK
+        int recipientId FK
+        enum messageType
+    }
+    
+    Friend {
+        int id PK
+        int userId FK
+        int friendId FK
+    }
+    
+    Reaction {
+        int id PK
+        string emoji
+        int messageId FK
+        int userId FK
+        datetime createdAt
+    }
+    
+    Role {
+        int id PK
+        string name
+        int serverId FK
+    }
+    
+    Permission {
+        int id PK
+        int serverId FK
+        int userId FK
+        int roleId FK
+    }
+
+    User ||--o{ ServerMember : "has"
+    User ||--o{ Message : "sends"
+    User ||--o{ Message : "receives"
+    User ||--o{ Reaction : "creates"
+    User ||--o{ Friend : "has"
+    User ||--o{ Permission : "has"
+    
+    Server ||--o{ ServerMember : "has"
+    Server ||--o{ Channel : "contains"
+    Server ||--o{ Role : "has"
+    Server ||--o{ Permission : "contains"
+    
+    Channel ||--o{ Message : "contains"
+    
+    Message ||--o{ Reaction : "has"
+    
+    Role ||--o{ ServerMember : "assigned to"
+    Role ||--o{ Permission : "has"

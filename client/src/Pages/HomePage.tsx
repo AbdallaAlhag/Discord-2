@@ -7,34 +7,39 @@ import {
   Chat,
 } from "../Components";
 import { useState } from "react";
+
 function HomePage() {
-  const [chatSection, setChatSection] = useState<number | null>(null);
-  const toggleChatSection = (id: number | null) => {
-    if (!id) {
-      setChatSection(null);
-    } else {
-      setChatSection(id);
-    }
+  const [chatId, setChatId] = useState<number | null>(null);
+  const [currentFilter, setCurrentFilter] = useState<
+    "online" | "all" | "pending" | "blocked"
+  >("online");
+
+  const toggleChatId = (id: number | null) => {
+    setChatId(id);
   };
 
   return (
     <div className="flex h-screen">
       <ServerSidebar />
-      {/* pass props to friend sidebar to redirect middle section */}
-      <FriendSidebar toggleChatSection={toggleChatSection} />
-      {!chatSection ? (
+      {/* Pass props to friend sidebar to redirect middle section */}
+      <FriendSidebar toggleChatSection={toggleChatId} />
+
+      {/* Conditional rendering based on chatSection state */}
+      {!chatId ? (
         <>
           <div className="flex-1 bg-[#36393f] flex flex-col">
-            <FriendsNavBar />
-            <FriendsList />
+            <FriendsNavBar
+              currentFilter={currentFilter}
+              setCurrentFilter={setCurrentFilter}
+            />
+            <FriendsList filter={currentFilter} />
           </div>
           <ActiveNow />
         </>
       ) : (
-        <Chat />
+        <Chat friendId={chatId} />
       )}
     </div>
   );
 }
-
 export default HomePage;
