@@ -104,7 +104,7 @@ model Friend {
   user   User @relation("UserFriends", fields: [userId], references: [id])
   friend User @relation("FriendUsers", fields: [friendId], references: [id])
 
-  @@unique([userId, friendId])
+  @@unique([userId, friendId]) // Ensure a user can only be friends with another user once
 }
 
 model FriendRequest {

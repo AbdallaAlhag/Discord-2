@@ -21,10 +21,11 @@ const FriendsNavBar: React.FC<FriendsNavBarProps> = ({
   const API_URL = import.meta.env.VITE_API_BASE_URL;
 
   const sendFriendRequest = async () => {
+    console.log(friendId);
     try {
       await axios.post(`${API_URL}/friends/request`, {
-        senderId: userId,
-        recipientId: friendId,
+        senderId: Number(userId),
+        recipientId: Number(friendId),
       });
       alert("Friend request sent");
       setFriendId("");

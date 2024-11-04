@@ -69,7 +69,7 @@ app.use((req, res, next) => {
 app.use("/", appRouter);
 app.use("/auth", authRouter);
 app.use("/chat", chatRouter);
-app.use("/friend", friendRouter);
+app.use("/friends", friendRouter);
 app.use(errorHandler);
 
 // Handle graceful shutdowns for Prisma

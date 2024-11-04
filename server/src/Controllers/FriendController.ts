@@ -5,21 +5,36 @@ import prisma from "../db/prisma";
 // Send a friend request
 const sendFriendRequest = async (req: Request, res: Response): Promise<any> => {
   const { senderId, recipientId } = req.body;
-
+  console.log(senderId, recipientId);
   try {
+    console.log("flag 1");
     // Check if the friendship already exists
-    const existingFriendship = await prisma.friend.findFirst({
-      where: {
-        OR: [
-          { userId: senderId, friendId: recipientId },
-          { userId: recipientId, friendId: senderId },
-        ],
-      },
-    });
-
-    if (existingFriendship) {
-      return res.status(400).json({ error: "Friendship already exists" });
+    // const existingFriendship = await prisma.friend.findFirst({
+    //   where: {
+    //     OR: [
+    //       { userId: senderId, friendId: recipientId },
+    //       { userId: recipientId, friendId: senderId },
+    //     ],
+    //   },
+    // });
+    try {
+      const existingFriendship = await prisma.friend.findFirst({
+        where: {
+          OR: [
+            { userId: senderId, friendId: recipientId },
+            { userId: recipientId, friendId: senderId },
+          ],
+        },
+      });
+      console.log("Existing friendship:", existingFriendship);
+    } catch (error) {
+      console.error("Error finding friendship:", error);
     }
+
+    console.log("flag 2");
+    // if (existingFriendship) {
+    //   return res.status(400).json({ error: "Friendship already exists" });
+    // }
 
     // Create a new friend request
     const friendRequest = await prisma.friendRequest.create({
@@ -57,4 +72,54 @@ const acceptFriendRequest = async (req: Request, res: Response) => {
   }
 };
 
-export { sendFriendRequest, acceptFriendRequest };
+const declineFriendRequest = async (req: Request, res: Response) => {
+  const { requestId } = req.params;
+
+  try {
+    await prisma.friendRequest.update({
+      where: { id: parseInt(requestId) },
+      data: { status: "DECLINED" },
+    });
+
+    res.status(200).json({ message: "Friend request declined" });
+  } catch (error) {
+    console.error("Error declining friend request:", error);
+    res.status(500).json({ error: "Failed to decline friend request" });
+  }
+};
+
+const getPendingRequests = async (req: Request, res: Response) => {
+  const { userId } = req.params;
+
+  try {
+    const pendingRequests = await prisma.friendRequest.findMany({
+      where: {
+        recipientId: parseInt(userId),
+        status: "PENDING",
+      },
+      include: {
+        sender: {
+          select: { id: true, username: true },
+        },
+      },
+    });
+
+    console.log(pendingRequests);
+    res.status(200).json(pendingRequests);
+
+    // TODO: Sort pending requests by sender's username
+    pendingRequests.sort((a, b) =>
+      a.sender.username.localeCompare(b.sender.username)
+    );
+  } catch (error) {
+    console.error("Error fetching pending requests:", error);
+    res.status(500).json({ error: "Failed to fetch pending requests" });
+  }
+};
+
+export {
+  sendFriendRequest,
+  acceptFriendRequest,
+  getPendingRequests,
+  declineFriendRequest,
+};

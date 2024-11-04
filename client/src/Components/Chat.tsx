@@ -9,54 +9,144 @@ import {
   ImagePlus,
   Smile,
 } from "lucide-react";
-import { useEffect, useState } from "react";
-import { io } from "socket.io-client";
+import { useEffect, useState, useRef } from "react";
+import { io, Socket } from "socket.io-client";
 import { useAuth } from "../AuthContext";
+import axios from "axios";
 
 interface Message {
   id: number;
   content: string;
-  senderId: number; // or other relevant fields based on your project
+  senderId: number;
+  timestamp: string;
+  recipientId: number;
 }
 
-// Define the types for the message
 const VITE_API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
-const socket = io(VITE_API_BASE_URL); // Adjust this URL based on your server setup
-
 interface ChatProps {
-  friendId: number; // Accept channelId as a prop
+  friendId: number;
 }
 
 const Chat: React.FC<ChatProps> = ({ friendId }) => {
-  const [messages, setMessages] = useState<Message[]>([]); // specify Message[] type
-  const [message, setMessage] = useState("");
+  const [messages, setMessages] = useState<Message[]>([]);
+  const [newMessage, setNewMessage] = useState("");
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const { userId } = useAuth();
+  const socketRef = useRef<Socket>();
+  const messagesEndRef = useRef<HTMLDivElement>(null);
 
+  // Initialize socket connection
   useEffect(() => {
-    socket.on("private_message", (msg) => {
-      setMessages((prev) => [...prev, msg]);
+    socketRef.current = io(VITE_API_BASE_URL, {
+      query: {
+        userId,
+        friendId,
+      },
     });
 
     return () => {
-      socket.off("private_message");
+      socketRef.current?.disconnect();
+    };
+  }, [userId, friendId]);
+
+  // Fetch message history
+  useEffect(() => {
+    const fetchMessages = async () => {
+      setIsLoading(true);
+      setError(null);
+      try {
+        const response = await axios.get(
+          `${VITE_API_BASE_URL}/private/messages/${userId}/${friendId}`
+        );
+        setMessages(response.data);
+      } catch (err) {
+        console.error("Error fetching messages:", err);
+        setError("Failed to load message history");
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchMessages();
+  }, [userId, friendId]);
+
+  // Handle real-time messages
+  useEffect(() => {
+    if (!socketRef.current) return;
+
+    // Handle incoming messages
+    socketRef.current.on("private_message", (msg: Message) => {
+      setMessages((prevMessages) => [...prevMessages, msg]);
+      scrollToBottom();
+    });
+
+    // Handle error events
+    socketRef.current.on("error", (error: string) => {
+      setError(error);
+    });
+
+    return () => {
+      if (socketRef.current) {
+        socketRef.current.off("private_message");
+        socketRef.current.off("error");
+      }
     };
   }, []);
 
-  const sendMessage = () => {
-    if (message.trim()) {
-      const newMessage = {
-        content: message,
-        senderId: userId,
-        recipientId: friendId,
-      };
-      socket.emit("private_message", newMessage);
-      setMessage("");
+  // Auto-scroll to bottom when new messages arrive
+  const scrollToBottom = () => {
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  };
+
+  // Send message function
+  const sendMessage = async () => {
+    if (!newMessage.trim() || !socketRef.current) return;
+
+    const messageData = {
+      content: newMessage,
+      senderId: userId,
+      recipientId: friendId,
+      timestamp: new Date().toISOString(),
+    };
+
+    try {
+      // Send to server and save in database
+      const response = await axios.post(
+        `${VITE_API_BASE_URL}/private/messages`,
+        messageData
+      );
+
+      // Emit through socket for real-time delivery
+      socketRef.current.emit("private_message", response.data);
+
+      // Update local state to show message immediately
+      setMessages((prev) => [...prev, response.data]);
+      setNewMessage("");
+      scrollToBottom();
+    } catch (err) {
+      console.error("Error sending message:", err);
+      setError("Failed to send message");
+    }
+  };
+
+  // Handle input change
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setNewMessage(e.target.value);
+  };
+
+  // Handle key press
+  const handleKeyPress = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === "Enter" && !e.shiftKey) {
+      e.preventDefault();
+      sendMessage();
     }
   };
 
   return (
     <div className="flex-1 bg-[#36393f] flex flex-col">
+      {/* Header */}
       <div className="h-12 px-4 flex items-center shadow-md">
         <Hash className="w-6 h-6 text-[#8e9297] mr-2" />
         <span className="text-white font-bold">Channel ID: {friendId}</span>
@@ -68,36 +158,69 @@ const Chat: React.FC<ChatProps> = ({ friendId }) => {
         </div>
       </div>
 
+      {/* Messages Area */}
       <div className="flex-1 overflow-y-auto px-4 py-6">
-        {messages.map((msg) => (
-          <div className="flex items-start mb-6" key={msg.id}>
-            <div className="w-10 h-10 rounded-full bg-[#2f3136] mr-4"></div>
-            <div className="bg-[#202225] p-3 rounded-lg">
-              <span className="text-white">{msg.content}</span>
+        {isLoading ? (
+          <div className="text-center text-[#b9bbbe]">Loading messages...</div>
+        ) : error ? (
+          <div className="text-center text-red-500">{error}</div>
+        ) : messages.length === 0 ? (
+          <div className="text-center text-[#b9bbbe]">No messages yet</div>
+        ) : (
+          messages.map((msg) => (
+            <div
+              className={`flex items-start mb-6 ${
+                msg.senderId === userId ? "justify-end" : "justify-start"
+              }`}
+              key={msg.id}
+            >
+              {msg.senderId !== userId && (
+                <div className="w-10 h-10 rounded-full bg-[#2f3136] mr-4"></div>
+              )}
+              <div
+                className={`p-3 rounded-lg max-w-[70%] ${
+                  msg.senderId === userId
+                    ? "bg-[#3ba55d] ml-4"
+                    : "bg-[#202225] mr-4"
+                }`}
+              >
+                <span className="text-white break-words">{msg.content}</span>
+                <div className="text-xs text-[#b9bbbe] mt-1">
+                  {new Date(msg.timestamp).toLocaleTimeString()}
+                </div>
+              </div>
+              {msg.senderId === userId && (
+                <div className="w-10 h-10 rounded-full bg-[#2f3136] ml-4"></div>
+              )}
             </div>
-          </div>
-        ))}
+          ))
+        )}
+        <div ref={messagesEndRef} />
       </div>
 
+      {/* Input Area */}
       <div className="h-16 bg-[#2f3136] flex items-center px-4">
         <input
           type="text"
           className="flex-1 bg-[#202225] text-white rounded px-3 py-2 focus:outline-none"
           placeholder="Type your message here..."
-          value={message}
-          onChange={(e) => setMessage(e.target.value)}
-          onKeyDown={(e) => e.key === "Enter" && sendMessage()}
+          value={newMessage}
+          onChange={handleInputChange}
+          onKeyDown={handleKeyPress}
         />
         <button
           onClick={sendMessage}
-          className="ml-2 bg-[#3ba55d] text-white px-4 py-2 rounded"
+          className="ml-2 bg-[#3ba55d] text-white px-4 py-2 rounded hover:bg-[#2d8049] transition-colors"
+          disabled={!newMessage.trim()}
         >
           Send
         </button>
-        <Plus className="w-5 h-5 ml-4 cursor-pointer" />
-        <Gift className="w-5 h-5 ml-4 cursor-pointer" />
-        <ImagePlus className="w-5 h-5 ml-4 cursor-pointer" />
-        <Smile className="w-5 h-5 ml-4 cursor-pointer" />
+        <div className="flex items-center space-x-4 ml-4 text-[#b9bbbe]">
+          <Plus className="w-5 h-5 cursor-pointer hover:text-white transition-colors" />
+          <Gift className="w-5 h-5 cursor-pointer hover:text-white transition-colors" />
+          <ImagePlus className="w-5 h-5 cursor-pointer hover:text-white transition-colors" />
+          <Smile className="w-5 h-5 cursor-pointer hover:text-white transition-colors" />
+        </div>
       </div>
     </div>
   );

@@ -6,3 +6,17 @@
         - Connect friend filter nav to friend list 
         - get chat working
         - add friends ability
+
+
+test users:
+    -   test1@test1.com
+        test1
+        test1
+
+    -   test2@test2.com
+        test2
+        test2
+
+    -   test3@test3.com
+        test3
+        test3
