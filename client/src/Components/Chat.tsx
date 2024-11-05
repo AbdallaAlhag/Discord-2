@@ -15,11 +15,14 @@ import { useAuth } from "../AuthContext";
 import axios from "axios";
 
 interface Message {
+  user: { username: string };
   id: number;
   content: string;
   senderId: number;
-  timestamp: string;
+  createdAt: string;
   recipientId: number;
+  senderUsername: string;
+  recipientUsername: string;
 }
 
 const VITE_API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
@@ -39,17 +42,20 @@ const Chat: React.FC<ChatProps> = ({ friendId }) => {
 
   // Initialize socket connection
   useEffect(() => {
-    socketRef.current = io(VITE_API_BASE_URL, {
-      query: {
-        userId,
-        friendId,
-      },
+    socketRef.current = io(VITE_API_BASE_URL, { query: { userId } });
+
+    socketRef.current.on("connect", () => {
+      console.log("Socket connected:", socketRef.current?.id); // Should log connection ID
+    });
+
+    socketRef.current.on("disconnect", () => {
+      console.log("Socket disconnected");
     });
 
     return () => {
       socketRef.current?.disconnect();
     };
-  }, [userId, friendId]);
+  }, [userId]);
 
   // Fetch message history
   useEffect(() => {
@@ -60,7 +66,7 @@ const Chat: React.FC<ChatProps> = ({ friendId }) => {
         const response = await axios.get(
           `${VITE_API_BASE_URL}/chat/private/messages/${userId}/${friendId}`
         );
-        console.log("messages: ", response.data);
+        // console.log("messages: ", response.data);
         setMessages(response.data);
       } catch (err) {
         console.error("Error fetching messages:", err);
@@ -117,9 +123,10 @@ const Chat: React.FC<ChatProps> = ({ friendId }) => {
         `${VITE_API_BASE_URL}/chat/private/messages`,
         messageData
       );
+      console.log("Message saved to database:", response.data); // Debug
 
-      // Emit through socket for real-time delivery
-      socketRef.current.emit("private_message", messageData);
+      // Emit message through socket for real-time delivery
+      socketRef.current.emit("private_message", response.data);
 
       // Update local state to show message immediately
       setMessages((prev) => [...prev, response.data]);
@@ -184,9 +191,14 @@ const Chat: React.FC<ChatProps> = ({ friendId }) => {
                     : "bg-[#202225] mr-4"
                 }`}
               >
+                <div className="flex items-center mb-1">
+                  <span className="text-sm font-semibold text-[#b9bbbe] mr-2">
+                    {msg.user?.username || msg.senderUsername}
+                  </span>
+                </div>
                 <span className="text-white break-words">{msg.content}</span>
                 <div className="text-xs text-[#b9bbbe] mt-1">
-                  {new Date(msg.timestamp).toLocaleTimeString()}
+                  {new Date(msg.createdAt).toLocaleTimeString()}
                 </div>
               </div>
               {msg.senderId === userId && (

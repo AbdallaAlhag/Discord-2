@@ -43,9 +43,7 @@ const handleCreatePrivateMessage = async (req: Request, res: Response) => {
     return;
   }
   try {
-    console.log("flag1");
     const message = await createPrivateMessage(content, senderId, recipientId);
-    console.log("flag 2");
     res.status(201).json(message);
   } catch (error) {
     res.status(500).json({ error: "Failed to create private message" });

@@ -66,7 +66,7 @@ export default function FriendSidebar({
       if (!userId) return;
       try {
         const response = await axios.get(`${API_URL}/friends/${userId}`);
-        console.log("friends list: ", response.data.friends);
+        // console.log("friends list: ", response.data.friends);
         setFriends(
           response.data.friends.length > 0
             ? response.data.friends
@@ -74,7 +74,7 @@ export default function FriendSidebar({
         );
         
       } catch (err) {
-        console.log("Error fetching friends ", err);
+        console.error("Error fetching friends ", err);
         setFriends(directMessages);
       }
     };
@@ -85,7 +85,7 @@ export default function FriendSidebar({
         const response = await axios.get(`${API_URL}/user/${userId}`);
         setUser(response.data.user);
       } catch (err) {
-        console.log("Error fetching user ", err);
+        console.error("Error fetching user ", err);
       }
     };
     fetchFriends();

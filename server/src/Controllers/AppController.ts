@@ -40,7 +40,7 @@ export const getUserInfo = async (
   try {
     const userId = Number(req.params.id);
     const user = await getUser(userId);
-    console.log(user);
+    // console.log(user);
     res.status(200).json({ user });
   } catch (err) {
     if (!res.headersSent) {

@@ -24,23 +24,44 @@ const io = new Server(server, {
   cors: {
     origin: "http://localhost:5173", // Client origin for CORS policy
     methods: ["GET", "POST"],
+    credentials: true,
   },
 });
 
+console.log("Backend server has started..."); // This should log when the server starts
+
 io.on("connection", (socket) => {
-  console.log("A user connected");
+  console.log("New socket connection established");
+
+  const { userId } = socket.handshake.query;
+  if (!userId) {
+    console.warn("User connected without userId!"); // Debug
+    return;
+  }
+
+  // Join room based on userId
+  socket.join(userId.toString());
+  console.log(`User ${userId} connected and joined room ${userId}`);
 
   // Listen for private messages
   socket.on("private_message", async (messageData) => {
-    // Emit to the recipient without saving to the database again
-    io.to(messageData.recipientId.toString()).emit(
-      "private_message",
-      messageData
-    );
+    if (messageData.recipientId && messageData.senderId) {
+      console.log("Received message data:", messageData); // Debug
+
+      // Emit the message to the recipient's room
+      io.to(messageData.recipientId.toString()).emit(
+        "private_message",
+        messageData
+      );
+      console.log(`Message sent to room ${messageData.recipientId}`); // Debug
+    } else {
+      console.warn("Message data missing recipientId or senderId", messageData); // Debug
+    }
   });
 
+  // Handle disconnects
   socket.on("disconnect", () => {
-    console.log("A user disconnected");
+    console.log(`User ${userId} disconnected`);
   });
 });
 

@@ -4,7 +4,8 @@
         - change id in prisma from autoincrement to uuid
         - create server tooltip when hover on server icon and white left line
         - get chat working
-        - fix duplicate friends        
+        - fix duplicate friends
+        - work on real time message update        
 
 
 test users:

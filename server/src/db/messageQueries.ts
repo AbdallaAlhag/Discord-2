@@ -35,14 +35,14 @@ async function createPrivateMessage(
   recipientId: number
 ) {
   try {
-    console.log(
-      "content:",
-      content,
-      "senderId:",
-      senderId,
-      "recipientId:",
-      recipientId
-    );
+    // console.log(
+    //   "content:",
+    //   content,
+    //   "senderId:",
+    //   senderId,
+    //   "recipientId:",
+    //   recipientId
+    // );
     prisma.message.create({
       data: {
         content,
@@ -60,14 +60,25 @@ async function createPrivateMessage(
       },
     });
 
+    const sender = await prisma.user.findUnique({
+      where: { id: senderId },
+      select: { username: true },
+    });
+
+    const recipient = await prisma.user.findUnique({
+      where: { id: recipientId },
+      select: { username: true },
+    });
+
     return {
       id: createdMessage.id,
       content: createdMessage.content,
       senderId: createdMessage.userId,
+      senderUsername: sender?.username,
       timestamp: createdMessage.createdAt,
       recipientId: createdMessage.recipientId,
+      recipientUsername: recipient?.username,
     };
-    return {};
   } catch (err) {
     console.error("bug is here creating message:", err);
   }
@@ -83,7 +94,11 @@ async function getPrivateMessages(userId: number, friendId: number) {
       ],
       messageType: "PRIVATE",
     },
-    include: { user: true },
+    include: {
+      user: {
+        select: { username: true },
+      },
+    },
     orderBy: { createdAt: "asc" },
   });
 }

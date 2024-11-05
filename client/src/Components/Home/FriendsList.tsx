@@ -87,7 +87,7 @@ export function FriendsList({ filter }: FriendsListProps) {
         axios.get(`${API_URL}/friends/pending/${userId}`),
         axios.get(`${API_URL}/friends/blocked/${userId}`),
       ]);
-      console.log("friends: ", friendsRes.data.friends);
+      // console.log("friends: ", friendsRes.data.friends);
       // console.log('pending: ', pendingRes.data);
       setFriends(
         friendsRes.data.friends.length > 0
@@ -95,10 +95,10 @@ export function FriendsList({ filter }: FriendsListProps) {
           : testFriends
       );
       setPendingRequests(pendingRes.data);
-      console.log("pending requests: ", pendingRes.data);
+      // console.log("pending requests: ", pendingRes.data);
       setBlockedUsers(blockedRes.data);
     } catch (err) {
-      console.log("Error fetching friends data", err);
+      console.error("Error fetching friends data", err);
       setFriends(testFriends);
     }
   }, [userId, API_URL, testFriends]);
