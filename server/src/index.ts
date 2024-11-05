@@ -30,22 +30,17 @@ const io = new Server(server, {
 io.on("connection", (socket) => {
   console.log("A user connected");
 
-  socket.on("chat message", (msg) => {
-    io.emit("chat message", msg); // Broadcast message to all clients
+  // Listen for private messages
+  socket.on("private_message", async (messageData) => {
+    // Emit to the recipient without saving to the database again
+    io.to(messageData.recipientId.toString()).emit(
+      "private_message",
+      messageData
+    );
   });
 
   socket.on("disconnect", () => {
     console.log("A user disconnected");
-  });
-
-  socket.on("private_message", async ({ content, senderId, recipientId }) => {
-    // Save message in the database
-    const message = await prisma.message.create({
-      data: { content, userId: senderId, recipientId, messageType: "PRIVATE" },
-    });
-
-    // Emit message to the recipient
-    io.to(recipientId.toString()).emit("private_message", message);
   });
 });
 

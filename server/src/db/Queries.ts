@@ -76,4 +76,13 @@ export const getChannel = async (channelId: number) =>
   await prisma.channel.findUnique({ where: { id: channelId } });
 
 export const getUser = async (userId: number) =>
-  await prisma.user.findUnique({ where: { id: userId } });
+  await prisma.user.findUnique({
+    where: { id: userId },
+    select: {
+      id: true,
+      username: true,
+      email: true,
+      avatarUrl: true,
+      createdAt: true,
+    },
+  });

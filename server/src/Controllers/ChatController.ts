@@ -33,10 +33,19 @@ const handleGetChannelMessages = async (req: Request, res: Response) => {
 
 // Handle creating a private message
 const handleCreatePrivateMessage = async (req: Request, res: Response) => {
-  const { content, userId, recipientId } = req.body;
-
+  const { content, senderId, recipientId } = req.body;
+  if (!content || !senderId || !recipientId) {
+    console.error("Invalid message parameters:", {
+      content,
+      senderId,
+      recipientId,
+    });
+    return;
+  }
   try {
-    const message = await createPrivateMessage(content, userId, recipientId);
+    console.log("flag1");
+    const message = await createPrivateMessage(content, senderId, recipientId);
+    console.log("flag 2");
     res.status(201).json(message);
   } catch (error) {
     res.status(500).json({ error: "Failed to create private message" });

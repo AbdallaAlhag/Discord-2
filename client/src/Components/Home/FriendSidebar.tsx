@@ -1,12 +1,14 @@
 import { Users, Plus } from "lucide-react";
 import SettingsButton from "../Profile/SettingsButton";
+import LogoutButton from "../Profile/LogoutButton";
 import { useAuth } from "@/AuthContext";
 import axios from "axios";
 import { useState, useEffect } from "react";
+import defaultAvatar from "../../assets/default-avatar.svg";
 
-interface DirectMessage {
+interface onlineUsers {
   id: number;
-  name: string;
+  username: string;
   avatar: string;
   status: "online" | "offline" | "idle" | "dnd";
   isGroup?: boolean;
@@ -17,44 +19,45 @@ interface FriendSidebarProps {
   toggleChatSection: (id: number | null) => void;
 }
 
-const directMessages: DirectMessage[] = [
-  { id: 1, name: "viperndgrass", avatar: "🎮", status: "online" },
-  { id: 2, name: "Admiral Audacious", avatar: "👤", status: "online" },
-  { id: 3, name: "Ethanqg", avatar: "💻", status: "offline" },
-  { id: 4, name: "Abwbkr Alhag", avatar: "🎯", status: "idle" },
+const directMessages: onlineUsers[] = [
+  { id: 1, username: "viperndgrass", avatar: " ", status: "online" },
+  { id: 2, username: "Admiral Audacious", avatar: " ", status: "online" },
+  { id: 3, username: "Ethanqg", avatar: " ", status: "offline" },
+  { id: 4, username: "Abwbkr Alhag", avatar: " ", status: "idle" },
   {
     id: 5,
-    name: "LeetCode",
-    avatar: "📚",
+    username: "LeetCode",
+    avatar: " ",
     status: "online",
     isGroup: true,
     memberCount: 5,
   },
-  { id: 6, name: "aj", avatar: "🎮", status: "dnd" },
-  { id: 7, name: "aotmika", avatar: "🎨", status: "online" },
-  { id: 8, name: "SamFieri", avatar: "🔥", status: "offline" },
-  { id: 9, name: "qwertea", avatar: "☕", status: "online" },
+  { id: 6, username: "aj", avatar: " ", status: "dnd" },
+  { id: 7, username: "aotmika", avatar: " ", status: "online" },
+  { id: 8, username: "SamFieri", avatar: " ", status: "offline" },
+  { id: 9, username: "qwertea", avatar: " ", status: "online" },
 ];
 
-function StatusIndicator({ status }: { status: DirectMessage["status"] }) {
-  const statusColors = {
-    online: "bg-[#3ba55d]",
-    offline: "bg-[#747f8d]",
-    idle: "bg-[#faa81a]",
-    dnd: "bg-[#ed4245]",
-  };
+// function StatusIndicator({ status }: { status: onlineUsers["status"] }) {
+//   const statusColors = {
+//     online: "bg-[#3ba55d]",
+//     offline: "bg-[#747f8d]",
+//     idle: "bg-[#faa81a]",
+//     dnd: "bg-[#ed4245]",
+//   };
 
-  return (
-    <div
-      className={`absolute bottom-0 right-0 w-3 h-3 ${statusColors[status]} rounded-full border-2 border-[#2f3136]`}
-    />
-  );
-}
+//   return (
+//     <div
+//       className={`absolute bottom-0 right-0 w-3 h-3 ${statusColors[status]} rounded-full border-2 border-[#2f3136]`}
+//     />
+//   );
+// }
 
 export default function FriendSidebar({
   toggleChatSection,
 }: FriendSidebarProps) {
-  const [friends, setFriends] = useState<DirectMessage[]>([]);
+  const [friends, setFriends] = useState<onlineUsers[]>([]);
+  const [user, setUser] = useState<onlineUsers | null>(null);
   const { userId } = useAuth();
   const API_URL = import.meta.env.VITE_API_BASE_URL;
 
@@ -63,13 +66,30 @@ export default function FriendSidebar({
       if (!userId) return;
       try {
         const response = await axios.get(`${API_URL}/friends/${userId}`);
-        setFriends(response.data.length > 0 ? response.data : directMessages);
+        console.log("friends list: ", response.data.friends);
+        setFriends(
+          response.data.friends.length > 0
+            ? response.data.friends
+            : directMessages
+        );
+        
       } catch (err) {
         console.log("Error fetching friends ", err);
         setFriends(directMessages);
       }
     };
+
+    const fetchUser = async () => {
+      if (!userId) return;
+      try {
+        const response = await axios.get(`${API_URL}/user/${userId}`);
+        setUser(response.data.user);
+      } catch (err) {
+        console.log("Error fetching user ", err);
+      }
+    };
     fetchFriends();
+    fetchUser();
   }, [API_URL, userId]);
 
   return (
@@ -108,12 +128,17 @@ export default function FriendSidebar({
                 className="w-full flex items-center px-2 py-1 text-[#96989d] hover:text-[#dcddde] hover:bg-[#42464D] rounded group"
                 onClick={() => toggleChatSection(dm.id)} // Use user ID to toggle chat room
               >
-                <div className="w-8 h-8 rounded-full bg-[#36393f] flex items-center justify-center relative mr-3">
+                {/* <div className="w-8 h-8 rounded-full bg-[#36393f] flex items-center justify-center relative mr-3">
                   <span>{dm.avatar}</span>
                   <StatusIndicator status={dm.status} />
-                </div>
+                </div> */}
+                <img
+                  src={dm.avatar || defaultAvatar}
+                  alt="user avatar"
+                  className="w-8 h-8 rounded-full mr-3"
+                />
                 <span className="text-sm flex-1 text-left truncate">
-                  {dm.name}
+                  {dm.username}
                   {dm.isGroup && (
                     <span className="text-xs text-[#96989d] ml-1">
                       ({dm.memberCount})
@@ -127,13 +152,19 @@ export default function FriendSidebar({
       </div>
 
       <div className="h-14 bg-[#292b2f] px-2 flex items-center mt-auto">
-        <div className="w-8 h-8 rounded-full bg-[#36393f] mr-2 relative">
+        <img
+          src={user?.avatar || defaultAvatar}
+          className="w-8 h-8 rounded-full mr-2"
+          alt="User Avatar"
+        />
+        {/* <div className="w-8 h-8 rounded-full bg-[#36393f] mr-2 relative">
           <StatusIndicator status="online" />
-        </div>
+        </div> */}
         <div className="flex-1">
-          <div className="text-white text-sm font-medium">User</div>
-          <div className="text-[#b9bbbe] text-xs">#0001</div>
+          <div className="text-white text-sm font-medium">{user?.username}</div>
+          <div className="text-[#b9bbbe] text-xs">#{user?.id}</div>
         </div>
+        <LogoutButton className="pr-4 pt-1" />
         <SettingsButton />
       </div>
     </div>

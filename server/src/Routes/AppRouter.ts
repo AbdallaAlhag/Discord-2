@@ -1,5 +1,9 @@
 import express, { Router, Request, Response, NextFunction } from "express";
-import { getChannelsInfo, getFriendsInfo } from "../Controllers/AppController";
+import {
+  getChannelsInfo,
+  getFriendsInfo,
+  getUserInfo,
+} from "../Controllers/AppController";
 const router: Router = express.Router();
 
 router.get("/", (req: Request, res: Response, next: NextFunction) => {
@@ -20,4 +24,7 @@ router.get(
   }
 );
 
+router.get("/user/:id", (req: Request, res: Response, next: NextFunction) => {
+  getUserInfo(req, res, next);
+});
 export default router;

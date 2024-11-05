@@ -40,7 +40,6 @@ const FriendsNavBar: React.FC<FriendsNavBarProps> = ({
       <Users className="w-6 h-6 text-[#dcddde]" />
       <span className="text-white font-medium">Friends</span>
       <div className="h-6 w-[1px] bg-[#36393f]" />
-
       <button
         className={`${
           currentFilter === "online"

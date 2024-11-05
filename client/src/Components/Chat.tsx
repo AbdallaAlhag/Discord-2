@@ -58,8 +58,9 @@ const Chat: React.FC<ChatProps> = ({ friendId }) => {
       setError(null);
       try {
         const response = await axios.get(
-          `${VITE_API_BASE_URL}/private/messages/${userId}/${friendId}`
+          `${VITE_API_BASE_URL}/chat/private/messages/${userId}/${friendId}`
         );
+        console.log("messages: ", response.data);
         setMessages(response.data);
       } catch (err) {
         console.error("Error fetching messages:", err);
@@ -103,7 +104,6 @@ const Chat: React.FC<ChatProps> = ({ friendId }) => {
   // Send message function
   const sendMessage = async () => {
     if (!newMessage.trim() || !socketRef.current) return;
-
     const messageData = {
       content: newMessage,
       senderId: userId,
@@ -114,12 +114,12 @@ const Chat: React.FC<ChatProps> = ({ friendId }) => {
     try {
       // Send to server and save in database
       const response = await axios.post(
-        `${VITE_API_BASE_URL}/private/messages`,
+        `${VITE_API_BASE_URL}/chat/private/messages`,
         messageData
       );
 
       // Emit through socket for real-time delivery
-      socketRef.current.emit("private_message", response.data);
+      socketRef.current.emit("private_message", messageData);
 
       // Update local state to show message immediately
       setMessages((prev) => [...prev, response.data]);

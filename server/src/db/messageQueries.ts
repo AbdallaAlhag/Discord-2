@@ -31,17 +31,46 @@ async function getChannelMessages(channelId: number) {
 // Save a new private message
 async function createPrivateMessage(
   content: string,
-  userId: number,
+  senderId: number,
   recipientId: number
 ) {
-  return prisma.message.create({
-    data: {
+  try {
+    console.log(
+      "content:",
       content,
-      userId,
-      recipientId,
-      messageType: "PRIVATE",
-    },
-  });
+      "senderId:",
+      senderId,
+      "recipientId:",
+      recipientId
+    );
+    prisma.message.create({
+      data: {
+        content,
+        userId: senderId,
+        recipientId,
+        messageType: "PRIVATE",
+      },
+    });
+    const createdMessage = await prisma.message.create({
+      data: {
+        content,
+        userId: senderId,
+        recipientId,
+        messageType: "PRIVATE",
+      },
+    });
+
+    return {
+      id: createdMessage.id,
+      content: createdMessage.content,
+      senderId: createdMessage.userId,
+      timestamp: createdMessage.createdAt,
+      recipientId: createdMessage.recipientId,
+    };
+    return {};
+  } catch (err) {
+    console.error("bug is here creating message:", err);
+  }
 }
 
 // Get all private messages between two users

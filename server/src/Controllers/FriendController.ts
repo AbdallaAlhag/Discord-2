@@ -104,7 +104,7 @@ const getPendingRequests = async (req: Request, res: Response) => {
       },
     });
 
-    console.log(pendingRequests);
+    // console.log(pendingRequests);
     res.status(200).json(pendingRequests);
 
     // TODO: Sort pending requests by sender's username

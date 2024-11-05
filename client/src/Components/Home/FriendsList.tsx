@@ -1,7 +1,5 @@
 import {
   MessageSquare,
-  Phone,
-  Video,
   MoreVertical,
   Check,
   X,
@@ -9,12 +7,14 @@ import {
 import axios from "axios";
 import { useEffect, useMemo, useState, useCallback } from "react";
 import { useAuth } from "@/AuthContext";
+import defaultAvatar from "../../assets/default-avatar.svg";
 
 interface Friend {
   id: number;
-  name: string;
+  username: string;
   status: string;
   activity: string;
+  avatarUrl?: string;
 }
 
 interface FriendRequest {
@@ -40,32 +40,37 @@ export function FriendsList({ filter }: FriendsListProps) {
     () => [
       {
         id: 1,
-        name: "viperndgrass",
+        username: "viperndgrass",
         status: "Online",
         activity: "Playing Valorant",
       },
       {
         id: 2,
-        name: "Admiral Audacious",
+        username: "Admiral Audacious",
         status: "Online",
         activity: "In Voice Channel",
       },
       {
         id: 3,
-        name: "Ethanqg",
+        username: "Ethanqg",
         status: "Online",
         activity: "Visual Studio Code",
       },
-      { id: 4, name: "Abwbkr Alhag", status: "Online", activity: "Spotify" },
+      {
+        id: 4,
+        username: "Abwbkr Alhag",
+        status: "Online",
+        activity: "Spotify",
+      },
       {
         id: 5,
-        name: "aotmika",
+        username: "aotmika",
         status: "Online",
         activity: "League of Legends",
       },
       {
         id: 6,
-        name: "qwertea",
+        username: "qwertea",
         status: "Online",
         activity: "In Voice Channel",
       },
@@ -82,10 +87,15 @@ export function FriendsList({ filter }: FriendsListProps) {
         axios.get(`${API_URL}/friends/pending/${userId}`),
         axios.get(`${API_URL}/friends/blocked/${userId}`),
       ]);
-
-      setFriends(friendsRes.data.length > 0 ? friendsRes.data : testFriends);
+      console.log("friends: ", friendsRes.data.friends);
+      // console.log('pending: ', pendingRes.data);
+      setFriends(
+        friendsRes.data.friends.length > 0
+          ? friendsRes.data.friends
+          : testFriends
+      );
       setPendingRequests(pendingRes.data);
-      console.log('pending requests: ', pendingRes.data);
+      console.log("pending requests: ", pendingRes.data);
       setBlockedUsers(blockedRes.data);
     } catch (err) {
       console.log("Error fetching friends data", err);
@@ -114,27 +124,29 @@ export function FriendsList({ filter }: FriendsListProps) {
   };
 
   const renderFriendList = (friendList: Friend[]) =>
-    friendList.map((friend) => (
+    // use index at the moment because friend id is not unique
+    friendList.map((friend, index) => (
       <div
-        key={friend.id}
+        key={index}
         className="flex items-center p-2 hover:bg-[#42464D] rounded cursor-pointer group"
       >
-        <div className="w-8 h-8 rounded-full bg-[#36393f] relative">
+        {/* <div className="w-8 h-8 rounded-full bg-[#36393f] relative">
           <div className="absolute bottom-0 right-0 w-3 h-3 bg-[#3ba55d] rounded-full border-2 border-[#2f3136]" />
-        </div>
+        </div> */}
+        <img
+          src={friend.avatarUrl || defaultAvatar}
+          alt={"user avatar"}
+          className="w-8 h-8 rounded-full"
+        />
         <div className="ml-3 flex-1">
-          <div className="text-white text-sm font-medium">{friend.name}</div>
-          <div className="text-[#B9BBBE] text-xs">{friend.activity}</div>
+          <div className="text-white text-sm font-medium">
+            {friend.username}
+          </div>
+          <div className="text-[#B9BBBE] text-xs">{friend.id}</div>
         </div>
         <div className="hidden group-hover:flex items-center space-x-3">
           <button className="w-8 h-8 rounded-full hover:bg-[#36393f] flex items-center justify-center">
             <MessageSquare className="w-5 h-5 text-[#B9BBBE]" />
-          </button>
-          <button className="w-8 h-8 rounded-full hover:bg-[#36393f] flex items-center justify-center">
-            <Phone className="w-5 h-5 text-[#B9BBBE]" />
-          </button>
-          <button className="w-8 h-8 rounded-full hover:bg-[#36393f] flex items-center justify-center">
-            <Video className="w-5 h-5 text-[#B9BBBE]" />
           </button>
           <button className="w-8 h-8 rounded-full hover:bg-[#36393f] flex items-center justify-center">
             <MoreVertical className="w-5 h-5 text-[#B9BBBE]" />
