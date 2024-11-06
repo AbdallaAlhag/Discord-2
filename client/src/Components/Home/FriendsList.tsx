@@ -1,9 +1,4 @@
-import {
-  MessageSquare,
-  MoreVertical,
-  Check,
-  X,
-} from "lucide-react";
+import { MessageSquare, MoreVertical, Check, X } from "lucide-react";
 import axios from "axios";
 import { useEffect, useMemo, useState, useCallback } from "react";
 import { useAuth } from "@/AuthContext";
@@ -18,9 +13,13 @@ interface Friend {
 }
 
 interface FriendRequest {
+  avatarUrl: string;
   id: number;
   senderId: number;
-  senderName: string;
+  sender: {
+    id: number;
+    username: string;
+  };
   status: "pending" | "accepted" | "declined";
   timestamp: string;
 }
@@ -161,12 +160,17 @@ export function FriendsList({ filter }: FriendsListProps) {
         key={request.id}
         className="flex items-center p-2 hover:bg-[#42464D] rounded cursor-pointer group"
       >
-        <div className="w-8 h-8 rounded-full bg-[#36393f] relative">
+        {/* <div className="w-8 h-8 rounded-full bg-[#36393f] relative">
           <div className="absolute bottom-0 right-0 w-3 h-3 bg-[#faa61a] rounded-full border-2 border-[#2f3136]" />
-        </div>
+        </div> */}
+        <img
+          src={request.avatarUrl || defaultAvatar}
+          alt={"user avatar"}
+          className="w-8 h-8 rounded-full"
+        />
         <div className="ml-3 flex-1">
           <div className="text-white text-sm font-medium">
-            {request.senderName}
+            {request.sender.username}
           </div>
           <div className="text-[#B9BBBE] text-xs">Incoming Friend Request</div>
         </div>

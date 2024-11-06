@@ -30,38 +30,51 @@ const io = new Server(server, {
 
 console.log("Backend server has started..."); // This should log when the server starts
 
-io.on("connection", (socket) => {
-  console.log("New socket connection established");
+// Track active users
+const activeUsers = new Map();
 
+io.on("connection", (socket) => {
   const { userId } = socket.handshake.query;
   if (!userId) {
-    console.warn("User connected without userId!"); // Debug
+    console.warn("User connected without userId!");
     return;
   }
 
-  // Join room based on userId
+  // Join user-specific room
   socket.join(userId.toString());
+  activeUsers.set(userId, socket.id);
   console.log(`User ${userId} connected and joined room ${userId}`);
 
-  // Listen for private messages
-  socket.on("private_message", async (messageData) => {
-    if (messageData.recipientId && messageData.senderId) {
-      console.log("Received message data:", messageData); // Debug
-
-      // Emit the message to the recipient's room
+  // Handle private message
+  socket.on("private_message", (messageData) => {
+    if (messageData.recipientId) {
       io.to(messageData.recipientId.toString()).emit(
         "private_message",
         messageData
       );
-      console.log(`Message sent to room ${messageData.recipientId}`); // Debug
-    } else {
-      console.warn("Message data missing recipientId or senderId", messageData); // Debug
     }
   });
 
-  // Handle disconnects
+  // Handle typing indicator
+  socket.on("typing", (recipientId) => {
+    const recipientSocketId = activeUsers.get(recipientId.toString());
+    if (recipientSocketId) {
+      io.to(recipientSocketId).emit("user_typing", userId);
+    }
+  });
+
+  // Handle read receipt
+  socket.on("read_receipt", ({ messageId, senderId }) => {
+    const senderSocketId = activeUsers.get(senderId.toString());
+    if (senderSocketId) {
+      io.to(senderSocketId).emit("message_read", { messageId, readBy: userId });
+    }
+  });
+
+  // Handle disconnect
   socket.on("disconnect", () => {
     console.log(`User ${userId} disconnected`);
+    activeUsers.delete(userId);
   });
 });
 

@@ -1,4 +1,4 @@
-import express, { Router, Request, Response, NextFunction } from "express";
+import { Request, Response, NextFunction } from "express";
 import { getChannels, getFriends, getUser } from "../db/Queries";
 export const getChannelsInfo = async (
   req: Request,

@@ -51,14 +51,19 @@ export const getFriends = async (userId: number) => {
       },
     });
 
-    // Format the response to combine both friend lists
+    // Combine both friend lists, filtering out duplicates by unique `id`
     const friendsList = [
       ...(userWithFriends?.friends.map((f) => f.friend) || []),
       ...(userWithFriends?.friendOf.map((f) => f.user) || []),
     ];
 
-    // console.log("friendsList", friendsList);
-    return friendsList;
+    // Filter out duplicates by unique friend `id`
+    const uniqueFriendsList = Array.from(
+      new Map(friendsList.map((friend) => [friend.id, friend])).values()
+    );
+
+    console.log("Unique Friends List:", uniqueFriendsList);
+    return uniqueFriendsList;
   } catch (error) {
     console.error("Error fetching friends:", error);
     throw error;

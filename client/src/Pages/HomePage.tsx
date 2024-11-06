@@ -4,8 +4,8 @@ import {
   FriendsList,
   ActiveNow,
   FriendSidebar,
-  Chat,
 } from "../Components";
+import PrivateChat from "../Components/Home/PrivateChat";
 import { useState } from "react";
 
 function HomePage() {
@@ -37,7 +37,7 @@ function HomePage() {
           <ActiveNow />
         </>
       ) : (
-        <Chat friendId={chatId} />
+        <PrivateChat friendId={chatId} />
       )}
     </div>
   );

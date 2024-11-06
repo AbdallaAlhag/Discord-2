@@ -9,7 +9,7 @@ import defaultAvatar from "../../assets/default-avatar.svg";
 interface onlineUsers {
   id: number;
   username: string;
-  avatar: string;
+  avatarUrl: null | string;
   status: "online" | "offline" | "idle" | "dnd";
   isGroup?: boolean;
   memberCount?: number;
@@ -20,22 +20,22 @@ interface FriendSidebarProps {
 }
 
 const directMessages: onlineUsers[] = [
-  { id: 1, username: "viperndgrass", avatar: " ", status: "online" },
-  { id: 2, username: "Admiral Audacious", avatar: " ", status: "online" },
-  { id: 3, username: "Ethanqg", avatar: " ", status: "offline" },
-  { id: 4, username: "Abwbkr Alhag", avatar: " ", status: "idle" },
+  { id: 1, username: "viperndgrass", avatarUrl: null, status: "online" },
+  { id: 2, username: "Admiral Audacious", avatarUrl: null, status: "online" },
+  { id: 3, username: "Ethanqg", avatarUrl: null, status: "offline" },
+  { id: 4, username: "Abwbkr Alhag", avatarUrl: null, status: "idle" },
   {
     id: 5,
     username: "LeetCode",
-    avatar: " ",
+    avatarUrl: null,
     status: "online",
     isGroup: true,
     memberCount: 5,
   },
-  { id: 6, username: "aj", avatar: " ", status: "dnd" },
-  { id: 7, username: "aotmika", avatar: " ", status: "online" },
-  { id: 8, username: "SamFieri", avatar: " ", status: "offline" },
-  { id: 9, username: "qwertea", avatar: " ", status: "online" },
+  { id: 6, username: "aj", avatarUrl: null, status: "dnd" },
+  { id: 7, username: "aotmika", avatarUrl: null, status: "online" },
+  { id: 8, username: "SamFieri", avatarUrl: null, status: "offline" },
+  { id: 9, username: "qwertea", avatarUrl: null, status: "online" },
 ];
 
 // function StatusIndicator({ status }: { status: onlineUsers["status"] }) {
@@ -84,6 +84,7 @@ export default function FriendSidebar({
       try {
         const response = await axios.get(`${API_URL}/user/${userId}`);
         setUser(response.data.user);
+        // console.log("user: ", response.data.user);
       } catch (err) {
         console.error("Error fetching user ", err);
       }
@@ -133,7 +134,7 @@ export default function FriendSidebar({
                   <StatusIndicator status={dm.status} />
                 </div> */}
                 <img
-                  src={dm.avatar || defaultAvatar}
+                  src={dm.avatarUrl || defaultAvatar}
                   alt="user avatar"
                   className="w-8 h-8 rounded-full mr-3"
                 />
@@ -153,7 +154,7 @@ export default function FriendSidebar({
 
       <div className="h-14 bg-[#292b2f] px-2 flex items-center mt-auto">
         <img
-          src={user?.avatar || defaultAvatar}
+          src={user?.avatarUrl || defaultAvatar}
           className="w-8 h-8 rounded-full mr-2"
           alt="User Avatar"
         />

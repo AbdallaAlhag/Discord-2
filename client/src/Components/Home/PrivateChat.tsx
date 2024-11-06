@@ -11,8 +11,10 @@ import {
 } from "lucide-react";
 import { useEffect, useState, useRef } from "react";
 import { io, Socket } from "socket.io-client";
-import { useAuth } from "../AuthContext";
+import { useAuth } from "../../AuthContext";
 import axios from "axios";
+import MessageBubble from "../MessageBubble";
+import TypingIndicator from "../TypingIndicator";
 
 interface Message {
   user: { username: string };
@@ -31,7 +33,7 @@ interface ChatProps {
   friendId: number;
 }
 
-const Chat: React.FC<ChatProps> = ({ friendId }) => {
+const PrivateChat: React.FC<ChatProps> = ({ friendId }) => {
   const [messages, setMessages] = useState<Message[]>([]);
   const [newMessage, setNewMessage] = useState("");
   const [isLoading, setIsLoading] = useState(true);
@@ -39,6 +41,11 @@ const Chat: React.FC<ChatProps> = ({ friendId }) => {
   const { userId } = useAuth();
   const socketRef = useRef<Socket>();
   const messagesEndRef = useRef<HTMLDivElement>(null);
+
+  // Typing bubbles and read receipts
+  const [isTyping, setIsTyping] = useState(false);
+  const typingTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const [friendTyping, setFriendTyping] = useState(false);
 
   // Initialize socket connection
   useEffect(() => {
@@ -81,15 +88,51 @@ const Chat: React.FC<ChatProps> = ({ friendId }) => {
 
     fetchMessages();
   }, [userId, friendId]);
-
+  // Mark message as read
   // Handle real-time messages
   useEffect(() => {
     if (!socketRef.current) return;
 
+    const markAsRead = async (messageId: string) => {
+      if (!socketRef.current) return;
+
+      try {
+        await axios.post(`${VITE_API_BASE_URL}/messages/${messageId}/read`);
+        socketRef.current.emit("read_receipt", {
+          messageId,
+          readBy: userId,
+          readAt: new Date().toISOString(),
+        });
+      } catch (err) {
+        console.error("Error sending read receipt:", err);
+      }
+    };
+
     // Handle incoming messages
     socketRef.current.on("private_message", (msg: Message) => {
       setMessages((prevMessages) => [...prevMessages, msg]);
+      // Send read receipt
+      if (document.hasFocus()) {
+        markAsRead(String(msg.id));
+      }
       scrollToBottom();
+    });
+
+    socketRef.current.on("user_typing", (userId: string) => {
+      if (Number(userId) === friendId) {
+        setFriendTyping(true);
+        setTimeout(() => setFriendTyping(false), 3000);
+      }
+    });
+
+    socketRef.current.on("message_read", (messageId: string) => {
+      setMessages((prevMessages) =>
+        prevMessages.map((msg) =>
+          msg.id === Number(messageId)
+            ? { ...msg, status: "read", readAt: new Date().toISOString() }
+            : msg
+        )
+      );
     });
 
     // Handle error events
@@ -100,10 +143,34 @@ const Chat: React.FC<ChatProps> = ({ friendId }) => {
     return () => {
       if (socketRef.current) {
         socketRef.current.off("private_message");
+        // typing and read receipts
+        socketRef.current.off("user_typing");
+        socketRef.current.off("message_read");
         socketRef.current.off("error");
       }
     };
-  }, []);
+  }, [friendId, userId]);
+
+  // Handle typing indication
+  const handleTyping = () => {
+    if (!socketRef.current) return;
+
+    if (!isTyping) {
+      setIsTyping(true);
+      socketRef.current.emit("typing", friendId);
+    }
+
+    // Clear previous timeout
+    if (typingTimeoutRef.current) {
+      clearTimeout(typingTimeoutRef.current);
+    }
+
+    // Set new timeout
+    typingTimeoutRef.current = setTimeout(() => {
+      setIsTyping(false);
+      socketRef.current?.emit("stop_typing", friendId);
+    }, 2000);
+  };
 
   // Auto-scroll to bottom when new messages arrive
   const scrollToBottom = () => {
@@ -179,40 +246,51 @@ const Chat: React.FC<ChatProps> = ({ friendId }) => {
         ) : messages.length === 0 ? (
           <div className="text-center text-[#b9bbbe]">No messages yet</div>
         ) : (
+          //   messages.map((msg) => (
+          //     <div
+          //       className={`flex items-start mb-6 ${
+          //         msg.senderId === userId ? "justify-end" : "justify-start"
+          //       }`}
+          //       key={msg.id}
+          //     >
+          //       {msg.senderId !== userId && (
+          //         <div className="w-10 h-10 rounded-full bg-[#2f3136] mr-4"></div>
+          //       )}
+          //       <div
+          //         className={`p-3 rounded-lg max-w-[70%] ${
+          //           msg.senderId === userId
+          //             ? "bg-[#3ba55d] ml-4"
+          //             : "bg-[#202225] mr-4"
+          //         }`}
+          //       >
+          //         <div className="flex items-center mb-1">
+          //           <span className="text-sm font-semibold text-[#b9bbbe] mr-2">
+          //             {msg.user?.username || msg.senderUsername}
+          //           </span>
+          //         </div>
+          //         <span className="text-white break-words">{msg.content}</span>
+          //         <div className="text-xs text-[#b9bbbe] mt-1">
+          //           {new Date(msg.createdAt).toLocaleTimeString()}
+          //         </div>
+          //       </div>
+          //       {msg.senderId === userId && (
+          //         <div className="w-10 h-10 rounded-full bg-[#2f3136] ml-4"></div>
+          //       )}
+          //     </div>
+          //   ))
+          // )}
           messages.map((msg) => (
-            <div
-              className={`flex items-start mb-6 ${
-                msg.senderId === userId ? "justify-end" : "justify-start"
-              }`}
-              key={msg.id}
-            >
-              {msg.senderId !== userId && (
-                <div className="w-10 h-10 rounded-full bg-[#2f3136] mr-4"></div>
-              )}
-              <div
-                className={`p-3 rounded-lg max-w-[70%] ${
-                  msg.senderId === userId
-                    ? "bg-[#3ba55d] ml-4"
-                    : "bg-[#202225] mr-4"
-                }`}
-              >
-                <div className="flex items-center mb-1">
-                  <span className="text-sm font-semibold text-[#b9bbbe] mr-2">
-                    {msg.user?.username || msg.senderUsername}
-                  </span>
-                </div>
-                <span className="text-white break-words">{msg.content}</span>
-                <div className="text-xs text-[#b9bbbe] mt-1">
-                  {new Date(msg.createdAt).toLocaleTimeString()}
-                </div>
-              </div>
-              {msg.senderId === userId && (
-                <div className="w-10 h-10 rounded-full bg-[#2f3136] ml-4"></div>
-              )}
-            </div>
+            <MessageBubble
+              key={msg.id || msg.id}
+              message={msg}
+              isOwn={msg.senderId === userId}
+            />
           ))
         )}
-        <div ref={messagesEndRef} style={{ height: 0 }} />
+
+        {friendTyping && <TypingIndicator />}
+
+        <div ref={messagesEndRef} />
       </div>
 
       {/* Input Area */}
@@ -222,7 +300,11 @@ const Chat: React.FC<ChatProps> = ({ friendId }) => {
           className="flex-1 bg-[#202225] text-white rounded px-3 py-2 focus:outline-none"
           placeholder="Type your message here..."
           value={newMessage}
-          onChange={handleInputChange}
+          // onChange={handleInputChange}
+          onChange={(e) => {
+            handleInputChange(e);
+            handleTyping();
+          }}
           onKeyDown={handleKeyPress}
         />
         <button
@@ -243,4 +325,4 @@ const Chat: React.FC<ChatProps> = ({ friendId }) => {
   );
 };
 
-export default Chat;
+export default PrivateChat;
