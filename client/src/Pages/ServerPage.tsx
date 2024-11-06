@@ -7,7 +7,7 @@ function HomePage() {
     <div className="flex h-screen">
       <ServerSidebar />
       <ChannelSidebar />
-      <Chat />
+      <Chat friendId={0} />
       <MemberList />
     </div>
   );

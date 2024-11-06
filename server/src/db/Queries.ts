@@ -5,7 +5,7 @@ import prisma from "./prisma";
 // Include all channels for each server
 // Include the user's role information in each server
 // Handle errors appropriately
-export const getChannels = async (userId: number) => {
+export const getServers = async (userId: number) => {
   if (!userId || isNaN(userId)) {
     console.error("Invalid userId:", userId);
     throw new Error("Valid userId is required");

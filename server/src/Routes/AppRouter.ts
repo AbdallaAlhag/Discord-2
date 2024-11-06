@@ -1,6 +1,6 @@
 import express, { Router, Request, Response, NextFunction } from "express";
 import {
-  getChannelsInfo,
+  getServersInfo,
   getFriendsInfo,
   getUserInfo,
 } from "../Controllers/AppController";
@@ -11,9 +11,9 @@ router.get("/", (req: Request, res: Response, next: NextFunction) => {
 });
 
 router.get(
-  "/channels/:userId",
+  "/servers/:userId",
   (req: Request, res: Response, next: NextFunction) => {
-    getChannelsInfo(req, res, next);
+    getServersInfo(req, res, next);
   }
 );
 

@@ -46,6 +46,20 @@ model Server {
   members     ServerMember[]
   roles       Role[]
   permissions Permission[]
+
+  @@map("servers")
+}
+
+model Channel {
+  id        Int      @id @default(autoincrement())
+  serverId  Int
+  name      String   @default("general")
+  isVoice   Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  // Relationships
+  server   Server    @relation(fields: [serverId], references: [id])
+  messages Message[]
 }
 
 model ServerMember {
@@ -61,18 +75,6 @@ model ServerMember {
   role   Role?  @relation(fields: [roleId], references: [id])
 
   @@unique([userId, serverId])
-}
-
-model Channel {
-  id        Int      @id @default(autoincrement())
-  serverId  Int
-  name      String
-  isVoice   Boolean  @default(false)
-  createdAt DateTime @default(now())
-
-  // Relationships
-  server   Server    @relation(fields: [serverId], references: [id])
-  messages Message[]
 }
 
 model Message {

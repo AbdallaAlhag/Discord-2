@@ -1,5 +1,7 @@
 import { useState, useEffect } from "react";
-import { MessageSquare, Plus } from "lucide-react";
+// import { MessageSquare, Plus } from "lucide-react";
+import { MessageSquare } from "lucide-react";
+import { ServerCreation } from "./PopupModals/ServerCreation";
 import axios from "axios";
 import { useAuth } from "../AuthContext";
 import { Link } from "react-router-dom";
@@ -15,18 +17,18 @@ const ServerSidebar: React.FC = () => {
   const { userId } = useAuth();
   const API_URL = import.meta.env.VITE_API_BASE_URL;
   useEffect(() => {
-    const fetchChannels = async () => {
+    const fetchServers = async () => {
       if (userId) {
-        const response = await axios.get(`${API_URL}/channels/${userId}`);
+        const response = await axios.get(`${API_URL}/servers/${userId}`);
         setServer(response.data);
       }
     };
-    fetchChannels();
+    fetchServers();
   }, [API_URL, userId]);
 
   return (
     <div className="w-[72px] bg-[#202225] flex flex-col items-center py-3 space-y-2">
-      <Link to='/'>
+      <Link to="/">
         <div className="w-12 h-12 bg-[#36393f] rounded-[24px] hover:rounded-[16px] transition-all duration-200 flex items-center justify-center cursor-pointer">
           <MessageSquare className="w-6 h-6 text-[#dcddde]" />
         </div>
@@ -36,7 +38,7 @@ const ServerSidebar: React.FC = () => {
         server.map((serv: Server) => (
           <a
             key={serv.id}
-            href={`/channels/${serv.id}`}
+            href={`/servers/${serv.id}`}
             className="w-12 h-12 bg-[#36393f] rounded-[24px] hover:rounded-[16px] transition-all duration-200 flex items-center justify-center cursor-pointer"
           >
             <div className="w-6 h-6 text-[#dcddde]">
@@ -45,7 +47,8 @@ const ServerSidebar: React.FC = () => {
           </a>
         ))}
       <div className="w-12 h-12 bg-[#36393f] rounded-[24px] hover:rounded-[16px] transition-all duration-200 flex items-center justify-center cursor-pointer">
-        <Plus className="w-6 h-6 text-[#3ba55d]" />
+        {/* <Plus className="w-6 h-6 text-[#3ba55d]" /> */}
+      <ServerCreation />
       </div>
     </div>
   );

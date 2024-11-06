@@ -11,7 +11,7 @@ import { AuthInput } from "./Auth/AuthInput";
 import { AuthLayout } from "./Auth/AuthLayout";
 import ProfileModal from "./Profile/ProfileModal";
 import SettingsButton from "./Profile/SettingsButton";
-
+import { ServerCreation } from "./PopupModals/ServerCreation";
 export {
   ActiveNow,
   ChannelSidebar,
@@ -26,4 +26,5 @@ export {
   AuthLayout,
   ProfileModal,
   SettingsButton,
+  ServerCreation,
 };

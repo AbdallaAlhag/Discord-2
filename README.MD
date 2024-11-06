@@ -5,7 +5,7 @@
         - change id in prisma from autoincrement to uuid
         - create server tooltip when hover on server icon and white left line
         - Adding friend is not real time but i think that's okay, we can fix it later, not a priority 
-        - typing real time indicator works but not read receipts just yet.      
+        - typing real time indicator works but not read receipts just yet. Both could use a tune up  
 
 
 test users:
