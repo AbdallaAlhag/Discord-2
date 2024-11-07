@@ -4,13 +4,14 @@ import { useParams } from "react-router-dom";
 import { ServerSidebar, ChannelSidebar, MemberList } from "../Components";
 import ServerChat from "../Components/Server/ServerChat";
 function ServerPage() {
-  const { serverId } = useParams<{ serverId: string }>();
-  const { ChannelId } = useParams<{ ChannelId: string }>();
+  const { serverId, channelId } = useParams<{ serverId: string; channelId: string }>();
+
+  // console.log(serverId, channelId);
   return (
     <div className="flex h-screen">
       <ServerSidebar />
       {serverId && <ChannelSidebar serverId={serverId} />}{" "}
-      <ServerChat channelId={Number(ChannelId)} />
+      <ServerChat channelId={channelId} />
       <MemberList />
     </div>
   );

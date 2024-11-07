@@ -28,7 +28,7 @@ interface Message {
 const VITE_API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
 interface ChatProps {
-  channelId: number;
+  channelId: string | undefined;
 }
 
 const ServerChat: React.FC<ChatProps> = ({ channelId }) => {
@@ -43,7 +43,6 @@ const ServerChat: React.FC<ChatProps> = ({ channelId }) => {
   // Initialize socket connection
   useEffect(() => {
     socketRef.current = io(VITE_API_BASE_URL, { query: { userId } });
-
     socketRef.current.on("connect", () => {
       console.log("Socket connected:", socketRef.current?.id); // Should log connection ID
     });

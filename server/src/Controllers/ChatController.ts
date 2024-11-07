@@ -10,9 +10,9 @@ import { Request, Response } from "express";
 // Handle creating a channel message
 const handleCreateChannelMessage = async (req: Request, res: Response) => {
   const { content, userId, channelId } = req.body;
-
+  
   try {
-    const message = await createChannelMessage(content, userId, channelId);
+    const message = await createChannelMessage(content, userId, Number(channelId));
     res.status(201).json(message);
   } catch (error) {
     res.status(500).json({ error: "Failed to create channel message" });

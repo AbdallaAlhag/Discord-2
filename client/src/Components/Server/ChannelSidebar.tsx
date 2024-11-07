@@ -6,6 +6,7 @@ import axios from "axios";
 import ChannelModal from "../PopupModals/CreateChannelModal";
 import { useAuth } from "@/AuthContext";
 import defaultAvatar from "../../assets/default-avatar.svg";
+import { Link } from "react-router-dom";
 
 interface onlineUsers {
   id: number;
@@ -114,7 +115,8 @@ const ChannelSidebar: React.FC<{ serverId: string }> = ({ serverId }) => {
           </div> */}
           {/* list */}
           {Object.entries(channelInfo).map(([, channel]) => (
-            <div
+            <Link
+              to={`/server/${serverId}/${channel.id}`}
               key={channel.id}
               className="flex items-center justify-between px-2 py-1  rounded-md hover:bg-[#40444b] cursor-pointer transition-all"
             >
@@ -130,7 +132,7 @@ const ChannelSidebar: React.FC<{ serverId: string }> = ({ serverId }) => {
                   <Settings className="w-4 h-4" />
                 </button>
               </div>
-            </div>
+            </Link>
           ))}
         </div>
       </div>
