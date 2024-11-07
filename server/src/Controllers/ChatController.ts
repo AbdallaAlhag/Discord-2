@@ -21,7 +21,7 @@ const handleCreateChannelMessage = async (req: Request, res: Response) => {
 
 // Handle retrieving channel messages
 const handleGetChannelMessages = async (req: Request, res: Response) => {
-  const { channelId } = req.params;
+  const {  channelId } = req.params;
 
   try {
     const messages = await getChannelMessages(parseInt(channelId));

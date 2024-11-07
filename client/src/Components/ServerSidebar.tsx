@@ -7,6 +7,7 @@ import { useAuth } from "../AuthContext";
 import { Link } from "react-router-dom";
 
 interface Server {
+  channels: { id: number; name: string; iconUrl: string; createdAt: Date }[];
   id: number;
   name: string;
   iconUrl: string;
@@ -43,7 +44,7 @@ const ServerSidebar: React.FC = () => {
         server.map((serv: Server) => (
           <Link
             key={serv.id}
-            to={`/server/${serv.id}`}
+            to={`/server/${serv.id}/${serv.channels[0].id}`}
             className="w-12 h-12 bg-[#36393f] rounded-[24px] hover:rounded-[16px] transition-all duration-200 flex items-center justify-center cursor-pointer"
           >
             <div className="w-6 h-6 text-[#dcddde]">

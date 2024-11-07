@@ -11,7 +11,7 @@ import {
 } from "lucide-react";
 import { useEffect, useState, useRef } from "react";
 import { io, Socket } from "socket.io-client";
-import { useAuth } from "../AuthContext";
+import { useAuth } from "../../AuthContext";
 import axios from "axios";
 
 interface Message {
@@ -28,10 +28,10 @@ interface Message {
 const VITE_API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
 interface ChatProps {
-  friendId: number;
+  channelId: number;
 }
 
-const Chat: React.FC<ChatProps> = ({ friendId }) => {
+const ServerChat: React.FC<ChatProps> = ({ channelId }) => {
   const [messages, setMessages] = useState<Message[]>([]);
   const [newMessage, setNewMessage] = useState("");
   const [isLoading, setIsLoading] = useState(true);
@@ -67,7 +67,7 @@ const Chat: React.FC<ChatProps> = ({ friendId }) => {
       setError(null);
       try {
         const response = await axios.get(
-          `${VITE_API_BASE_URL}/chat/private/messages/${userId}/${friendId}`
+          `${VITE_API_BASE_URL}/chat/channel/messages/${channelId}`
         );
         // console.log("messages: ", response.data);
         setMessages(response.data);
@@ -80,7 +80,7 @@ const Chat: React.FC<ChatProps> = ({ friendId }) => {
     };
 
     fetchMessages();
-  }, [userId, friendId]);
+  }, [userId, channelId]);
 
   // Handle real-time messages
   useEffect(() => {
@@ -117,15 +117,15 @@ const Chat: React.FC<ChatProps> = ({ friendId }) => {
     if (!newMessage.trim() || !socketRef.current) return;
     const messageData = {
       content: newMessage,
-      senderId: userId,
-      recipientId: friendId,
+      userId: userId,
+      channelId: channelId,
       timestamp: new Date().toISOString(),
     };
 
     try {
       // Send to server and save in database
       const response = await axios.post(
-        `${VITE_API_BASE_URL}/chat/private/messages`,
+        `${VITE_API_BASE_URL}/chat/channel/messages`,
         messageData
       );
       // console.log("Message saved to database:", response.data); // Debug
@@ -161,7 +161,7 @@ const Chat: React.FC<ChatProps> = ({ friendId }) => {
       {/* Header */}
       <div className="h-12 px-4 flex items-center shadow-md">
         <Hash className="w-6 h-6 text-[#8e9297] mr-2" />
-        <span className="text-white font-bold">Channel ID: {friendId}</span>
+        <span className="text-white font-bold">Channel ID: {channelId}</span>
         <div className="ml-auto flex items-center space-x-4 text-[#b9bbbe]">
           <Bell className="w-5 h-5 cursor-pointer" />
           <Pin className="w-5 h-5 cursor-pointer" />
@@ -243,4 +243,4 @@ const Chat: React.FC<ChatProps> = ({ friendId }) => {
   );
 };
 
-export default Chat;
+export default ServerChat;
