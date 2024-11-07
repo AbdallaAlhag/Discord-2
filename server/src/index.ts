@@ -6,6 +6,7 @@ import authRouter from "./Routes/AuthRouter";
 import appRouter from "./Routes/AppRouter";
 import chatRouter from "./Routes/ChatRouter";
 import friendRouter from "./Routes/FriendRouter";
+import serverRouter from "./Routes/ServerRouter";
 import { errorHandler } from "./Middleware/ErrorHandler";
 import passport from "./Auth/passportConfig";
 import http from "http";
@@ -99,6 +100,7 @@ app.use("/", appRouter);
 app.use("/auth", authRouter);
 app.use("/chat", chatRouter);
 app.use("/friends", friendRouter);
+app.use("/server", serverRouter);
 app.use(errorHandler);
 
 // Handle graceful shutdowns for Prisma

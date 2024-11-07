@@ -1,9 +1,3 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
-
 generator client {
   provider = "prisma-client-js"
 }
@@ -14,52 +8,42 @@ datasource db {
 }
 
 model User {
-  id        Int      @id @default(autoincrement())
-  username  String   @unique
-  email     String   @unique
-  password  String
-  avatarUrl String? // Optional profile picture
-  createdAt DateTime @default(now())
-
-  // Relationships
-  memberships      ServerMember[]
-  sentMessages     Message[]      @relation("MessageSender")
-  receivedMessages Message[]      @relation("MessageRecipient")
-  reactions        Reaction[]
-  friends          Friend[]       @relation("UserFriends")
-  friendOf         Friend[]       @relation("FriendUsers")
-  permissions      Permission[]
-
-  // Friend request relations
-  sentRequests     FriendRequest[] @relation("SentRequests")
+  id               Int             @id @default(autoincrement())
+  email            String          @unique
+  avatarUrl        String?
+  createdAt        DateTime        @default(now())
+  password         String
+  username         String          @unique
+  friendOf         Friend[]        @relation("FriendUsers")
+  friends          Friend[]        @relation("UserFriends")
   receivedRequests FriendRequest[] @relation("ReceivedRequests")
+  sentRequests     FriendRequest[] @relation("SentRequests")
+  receivedMessages Message[]       @relation("MessageRecipient")
+  sentMessages     Message[]       @relation("MessageSender")
+  permissions      Permission[]
+  reactions        Reaction[]
+  memberships      ServerMember[]
 }
 
 model Server {
-  id        Int      @id @default(autoincrement())
-  name      String
-  iconUrl   String?
-  createdAt DateTime @default(now())
-
-  // Relationships
+  id          Int            @id @default(autoincrement())
+  name        String
+  iconUrl     String?
+  createdAt   DateTime       @default(now())
   channels    Channel[]
-  members     ServerMember[]
-  roles       Role[]
   permissions Permission[]
-
-  @@map("servers")
+  roles       Role[]
+  members     ServerMember[]
 }
 
 model Channel {
-  id        Int      @id @default(autoincrement())
+  id        Int       @id @default(autoincrement())
   serverId  Int
-  name      String   @default("general")
-  isVoice   Boolean  @default(false)
-  createdAt DateTime @default(now())
-
-  // Relationships
-  server   Server    @relation(fields: [serverId], references: [id])
-  messages Message[]
+  name      String
+  isVoice   Boolean   @default(false)
+  createdAt DateTime  @default(now())
+  server    Server    @relation(fields: [serverId], references: [id])
+  messages  Message[]
 }
 
 model ServerMember {
@@ -68,11 +52,9 @@ model ServerMember {
   serverId Int
   joinedAt DateTime @default(now())
   roleId   Int?
-
-  // Relationships
-  user   User   @relation(fields: [userId], references: [id])
-  server Server @relation(fields: [serverId], references: [id])
-  role   Role?  @relation(fields: [roleId], references: [id])
+  role     Role?    @relation(fields: [roleId], references: [id])
+  server   Server   @relation(fields: [serverId], references: [id])
+  user     User     @relation(fields: [userId], references: [id])
 
   @@unique([userId, serverId])
 }
@@ -81,44 +63,38 @@ model Message {
   id          Int         @id @default(autoincrement())
   content     String
   createdAt   DateTime    @default(now())
-  channelId   Int? // Nullable for private messages
+  channelId   Int?
   userId      Int
-  recipientId Int? // Nullable for channel messages
-  messageType MessageType // Using enum instead of String
-
-  // Relationships
-  user      User       @relation("MessageSender", fields: [userId], references: [id])
-  recipient User?      @relation("MessageRecipient", fields: [recipientId], references: [id])
-  channel   Channel?   @relation(fields: [channelId], references: [id])
-  reactions Reaction[]
+  messageType MessageType
+  recipientId Int?
+  channel     Channel?    @relation(fields: [channelId], references: [id])
+  recipient   User?       @relation("MessageRecipient", fields: [recipientId], references: [id])
+  user        User        @relation("MessageSender", fields: [userId], references: [id])
+  reactions   Reaction[]
 }
 
 enum MessageType {
   CHANNEL
   PRIVATE
 }
-
 model Friend {
-  id       Int @id @default(autoincrement())
+  id       Int  @id @default(autoincrement())
   userId   Int
   friendId Int
+  friend   User @relation("FriendUsers", fields: [friendId], references: [id])
+  user     User @relation("UserFriends", fields: [userId], references: [id])
 
-  user   User @relation("UserFriends", fields: [userId], references: [id])
-  friend User @relation("FriendUsers", fields: [friendId], references: [id])
-
-  @@unique([userId, friendId]) // Ensure a user can only be friends with another user once
+  @@unique([userId, friendId])
 }
 
 model FriendRequest {
   id          Int      @id @default(autoincrement())
   senderId    Int
   recipientId Int
-  status      String   @default("PENDING") // PENDING, ACCEPTED, REJECTED
+  status      String   @default("PENDING")
   createdAt   DateTime @default(now())
-
-  // Relationships
-  sender    User @relation("SentRequests", fields: [senderId], references: [id])
-  recipient User @relation("ReceivedRequests", fields: [recipientId], references: [id])
+  recipient   User     @relation("ReceivedRequests", fields: [recipientId], references: [id])
+  sender      User     @relation("SentRequests", fields: [senderId], references: [id])
 }
 
 model Reaction {
@@ -127,33 +103,28 @@ model Reaction {
   messageId Int
   userId    Int
   createdAt DateTime @default(now())
-
-  // Relationships
-  message Message @relation(fields: [messageId], references: [id])
-  user    User    @relation(fields: [userId], references: [id])
+  message   Message  @relation(fields: [messageId], references: [id])
+  user      User     @relation(fields: [userId], references: [id])
 
   @@unique([userId, messageId, emoji])
 }
 
 model Role {
-  id       Int    @id @default(autoincrement())
-  name     String
-  serverId Int
-
-  // Relationships
-  server        Server         @relation(fields: [serverId], references: [id])
+  id            Int            @id @default(autoincrement())
+  serverId      Int
+  name          String
   permissions   Permission[]
+  server        Server         @relation(fields: [serverId], references: [id])
   serverMembers ServerMember[]
 }
 
 model Permission {
-  id       Int @id @default(autoincrement())
+  id       Int    @id @default(autoincrement())
   serverId Int
   userId   Int
   roleId   Int
-
-  // Relationships
-  role   Role   @relation(fields: [roleId], references: [id])
-  server Server @relation(fields: [serverId], references: [id])
-  user   User   @relation(fields: [userId], references: [id])
+  role     Role   @relation(fields: [roleId], references: [id])
+  server   Server @relation(fields: [serverId], references: [id])
+  user     User   @relation(fields: [userId], references: [id])
 }
+

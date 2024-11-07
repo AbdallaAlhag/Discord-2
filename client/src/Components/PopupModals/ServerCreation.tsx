@@ -9,15 +9,27 @@ import {
   ChevronRight,
   Plus,
 } from "lucide-react";
+import axios from "axios";
+import { useAuth } from "../../AuthContext";
 
 type Step = "initial" | "type" | "customize";
+const VITE_API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
 export function ServerCreation() {
   const [isOpen, setIsOpen] = useState(false);
+  const [serverName, setServerName] = useState("New Server");
   const [step, setStep] = useState<Step>("initial");
+  const { userId } = useAuth();
 
   const handleClose = () => {
     setIsOpen(false);
+    axios
+      .post(`${VITE_API_BASE_URL}/server/create`, {
+        name: "My Server",
+        userId: userId,
+      })
+      .then((response) => console.log(response))
+      .catch((err) => console.error("Error creating server:", err));
     setTimeout(() => setStep("initial"), 300);
   };
 
@@ -171,6 +183,8 @@ export function ServerCreation() {
                 type="text"
                 className="w-full bg-[#1E1F22] text-white p-2.5 rounded-md border border-[#1E1F22] focus:border-[#5865F2] focus:outline-none"
                 defaultValue="My Server"
+                value={serverName}
+                onChange={(e) => setServerName(e.target.value)}
               />
             </div>
 
@@ -199,10 +213,7 @@ export function ServerCreation() {
 
   return (
     <>
-      <button
-        onClick={() => setIsOpen(true)}
-        // className="px-6 py-3 bg-[#5865F2] hover:bg-[#4752C4] text-white rounded-md transition-colors"
-      >
+      <button onClick={() => setIsOpen(true)} className="px-3 py-3 ">
         {/* Create a Server */}
         <Plus className="w-6 h-6 text-[#3ba55d]" />
       </button>

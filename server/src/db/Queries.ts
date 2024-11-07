@@ -62,7 +62,7 @@ export const getFriends = async (userId: number) => {
       new Map(friendsList.map((friend) => [friend.id, friend])).values()
     );
 
-    console.log("Unique Friends List:", uniqueFriendsList);
+    // console.log("Unique Friends List:", uniqueFriendsList);
     return uniqueFriendsList;
   } catch (error) {
     console.error("Error fetching friends:", error);

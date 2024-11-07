@@ -1,32 +1,162 @@
-import { Hash } from "lucide-react";
+import { Hash, Plus, Users, Settings } from "lucide-react";
 import SettingsButton from "../Profile/SettingsButton";
+import LogoutButton from "../Profile/LogoutButton";
+import { useEffect, useState } from "react";
+import axios from "axios";
+import ChannelModal from "../PopupModals/CreateChannelModal";
+import { useAuth } from "@/AuthContext";
+import defaultAvatar from "../../assets/default-avatar.svg";
 
-const ChannelSidebar: React.FC = () => {
+interface onlineUsers {
+  id: number;
+  username: string;
+  avatarUrl: null | string;
+  status: "online" | "offline" | "idle" | "dnd";
+  isGroup?: boolean;
+  memberCount?: number;
+}
+type ChannelInfo = {
+  id: number;
+  serverId: number;
+  name: string;
+  isVoice: boolean;
+  createdAt: Date;
+}[];
+
+const VITE_API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+
+const ChannelSidebar: React.FC<{ serverId: string }> = ({ serverId }) => {
+  const [channelInfo, setChannelInfo] = useState<ChannelInfo>([]);
+  const [serverName, setServerName] = useState("");
+  const [isModalOpen, setIsModalOpen] = useState(false); // State to control the modal
+  const [channelUpdate, setChannelUpdate] = useState(0); // Track channel changes
+
+  const [user, setUser] = useState<onlineUsers | null>(null);
+  const { userId } = useAuth();
+
+  const handleCreateChannel = async (data: {
+    name: string;
+    type: "text" | "voice";
+    isPrivate: boolean;
+  }) => {
+    // Logic to create a new channel
+    console.log("Channel created:", data);
+    try {
+      const response = await axios.post(
+        `${VITE_API_BASE_URL}/server/createChannel`,
+        {
+          data,
+          serverId: Number(serverId),
+        }
+      );
+      console.log(response);
+      setChannelUpdate((prev) => prev + 1); // Update channel state
+    } catch (error) {
+      console.error("Error creating channel:", error);
+    }
+    setIsModalOpen(false);
+  };
+  useEffect(() => {
+    const fetchUser = async () => {
+      if (!userId) return;
+      try {
+        const response = await axios.get(`${VITE_API_BASE_URL}/user/${userId}`);
+        setUser(response.data.user);
+        // console.log("user: ", response.data.user);
+      } catch (err) {
+        console.error("Error fetching user ", err);
+      }
+    };
+
+    const fetchChannels = async () => {
+      try {
+        const response = await axios.get(
+          `${VITE_API_BASE_URL}/server/channels/${Number(serverId)}`
+        );
+        setChannelInfo(response.data.channels);
+        setServerName(response.data.name);
+        // console.log("channels: ", response.data);
+      } catch (error) {
+        console.error("Error fetching channels", error);
+      }
+    };
+    fetchUser();
+    fetchChannels();
+  }, [serverId, userId, channelUpdate]);
+
+  const handleOpenModal = () => setIsModalOpen(true);
+  const handleCloseModal = () => setIsModalOpen(false);
+
   return (
     <div className="w-60 bg-[#2f3136] flex flex-col">
+      {/* server name */}
       <div className="h-12 px-4 flex items-center shadow-md">
-        <h2 className="text-white font-bold">Discord Clone</h2>
+        <h2 className="text-white font-bold">{serverName}</h2>
       </div>
-      <div className="flex-1 overflow-y-auto">
+      {/* channels */}
+      <div className="flex-1 overflow-y-auto ">
         <div className="px-2 mt-4">
-          <div className="flex items-center px-2 text-[#8e9297] text-sm mb-1">
+          {/* <p>TEXT CHANNELS + </p> */}
+          <div className="flex items-center justify-between mb-2">
+            <span className="text-xs font-bold text-[#72767d]">
+              TEXT CHANNELS
+            </span>
+            <button
+              onClick={handleOpenModal}
+              className="text-[#b9bbbe] hover:text-white"
+            >
+              <Plus className="w-4 h-4" />
+            </button>
+          </div>
+          {/* <div className="flex items-center px-2 text-[#8e9297] text-sm mb-1">
             <Hash className="w-5 h-5 mr-1.5" />
             <span>general</span>
-          </div>
-          <div className="flex items-center px-2 text-[#8e9297] text-sm mb-1 bg-[#393c43] rounded">
-            <Hash className="w-5 h-5 mr-1.5" />
-            <span>announcements</span>
-          </div>
+          </div> */}
+          {/* list */}
+          {Object.entries(channelInfo).map(([, channel]) => (
+            <div
+              key={channel.id}
+              className="flex items-center justify-between px-2 py-1  rounded-md hover:bg-[#40444b] cursor-pointer transition-all"
+            >
+              <div className="flex items-center space-x-2 text-[#8e9297]">
+                <Hash className="w-5 h-5 mr-1.5" />
+                <span className=" text-white">{channel.name}</span>
+              </div>
+              <div className="flex items-center space-x-2">
+                <button className="text-[#b9bbbe] hover:text-white">
+                  <Users className="w-4 h-4" />
+                </button>
+                <button className="text-[#b9bbbe] hover:text-white">
+                  <Settings className="w-4 h-4" />
+                </button>
+              </div>
+            </div>
+          ))}
         </div>
       </div>
-      <div className="h-14 bg-[#292b2f] px-2 flex items-center">
-        <div className="w-8 h-8 rounded-full bg-[#36393f] mr-2"></div>
+      {/* profile */}
+      <div className="h-14 bg-[#292b2f] px-2 flex items-center mt-auto">
+        <img
+          src={user?.avatarUrl || defaultAvatar}
+          className="w-8 h-8 rounded-full mr-2"
+          alt="User Avatar"
+        />
+        {/* <div className="w-8 h-8 rounded-full bg-[#36393f] mr-2 relative">
+          <StatusIndicator status="online" />
+        </div> */}
         <div className="flex-1">
-          <div className="text-white text-sm font-medium">User</div>
-          <div className="text-[#b9bbbe] text-xs">#0001</div>
+          <div className="text-white text-sm font-medium">{user?.username}</div>
+          <div className="text-[#b9bbbe] text-xs">#{user?.id}</div>
         </div>
+        <LogoutButton className="pr-4 pt-1" />
         <SettingsButton />
       </div>
+      {/* Channel Creation Modal */}
+      <ChannelModal
+        isOpen={isModalOpen}
+        onClose={handleCloseModal}
+        onCreateChannel={handleCreateChannel}
+      />
     </div>
   );
 };

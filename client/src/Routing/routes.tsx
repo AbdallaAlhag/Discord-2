@@ -7,7 +7,7 @@ export const routes = [
     element: <HomePage />,
   },
   {
-    path: "/server",
+    path: "/server/:serverId",
     element: <ServerPage />,
   },
   // This should be protected but for development leave it open

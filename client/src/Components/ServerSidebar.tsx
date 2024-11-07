@@ -19,8 +19,13 @@ const ServerSidebar: React.FC = () => {
   useEffect(() => {
     const fetchServers = async () => {
       if (userId) {
-        const response = await axios.get(`${API_URL}/servers/${userId}`);
-        setServer(response.data);
+        try {
+          const response = await axios.get(`${API_URL}/servers/${userId}`);
+          setServer(response.data.servers);
+          console.log("servers: ", response.data.servers);
+        } catch (error) {
+          console.error("Error fetching servers", error);
+        }
       }
     };
     fetchServers();
@@ -36,19 +41,18 @@ const ServerSidebar: React.FC = () => {
       <div className="w-12 h-[2px] bg-[#36393f] rounded-full" />
       {server?.length > 0 &&
         server.map((serv: Server) => (
-          <a
+          <Link
             key={serv.id}
-            href={`/servers/${serv.id}`}
+            to={`/server/${serv.id}`}
             className="w-12 h-12 bg-[#36393f] rounded-[24px] hover:rounded-[16px] transition-all duration-200 flex items-center justify-center cursor-pointer"
           >
             <div className="w-6 h-6 text-[#dcddde]">
               {serv.name.charAt(0).toUpperCase()}
             </div>
-          </a>
+          </Link>
         ))}
       <div className="w-12 h-12 bg-[#36393f] rounded-[24px] hover:rounded-[16px] transition-all duration-200 flex items-center justify-center cursor-pointer">
-        {/* <Plus className="w-6 h-6 text-[#3ba55d]" /> */}
-      <ServerCreation />
+        <ServerCreation />
       </div>
     </div>
   );
