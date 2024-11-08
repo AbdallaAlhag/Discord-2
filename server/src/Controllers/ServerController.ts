@@ -3,7 +3,9 @@ import {
   createServer,
   createChannel,
   getServerChannelsInfo,
+  createServerInvite,
 } from "../db/serverQueries";
+import prisma from "../db/prisma";
 
 const handleCreateServer = async (
   req: Request,
@@ -28,7 +30,10 @@ const handleCreateChannel = async (
   res: Response,
   next: NextFunction
 ) => {
-  const { data: { name, type, isPrivate }, serverId } = req.body;
+  const {
+    data: { name, type, isPrivate },
+    serverId,
+  } = req.body;
   console.log(req.body);
   if (!name || !type || isPrivate === undefined || !serverId) {
     console.log("name: ", name);
@@ -66,4 +71,47 @@ const handleServerChannelsInfo = async (
   }
 };
 
-export { handleCreateServer, handleServerChannelsInfo, handleCreateChannel };
+const handleServerInvite = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  const { serverId } = req.params;
+  const { invitedUserId, invitedBy } = req.body;
+
+  if (!serverId || !invitedUserId || !invitedBy) {
+    return res.status(400).json({ error: "Missing required fields" });
+  }
+
+  try {
+    // Create the invite in the database
+    const invite = await createServerInvite(
+      parseInt(serverId),
+      parseInt(invitedUserId),
+      parseInt(invitedBy)
+    );
+
+    // Get the server details for the response
+    const server = await prisma.server.findUnique({
+      where: { id: parseInt(serverId) },
+      select: { name: true },
+    });
+
+    if (!server) {
+      return res.status(404).json({ error: "Server not found" });
+    }
+
+    // Return the created invite data
+    return res.status(201).json(invite);
+  } catch (error) {
+    console.error("Error creating invite:", error);
+    return res.status(500).json({ error: "Failed to create invite" });
+  }
+};
+
+export {
+  handleCreateServer,
+  handleServerChannelsInfo,
+  handleCreateChannel,
+  handleServerInvite,
+};

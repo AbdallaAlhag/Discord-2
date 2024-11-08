@@ -4,6 +4,7 @@ import LogoutButton from "../Profile/LogoutButton";
 import { useEffect, useState } from "react";
 import axios from "axios";
 import ChannelModal from "../PopupModals/CreateChannelModal";
+import InviteModal from "../InviteModal/InviteModal"; // Import InviteModal
 import { useAuth } from "@/AuthContext";
 import defaultAvatar from "../../assets/default-avatar.svg";
 import { Link } from "react-router-dom";
@@ -26,15 +27,22 @@ type ChannelInfo = {
 
 const VITE_API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
-const ChannelSidebar: React.FC<{ serverId: string }> = ({ serverId }) => {
+const ChannelSidebar: React.FC<{ serverId: string; channelId: string }> = ({
+  serverId,
+  channelId,
+}) => {
   const [channelInfo, setChannelInfo] = useState<ChannelInfo>([]);
   const [serverName, setServerName] = useState("");
   const [isModalOpen, setIsModalOpen] = useState(false); // State to control the modal
+  const [isInviteModalOpen, setIsInviteModalOpen] = useState(false); // For invite modal
+
   const [channelUpdate, setChannelUpdate] = useState(0); // Track channel changes
 
   const [user, setUser] = useState<onlineUsers | null>(null);
   const { userId } = useAuth();
 
+  // Example invite link (customize based on your requirements)
+  const inviteLink = `${VITE_API_BASE_URL}/server/${serverId}/${channelId}`;
   const handleCreateChannel = async (data: {
     name: string;
     type: "text" | "voice";
@@ -88,11 +96,20 @@ const ChannelSidebar: React.FC<{ serverId: string }> = ({ serverId }) => {
   const handleOpenModal = () => setIsModalOpen(true);
   const handleCloseModal = () => setIsModalOpen(false);
 
+  // Functions to handle modal open/close
+  const handleOpenInviteModal = () => setIsInviteModalOpen(true);
+  const handleCloseInviteModal = () => setIsInviteModalOpen(false);
   return (
     <div className="w-60 bg-[#2f3136] flex flex-col">
       {/* server name */}
-      <div className="h-12 px-4 flex items-center shadow-md">
+      <div className="h-12 px-4 flex items-center justify-between shadow-md">
         <h2 className="text-white font-bold">{serverName}</h2>
+        <button
+          onClick={handleOpenInviteModal}
+          className="text-[#b9bbbe] hover:text-white"
+        >
+          <Users className="w-4 h-4" />
+        </button>
       </div>
       {/* channels */}
       <div className="flex-1 overflow-y-auto ">
@@ -126,9 +143,6 @@ const ChannelSidebar: React.FC<{ serverId: string }> = ({ serverId }) => {
               </div>
               <div className="flex items-center space-x-2">
                 <button className="text-[#b9bbbe] hover:text-white">
-                  <Users className="w-4 h-4" />
-                </button>
-                <button className="text-[#b9bbbe] hover:text-white">
                   <Settings className="w-4 h-4" />
                 </button>
               </div>
@@ -158,6 +172,15 @@ const ChannelSidebar: React.FC<{ serverId: string }> = ({ serverId }) => {
         isOpen={isModalOpen}
         onClose={handleCloseModal}
         onCreateChannel={handleCreateChannel}
+      />
+      {/* Invite Modal */}
+      <InviteModal
+        isOpen={isInviteModalOpen}
+        onClose={handleCloseInviteModal}
+        serverName={serverName}
+        serverId={serverId}
+        channelName={channelInfo[0]?.name || "general"} // Example, customize based on selected channel
+        inviteLink={inviteLink}
       />
     </div>
   );

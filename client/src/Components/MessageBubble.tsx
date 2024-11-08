@@ -1,4 +1,11 @@
 import React from "react";
+import InviteEmbed from "./Home/InviteEmbed";
+interface InviteData {
+  serverName: string;
+  onlineCount: number;
+  memberCount: number;
+  inviteCode: string;
+}
 
 interface Message {
   user: { username: string };
@@ -9,6 +16,8 @@ interface Message {
   recipientId: number;
   senderUsername: string;
   recipientUsername: string;
+  type?: "text" | "invite";
+  inviteData?: InviteData;
 }
 
 interface MessageBubbleProps {
@@ -25,7 +34,7 @@ const MessageBubble: React.FC<MessageBubbleProps> = ({ message, isOwn }) => (
     {!isOwn && <div className="w-10 h-10 rounded-full bg-[#2f3136] mr-4"></div>}
     <div
       className={`p-3 rounded-lg max-w-[70%] ${
-        isOwn ? "bg-[#3ba55d] ml-4" : "bg-[#202225] mr-4"
+        isOwn ? "bg-[#3ba55d]" : "bg-[#202225]"
       }`}
     >
       <div className="flex items-center mb-1">
@@ -34,6 +43,9 @@ const MessageBubble: React.FC<MessageBubbleProps> = ({ message, isOwn }) => (
         </span>
       </div>
       <span className="text-white break-words">{message.content}</span>
+      {message.type === "invite" && message.inviteData && (
+        <InviteEmbed inviteData={message.inviteData} />
+      )}
       <div className="text-xs text-[#b9bbbe] mt-1">
         {new Date(message.createdAt).toLocaleTimeString()}
       </div>

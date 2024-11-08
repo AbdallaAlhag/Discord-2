@@ -6,6 +6,7 @@
         - create server tooltip when hover on server icon and white left line
         - Adding friend is not real time but i think that's okay, we can fix it later, not a priority 
         - typing real time indicator works but not read receipts just yet. Both could use a tune up  
+        - invite sending but not embedded and not real time
 
 
 test users:

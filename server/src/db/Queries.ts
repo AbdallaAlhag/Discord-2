@@ -43,10 +43,10 @@ export const getFriends = async (userId: number) => {
       where: { id: userId },
       include: {
         friends: {
-          include: { friend: true }, // Include details about the friend
+          include: { friend: { select: { id: true, username: true, avatarUrl: true } } },
         },
         friendOf: {
-          include: { user: true }, // Include details about the friend
+          include: { user: { select: { id: true, username: true, avatarUrl: true } } },
         },
       },
     });
@@ -69,6 +69,7 @@ export const getFriends = async (userId: number) => {
     throw error;
   }
 };
+
 
 export const getMessages = async (channelId: number) =>
   await prisma.message.findMany({

@@ -15,7 +15,22 @@ import { useAuth } from "../../AuthContext";
 import axios from "axios";
 import MessageBubble from "../MessageBubble";
 import TypingIndicator from "../TypingIndicator";
-
+// interface Message {
+//   user: { username: string };
+//   id: number;
+//   content: string;
+//   senderId: number;
+//   createdAt: string;
+//   recipientId: number;
+//   senderUsername: string;
+//   recipientUsername: string;
+// }
+interface InviteData {
+  serverName: string;
+  onlineCount: number;
+  memberCount: number;
+  inviteCode: string;
+}
 interface Message {
   user: { username: string };
   id: number;
@@ -25,6 +40,8 @@ interface Message {
   recipientId: number;
   senderUsername: string;
   recipientUsername: string;
+  type?: "text" | "invite";
+  inviteData?: InviteData;
 }
 
 const VITE_API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
@@ -67,6 +84,36 @@ const PrivateChat: React.FC<ChatProps> = ({ friendId }) => {
   useEffect(() => {
     scrollToBottom();
   }, [messages]);
+
+  // Dynamically create the regex for matching invite URLs
+  const generateInviteRegex = (baseUrl: string) => {
+    const escapedBaseUrl = baseUrl.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"); // Escape special regex characters
+    return new RegExp(`^${escapedBaseUrl}/server/(\\d+)/(\\d+)$`);
+  };
+
+  // Parse function to extract invite details
+  const parseDiscordInvite = (content: string) => {
+    const inviteRegex = generateInviteRegex(VITE_API_BASE_URL);
+    const match = content.match(inviteRegex);
+
+    if (match) {
+      const serverId = match[1];
+      const channelId = match[2];
+
+      return {
+        type: "invite" as const,
+        inviteData: {
+          serverId: parseInt(serverId, 10),
+          channelId: parseInt(channelId, 10),
+          serverName: "Your Server Name", // Replace with a fetch call if necessary
+          onlineCount: 1,
+          memberCount: 1,
+        },
+      };
+    }
+
+    return null;
+  };
   // Fetch message history
   useEffect(() => {
     const fetchMessages = async () => {
@@ -182,11 +229,17 @@ const PrivateChat: React.FC<ChatProps> = ({ friendId }) => {
   // Send message function
   const sendMessage = async () => {
     if (!newMessage.trim() || !socketRef.current) return;
+
+    const inviteData = parseDiscordInvite(newMessage);
     const messageData = {
       content: newMessage,
       senderId: userId,
       recipientId: friendId,
       timestamp: new Date().toISOString(),
+      ...(inviteData && {
+        type: "invite",
+        inviteData: inviteData.inviteData,
+      }),
     };
 
     try {
@@ -246,39 +299,6 @@ const PrivateChat: React.FC<ChatProps> = ({ friendId }) => {
         ) : messages.length === 0 ? (
           <div className="text-center text-[#b9bbbe]">No messages yet</div>
         ) : (
-          //   messages.map((msg) => (
-          //     <div
-          //       className={`flex items-start mb-6 ${
-          //         msg.senderId === userId ? "justify-end" : "justify-start"
-          //       }`}
-          //       key={msg.id}
-          //     >
-          //       {msg.senderId !== userId && (
-          //         <div className="w-10 h-10 rounded-full bg-[#2f3136] mr-4"></div>
-          //       )}
-          //       <div
-          //         className={`p-3 rounded-lg max-w-[70%] ${
-          //           msg.senderId === userId
-          //             ? "bg-[#3ba55d] ml-4"
-          //             : "bg-[#202225] mr-4"
-          //         }`}
-          //       >
-          //         <div className="flex items-center mb-1">
-          //           <span className="text-sm font-semibold text-[#b9bbbe] mr-2">
-          //             {msg.user?.username || msg.senderUsername}
-          //           </span>
-          //         </div>
-          //         <span className="text-white break-words">{msg.content}</span>
-          //         <div className="text-xs text-[#b9bbbe] mt-1">
-          //           {new Date(msg.createdAt).toLocaleTimeString()}
-          //         </div>
-          //       </div>
-          //       {msg.senderId === userId && (
-          //         <div className="w-10 h-10 rounded-full bg-[#2f3136] ml-4"></div>
-          //       )}
-          //     </div>
-          //   ))
-          // )}
           messages.map((msg) => (
             <MessageBubble
               key={msg.id || msg.id}

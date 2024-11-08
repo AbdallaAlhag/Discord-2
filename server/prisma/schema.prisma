@@ -23,6 +23,8 @@ model User {
   permissions      Permission[]
   reactions        Reaction[]
   memberships      ServerMember[]
+  createdInvites   ServerInvite[]  @relation("InviteCreator")
+  usedInvites      ServerInvite[]  @relation("InviteUser")
 }
 
 model Server {
@@ -34,8 +36,8 @@ model Server {
   permissions Permission[]
   roles       Role[]
   members     ServerMember[]
+  invites     ServerInvite[]
 }
-
 model Channel {
   id        Int       @id @default(autoincrement())
   serverId  Int
@@ -77,6 +79,7 @@ enum MessageType {
   CHANNEL
   PRIVATE
 }
+
 model Friend {
   id       Int  @id @default(autoincrement())
   userId   Int
@@ -95,6 +98,28 @@ model FriendRequest {
   createdAt   DateTime @default(now())
   recipient   User     @relation("ReceivedRequests", fields: [recipientId], references: [id])
   sender      User     @relation("SentRequests", fields: [senderId], references: [id])
+}
+
+model ServerInvite {
+  id          Int       @id @default(autoincrement())
+  inviteCode  String    @unique
+  serverId    Int
+  createdById Int
+  usedById    Int?
+  expiresAt   DateTime
+  createdAt   DateTime  @default(now())
+  usedAt      DateTime?
+  maxUses     Int       @default(1)
+  uses        Int       @default(0)
+  isRevoked   Boolean   @default(false)
+
+  // Relations
+  server    Server @relation(fields: [serverId], references: [id])
+  createdBy User   @relation("InviteCreator", fields: [createdById], references: [id])
+  usedBy    User?  @relation("InviteUser", fields: [usedById], references: [id])
+
+  @@index([inviteCode])
+  @@index([serverId])
 }
 
 model Reaction {
@@ -127,4 +152,3 @@ model Permission {
   server   Server @relation(fields: [serverId], references: [id])
   user     User   @relation(fields: [userId], references: [id])
 }
-
