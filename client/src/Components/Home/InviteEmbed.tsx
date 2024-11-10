@@ -5,7 +5,17 @@ interface InviteData {
   memberCount: number;
   inviteCode: string;
 }
-const InviteEmbed: React.FC<{ inviteData: InviteData }> = ({ inviteData }) => {
+
+interface InviteContent {
+  type: "invite";
+  inviteCode: string;
+  serverName: string;
+  expiresAt: string; // or Date if you parse it as a Date object
+}
+
+const InviteEmbed: React.FC<{ inviteData: InviteData | InviteContent }> = ({
+  inviteData,
+}) => {
   const handleJoin = () => {
     // Handle join server action
     console.log(`Joining server with invite code: ${inviteData.inviteCode}`);
@@ -23,15 +33,38 @@ const InviteEmbed: React.FC<{ inviteData: InviteData }> = ({ inviteData }) => {
           </div>
           <div>
             <div className="font-semibold">{inviteData.serverName}</div>
+
+            {/* link invite */}
             <div className="flex items-center space-x-2 text-sm text-[#b9bbbe]">
               <div className="flex items-center">
                 <div className="w-2 h-2 bg-[#3ba55d] rounded-full mr-2"></div>
-                {inviteData.onlineCount} Online
+                {"onlineCount" in inviteData &&
+                  `${inviteData.onlineCount} Online`}
               </div>
               <div className="flex items-center">
                 <Users size={14} className="mr-1" />
-                {inviteData.memberCount} Member
-                {inviteData.memberCount !== 1 ? "s" : ""}
+                {"memberCount" in inviteData && (
+                  <>
+                    {inviteData.memberCount} Member
+                    {inviteData.memberCount !== 1 ? "s" : ""}
+                  </>
+                )}
+              </div>
+            </div>
+
+            {/* button invite */}
+            <div className="flex items-center space-x-2 text-sm text-[#b9bbbe]">
+              {/* link invite */}
+              <div className="flex items-center">
+                <div className="w-2 h-2 bg-[#3ba55d] rounded-full mr-2"></div>
+                {"inviteCode" in inviteData &&
+                  `invite code: ${inviteData.inviteCode}`}
+              </div>
+              <div className="flex items-center">
+                <Users size={14} className="mr-1" />
+                {"expiresAt" in inviteData && (
+                  <>Expires at: {inviteData.expiresAt}</>
+                )}
               </div>
             </div>
           </div>

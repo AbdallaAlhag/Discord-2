@@ -94,6 +94,7 @@ const PrivateChat: React.FC<ChatProps> = ({ friendId }) => {
   // Parse function to extract invite details
   const parseDiscordInvite = (content: string) => {
     const inviteRegex = generateInviteRegex(VITE_API_BASE_URL);
+    console.log('invite code: ', inviteRegex);
     const match = content.match(inviteRegex);
 
     if (match) {
@@ -235,13 +236,14 @@ const PrivateChat: React.FC<ChatProps> = ({ friendId }) => {
       content: newMessage,
       senderId: userId,
       recipientId: friendId,
-      timestamp: new Date().toISOString(),
+      createdAt: new Date().toISOString(),
       ...(inviteData && {
         type: "invite",
         inviteData: inviteData.inviteData,
       }),
     };
 
+    console.log(messageData);
     try {
       // Send to server and save in database
       const response = await axios.post(
@@ -276,6 +278,7 @@ const PrivateChat: React.FC<ChatProps> = ({ friendId }) => {
     }
   };
 
+  console.log('Message: ', messages)
   return (
     <div className="flex-1 bg-[#36393f] flex flex-col">
       {/* Header */}

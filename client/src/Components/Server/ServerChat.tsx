@@ -118,7 +118,7 @@ const ServerChat: React.FC<ChatProps> = ({ channelId }) => {
       content: newMessage,
       userId: userId,
       channelId: channelId,
-      timestamp: new Date().toISOString(),
+      createdAt: new Date().toISOString(),
     };
 
     try {

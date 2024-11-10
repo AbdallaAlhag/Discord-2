@@ -75,7 +75,7 @@ async function createPrivateMessage(
       content: createdMessage.content,
       senderId: createdMessage.userId,
       senderUsername: sender?.username,
-      timestamp: createdMessage.createdAt,
+      createdAt: createdMessage.createdAt,
       recipientId: createdMessage.recipientId,
       recipientUsername: recipient?.username,
     };
