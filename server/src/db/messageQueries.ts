@@ -80,7 +80,7 @@ async function createPrivateMessage(
       recipientUsername: recipient?.username,
     };
   } catch (err) {
-    console.error("bug is here creating message:", err);
+    console.error("Bug is here creating message:", err);
   }
 }
 

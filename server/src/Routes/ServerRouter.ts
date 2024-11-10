@@ -4,6 +4,7 @@ import {
   handleServerChannelsInfo,
   handleCreateChannel,
   handleServerInvite,
+  handleAddToServer,
 } from "../Controllers/ServerController";
 const router = express.Router();
 
@@ -29,6 +30,13 @@ router.post(
   "/invite/:serverId",
   (req: Request, res: Response, next: NextFunction) => {
     handleServerInvite(req, res, next);
+  }
+);
+
+router.post(
+  "/join/:userId/:serverId",
+  (req: Request, res: Response, next: NextFunction) => {
+    handleAddToServer(req, res, next);
   }
 );
 export default router;

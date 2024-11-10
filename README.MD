@@ -2,11 +2,15 @@
 
     todo:
         - fake data works well with front end but does not work with backend unless i update with my temp backend data
+            - add fake data to backend and use that instead
         - change id in prisma from autoincrement to uuid
         - create server tooltip when hover on server icon and white left line
         - Adding friend is not real time but i think that's okay, we can fix it later, not a priority 
         - typing real time indicator works but not read receipts just yet. Both could use a tune up  
-        - invite sending but not embedded and not real time
+        - invite sending and both are embedded but link embeds after refresh.
+            - fix copy link issue
+            - Work on accepting invite       
+            - invite code is pretty useless, don't know how to do anything with it. 
 
 
 test users:

@@ -25,25 +25,38 @@ import TypingIndicator from "../TypingIndicator";
 //   senderUsername: string;
 //   recipientUsername: string;
 // }
-interface InviteData {
-  serverName: string;
-  onlineCount: number;
-  memberCount: number;
+
+interface InviteContent {
+  type: "invite";
   inviteCode: string;
+  serverName: string;
+  expiresAt: string; // or Date if you parse it as a Date object
+  serverId: string;
 }
+
+// interface Message {
+//   user: { username: string };
+//   id: number;
+//   content: string | InviteContent;
+//   senderId: number;
+//   createdAt: string;
+//   recipientId: number;
+//   senderUsername: string;
+//   recipientUsername: string;
+//   type?: "text" | "invite";
+// }
 interface Message {
-  user: { username: string };
-  id: number;
-  content: string;
+  user?: { username: string };
+  username?: string;
+  id?: number;
+  content: string | InviteContent;
   senderId: number;
   createdAt: string;
   recipientId: number;
-  senderUsername: string;
-  recipientUsername: string;
+  senderUsername?: string;
+  recipientUsername?: string;
   type?: "text" | "invite";
-  inviteData?: InviteData;
 }
-
 const VITE_API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
 interface ChatProps {
@@ -92,23 +105,34 @@ const PrivateChat: React.FC<ChatProps> = ({ friendId }) => {
   };
 
   // Parse function to extract invite details
-  const parseDiscordInvite = (content: string) => {
+  const parseDiscordInvite = async (content: string) => {
     const inviteRegex = generateInviteRegex(VITE_API_BASE_URL);
-    console.log('invite code: ', inviteRegex);
+    // console.log("invite code: ", inviteRegex);
     const match = content.match(inviteRegex);
 
     if (match) {
       const serverId = match[1];
       const channelId = match[2];
 
+      const response = await axios.post(
+        `${VITE_API_BASE_URL}/server/invite/${serverId}`,
+        {
+          invitedUserId: friendId,
+          invitedBy: userId,
+        }
+      );
+
+      // console.log("testing local invite: ", response.data);
       return {
         type: "invite" as const,
+        content: `You've been invited to join ${response.data.serverName}! Server Copy link: ${match}`,
         inviteData: {
           serverId: parseInt(serverId, 10),
           channelId: parseInt(channelId, 10),
-          serverName: "Your Server Name", // Replace with a fetch call if necessary
-          onlineCount: 1,
-          memberCount: 1,
+          serverName: response.data.serverName,
+          expiresAt: response.data.expiresAt,
+          inviteCode: response.data.inviteCode,
+          invitedBy: userId,
         },
       };
     }
@@ -231,34 +255,47 @@ const PrivateChat: React.FC<ChatProps> = ({ friendId }) => {
   const sendMessage = async () => {
     if (!newMessage.trim() || !socketRef.current) return;
 
-    const inviteData = parseDiscordInvite(newMessage);
+    const inviteData = await parseDiscordInvite(newMessage);
+    // console.log("inviteData: ", inviteData);
     const messageData = {
-      content: newMessage,
+      // content: newMessage,
+      content: inviteData ? inviteData.content : newMessage,
       senderId: userId,
       recipientId: friendId,
       createdAt: new Date().toISOString(),
-      ...(inviteData && {
-        type: "invite",
-        inviteData: inviteData.inviteData,
-      }),
+      ...(inviteData &&
+        inviteData.inviteData && {
+          type: "invite",
+          inviteData: inviteData.inviteData,
+        }),
     };
 
-    console.log(messageData);
+    console.log("messageData: ", messageData);
     try {
       // Send to server and save in database
-      const response = await axios.post(
-        `${VITE_API_BASE_URL}/chat/private/messages`,
-        messageData
-      );
-      // console.log("Message saved to database:", response.data); // Debug
-
-      // Emit message through socket for real-time delivery
-      socketRef.current.emit("private_message", response.data);
-
-      // Update local state to show message immediately
-      setMessages((prev) => [...prev, response.data]);
-      setNewMessage("");
-      scrollToBottom();
+      if (inviteData) {
+        socketRef.current.emit("send_message", {
+          recipientId: friendId,
+          message: messageData,
+        });
+        // setMessages((prev) => [...prev, messageData]);
+        setMessages((prev) => [...prev, messageData as Message]);
+        setNewMessage("");
+        scrollToBottom();
+      }
+      if (!inviteData) {
+        const response = await axios.post(
+          `${VITE_API_BASE_URL}/chat/private/messages`,
+          messageData
+        );
+        // console.log("Message saved to database:", response.data); // Debug
+        // Emit message through socket for real-time delivery
+        socketRef.current.emit("private_message", response.data);
+        // Update local state to show message immediately
+        setMessages((prev) => [...prev, response.data]);
+        setNewMessage("");
+        scrollToBottom();
+      }
     } catch (err) {
       console.error("Error sending message:", err);
       setError("Failed to send message");
@@ -278,7 +315,7 @@ const PrivateChat: React.FC<ChatProps> = ({ friendId }) => {
     }
   };
 
-  console.log('Message: ', messages)
+  // console.log("Message: ", messages);
   return (
     <div className="flex-1 bg-[#36393f] flex flex-col">
       {/* Header */}

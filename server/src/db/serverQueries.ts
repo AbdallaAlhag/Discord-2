@@ -89,6 +89,7 @@ const createServerInvite = async (
         inviteCode: invite.inviteCode,
         serverName: invite.server.name,
         expiresAt: invite.expiresAt,
+        serverId: invite.serverId,
       }),
       messageType: "PRIVATE",
       user: { connect: { id: createdById } },
@@ -100,7 +101,41 @@ const createServerInvite = async (
     inviteCode: invite.inviteCode,
     expiresAt: invite.expiresAt,
     serverName: invite.server.name,
+    serverId: invite.serverId,
   };
+};
+
+const addToServer = async (serverId: string, userId: string) => {
+  try {
+    const existingMember = await prisma.server.findFirst({
+      where: {
+        id: parseInt(serverId),
+        members: {
+          some: {
+            userId: parseInt(userId),
+          },
+        },
+      },
+    });
+
+    if (!existingMember) {
+      return await prisma.server.update({
+        where: { id: parseInt(serverId) },
+        data: {
+          members: {
+            create: {
+              userId: parseInt(userId),
+            },
+          },
+        },
+      });
+    }
+
+    throw new Error("User is already a member of the server");
+  } catch (error) {
+    console.error("Error adding user to server:", error);
+    throw error;
+  }
 };
 
 export {
@@ -108,4 +143,5 @@ export {
   getServerChannelsInfo,
   createChannel,
   createServerInvite,
+  addToServer,
 };

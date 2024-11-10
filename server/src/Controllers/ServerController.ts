@@ -4,6 +4,7 @@ import {
   createChannel,
   getServerChannelsInfo,
   createServerInvite,
+  addToServer,
 } from "../db/serverQueries";
 import prisma from "../db/prisma";
 
@@ -109,9 +110,60 @@ const handleServerInvite = async (
   }
 };
 
+const handleAddToServer = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  const { userId, serverId } = req.params;
+  const { inviteData } = req.body;
+
+  if (!serverId || !userId || !inviteData) {
+    return res.status(400).json({ error: "Missing required fields" });
+  }
+
+  try {
+    // make sure server is valid
+    const server = await prisma.server.findUnique({
+      where: { id: parseInt(serverId) },
+      select: { name: true },
+    });
+
+    if (!server) {
+      return res.status(404).json({ error: "Server not found" });
+    }
+
+    // Check if the user is already a member of the server
+    const isMember = await prisma.server.findFirst({
+      where: {
+        id: parseInt(serverId),
+        members: {
+          some: {
+            userId: parseInt(userId),
+          },
+        },
+      },
+    });
+
+    const response = await addToServer(userId, serverId);
+
+    if (isMember) {
+      return res
+        .status(400)
+        .json({ error: "User is already a member of the server" });
+    }
+
+    // Return the created invite data
+    return res.status(201).json(response);
+  } catch (error) {
+    console.error("Error creating invite:", error);
+    return res.status(500).json({ error: "Failed to create invite" });
+  }
+};
 export {
   handleCreateServer,
   handleServerChannelsInfo,
   handleCreateChannel,
   handleServerInvite,
+  handleAddToServer,
 };

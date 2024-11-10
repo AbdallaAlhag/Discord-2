@@ -1,45 +1,38 @@
 import React from "react";
 import InviteEmbed from "./Home/InviteEmbed";
 
-// invite link
-interface InviteData {
-  serverName: string;
-  onlineCount: number;
-  memberCount: number;
-  inviteCode: string;
-}
-
 // invite by button
 interface InviteContent {
   type: "invite";
   inviteCode: string;
   serverName: string;
   expiresAt: string; // or Date if you parse it as a Date object
+  serverId: string;
 }
 
 interface Message {
-  user: { username: string };
-  id: number;
+  user?: { username: string };
+  username?: string;
+  id?: number;
   content: string | InviteContent;
   senderId: number;
   createdAt: string;
   recipientId: number;
-  senderUsername: string;
-  recipientUsername: string;
+  senderUsername?: string;
+  recipientUsername?: string;
   type?: "text" | "invite";
-  inviteData?: InviteData;
 }
-
 interface MessageBubbleProps {
   message: Message;
   isOwn: boolean;
 }
 
 const MessageBubble: React.FC<MessageBubbleProps> = ({ message, isOwn }) => {
+  // console.log("intial message: ", message.content);
   const parseMessageContent = (messageContent: string) => {
     try {
       const parsedContent = JSON.parse(messageContent);
-
+      // console.log("Parsing succesful");
       // Verify that parsedContent has the structure of an invite message
       if (
         parsedContent &&
@@ -62,10 +55,14 @@ const MessageBubble: React.FC<MessageBubbleProps> = ({ message, isOwn }) => {
 
   if (typeof message.content === "string") {
     message.content = parseMessageContent(message.content);
+    // console.log("Parsed message.content: ", message.content);
   } else {
     // Handle the case where message.content is not a string
     // For example, you can log an error or throw an exception
-    console.log("Invalid message content type, not a string?", message.content);
+    // console.log(
+    //   "Not parsed, Invalid message content type, not a string?",
+    //   message.content
+    // );
   }
 
   function isInviteContent(
@@ -96,13 +93,12 @@ const MessageBubble: React.FC<MessageBubbleProps> = ({ message, isOwn }) => {
           <span className="text-white break-words">{message.content}</span>
         )}
         {/* link invite */}
-        {message.type === "invite" && message.inviteData && (
+        {/* {message.type === "invite" && message.inviteData && (
           <InviteEmbed inviteData={message.inviteData} />
-        )}
+        )} */}
         {/* button invite */}
         {isInviteContent(message.content) && (
           <>
-            <p>hello</p>
             <InviteEmbed inviteData={message.content} />
           </>
         )}

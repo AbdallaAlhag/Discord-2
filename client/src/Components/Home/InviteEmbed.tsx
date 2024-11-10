@@ -1,24 +1,57 @@
+import axios from "axios";
 import { Users } from "lucide-react";
-interface InviteData {
-  serverName: string;
-  onlineCount: number;
-  memberCount: number;
-  inviteCode: string;
-}
+import { useState } from "react";
+import { useAuth } from "@/AuthContext";
 
 interface InviteContent {
   type: "invite";
   inviteCode: string;
   serverName: string;
   expiresAt: string; // or Date if you parse it as a Date object
+  serverId: string;
 }
+const VITE_API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
-const InviteEmbed: React.FC<{ inviteData: InviteData | InviteContent }> = ({
+const InviteEmbed: React.FC<{ inviteData: InviteContent }> = ({
   inviteData,
 }) => {
-  const handleJoin = () => {
+  const [joined, setJoined] = useState(false);
+  const { userId } = useAuth();
+
+  // console.log("inviteData: ", inviteData);
+  const handleJoin = async () => {
     // Handle join server action
-    console.log(`Joining server with invite code: ${inviteData.inviteCode}`);
+    try {
+      await axios.post(
+        `${VITE_API_BASE_URL}/server/join/${userId}/${inviteData.serverId}`,
+        {
+          inviteData,
+        }
+      );
+
+      setJoined(true);
+      console.log(`Joining server with invite code: ${inviteData.inviteCode}`);
+    } catch (error) {
+      // Check if the error is an AxiosError type, which provides more specific typing for the response data.
+      if (axios.isAxiosError(error)) {
+        console.log(error);
+        // Check for specific server response message
+        if (
+          error.response?.data?.error ===
+          "User is already a member of the server"
+        ) {
+          setJoined(true);
+          console.error("User is already a member of the server:");
+        } else {
+          console.error(
+            "Error joining server:",
+            error.response?.data?.error || error.message
+          );
+        }
+      } else {
+        console.error("An unexpected error occurred:", error);
+      }
+    }
   };
 
   return (
@@ -43,12 +76,12 @@ const InviteEmbed: React.FC<{ inviteData: InviteData | InviteContent }> = ({
               </div>
               <div className="flex items-center">
                 <Users size={14} className="mr-1" />
-                {"memberCount" in inviteData && (
+                {/* {"memberCount" in inviteData && (
                   <>
                     {inviteData.memberCount} Member
                     {inviteData.memberCount !== 1 ? "s" : ""}
                   </>
-                )}
+                )} */}
               </div>
             </div>
 
@@ -71,9 +104,10 @@ const InviteEmbed: React.FC<{ inviteData: InviteData | InviteContent }> = ({
         </div>
         <button
           onClick={handleJoin}
+          disabled={joined}
           className="bg-[#3ba55d] hover:bg-[#2d8049] text-white px-4 py-1.5 rounded-md font-medium transition-colors"
         >
-          Join
+          {joined ? "Joined" : "Join"}
         </button>
       </div>
     </div>
