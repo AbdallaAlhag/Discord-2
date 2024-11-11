@@ -145,7 +145,7 @@ const handleAddToServer = async (
       },
     });
 
-    const response = await addToServer(userId, serverId);
+    const response = await addToServer(serverId,userId);
 
     if (isMember) {
       return res

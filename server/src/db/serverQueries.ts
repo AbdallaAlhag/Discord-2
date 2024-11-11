@@ -1,3 +1,4 @@
+import { isNumberObject } from "util/types";
 import prisma from "./prisma";
 
 const createServer = async (name: string, userId: number) => {
@@ -107,6 +108,15 @@ const createServerInvite = async (
 
 const addToServer = async (serverId: string, userId: string) => {
   try {
+    const userExists = await prisma.user.findUnique({
+      where: { id: Number(userId) },
+    });
+
+    if (!userExists) {
+      console.log("User not found, user id is: ", userId);
+      throw new Error("User not found");
+    }
+
     const existingMember = await prisma.server.findFirst({
       where: {
         id: parseInt(serverId),

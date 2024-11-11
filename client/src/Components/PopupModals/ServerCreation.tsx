@@ -25,7 +25,7 @@ export function ServerCreation() {
     setIsOpen(false);
     axios
       .post(`${VITE_API_BASE_URL}/server/create`, {
-        name: "My Server",
+        name: serverName,
         userId: userId,
       })
       .then((response) => console.log(response))

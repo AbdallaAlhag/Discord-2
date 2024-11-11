@@ -45,9 +45,9 @@ const ServerSidebar: React.FC = () => {
           <Link
             key={serv.id}
             to={`/server/${serv.id}/${serv.channels[0].id}`}
-            className="w-12 h-12 bg-[#36393f] rounded-[24px] hover:rounded-[16px] transition-all duration-200 flex items-center justify-center cursor-pointer"
+            className="w-12 h-12 bg-[#36393f] rounded-[24px] hover:rounded-[16px] transition-all duration-200 flex items-center justify-center cursor-pointer "
           >
-            <div className="w-6 h-6 text-[#dcddde]">
+            <div className="w-6 h-6 text-[#dcddde] text-center">
               {serv.name.charAt(0).toUpperCase()}
             </div>
           </Link>

@@ -82,6 +82,8 @@ const ChannelSidebar: React.FC<{ serverId: string; channelId: string }> = ({
         const response = await axios.get(
           `${VITE_API_BASE_URL}/server/channels/${Number(serverId)}`
         );
+        console.log("server response: ", response);
+        console.log("servername: ", response.data.name);
         setChannelInfo(response.data.channels);
         setServerName(response.data.name);
         // console.log("channels: ", response.data);
