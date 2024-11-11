@@ -55,6 +55,30 @@ io.on("connection", (socket) => {
       );
     }
   });
+  // Handle server and channel messages
+  socket.on("join_server", (serverId) => {
+    socket.join(`server-${serverId}`);
+    console.log(`User ${userId} joined server ${serverId}`);
+  });
+
+  socket.on("join_channel", (channelId) => {
+    socket.join(`channel-${channelId}`);
+    console.log(`User ${userId} joined channel ${channelId}`);
+  });
+
+  socket.on("leave_channel", (channelId) => {
+    socket.leave(`channel-${channelId}`);
+    console.log(`User ${userId} left channel ${channelId}`);
+  });
+
+  socket.on("server_message", (messageData) => {
+    if (messageData.channelId) {
+      io.to(`channel-${messageData.channelId}`).emit(
+        "server_message",
+        messageData
+      );
+    }
+  });
 
   // Handle typing indicator
   socket.on("typing", (recipientId) => {

@@ -11,7 +11,7 @@
             - fix copy link issue
             - Work on accepting invite       
             - invite code is pretty useless, don't know how to do anything with it. 
-
+        - fix server webcsocket broadcast, all users recieve message but it's not live
 
 test users:
     -   test1@test1.com

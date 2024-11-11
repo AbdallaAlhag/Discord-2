@@ -16,7 +16,9 @@ function ServerPage() {
       {serverId && channelId && (
         <ChannelSidebar serverId={serverId} channelId={channelId} />
       )}{" "}
-      <ServerChat channelId={channelId} />
+      {serverId && channelId && (
+        <ServerChat serverId={serverId} channelId={channelId} />
+      )}
       <MemberList />
     </div>
   );

@@ -1,4 +1,3 @@
-import { isNumberObject } from "util/types";
 import prisma from "./prisma";
 
 const createServer = async (name: string, userId: number) => {

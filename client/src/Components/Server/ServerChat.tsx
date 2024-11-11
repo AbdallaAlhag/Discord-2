@@ -10,7 +10,7 @@ import {
   Smile,
 } from "lucide-react";
 import { useEffect, useState, useRef } from "react";
-import { io, Socket } from "socket.io-client";
+import { useSocket } from "./useSocket";
 import { useAuth } from "../../AuthContext";
 import axios from "axios";
 
@@ -28,37 +28,40 @@ interface Message {
 const VITE_API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
 interface ChatProps {
-  channelId: string | undefined;
+  channelId: string;
+  serverId: string;
 }
 
-const ServerChat: React.FC<ChatProps> = ({ channelId }) => {
+const ServerChat: React.FC<ChatProps> = ({ channelId, serverId }) => {
   const [messages, setMessages] = useState<Message[]>([]);
   const [newMessage, setNewMessage] = useState("");
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const { userId } = useAuth();
-  const socketRef = useRef<Socket>();
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const { socket, joinServer, joinChannel, leaveChannel } = useSocket();
 
   // Initialize socket connection
   useEffect(() => {
-    socketRef.current = io(VITE_API_BASE_URL, { query: { userId } });
-    socketRef.current.on("connect", () => {
-      console.log("Socket connected:", socketRef.current?.id); // Should log connection ID
-    });
+    let isActive = true;
 
-    socketRef.current.on("disconnect", () => {
-      console.log("Socket disconnected");
-    });
+    if (socket && isActive) {
+      joinServer(serverId);
+      joinChannel(channelId);
+    }
 
     return () => {
-      socketRef.current?.disconnect();
+      isActive = false;
+      if (socket) {
+        leaveChannel(channelId);
+      }
     };
-  }, [userId]);
+  }, [serverId, channelId, socket, joinServer, joinChannel, leaveChannel]);
 
   useEffect(() => {
     scrollToBottom();
   }, [messages]);
+
   // Fetch message history
   useEffect(() => {
     const fetchMessages = async () => {
@@ -79,30 +82,32 @@ const ServerChat: React.FC<ChatProps> = ({ channelId }) => {
     };
 
     fetchMessages();
-  }, [userId, channelId]);
+  }, [channelId]);
 
   // Handle real-time messages
   useEffect(() => {
-    if (!socketRef.current) return;
+    if (!socket) return;
 
-    // Handle incoming messages
-    socketRef.current.on("private_message", (msg: Message) => {
-      setMessages((prevMessages) => [...prevMessages, msg]);
-      scrollToBottom();
-    });
-
-    // Handle error events
-    socketRef.current.on("error", (error: string) => {
-      setError(error);
-    });
-
-    return () => {
-      if (socketRef.current) {
-        socketRef.current.off("private_message");
-        socketRef.current.off("error");
+    const handleServerMessage = (msg: Message) => {
+      if (msg.senderId !== userId) {
+        setMessages((prevMessages) => [...prevMessages, msg]);
+        scrollToBottom();
       }
     };
-  }, []);
+
+    const handleError = (error: string) => {
+      setError(error);
+    };
+
+    // Handle incoming messages
+    socket.on("server_message", handleServerMessage);
+    socket.on("error", handleError);
+
+    return () => {
+      socket.off("server_message");
+      socket.off("error");
+    };
+  }, [socket, userId]);
 
   // Auto-scroll to bottom when new messages arrive
   const scrollToBottom = () => {
@@ -113,7 +118,7 @@ const ServerChat: React.FC<ChatProps> = ({ channelId }) => {
 
   // Send message function
   const sendMessage = async () => {
-    if (!newMessage.trim() || !socketRef.current) return;
+    if (!newMessage.trim() || !socket) return;
     const messageData = {
       content: newMessage,
       userId: userId,
@@ -130,7 +135,7 @@ const ServerChat: React.FC<ChatProps> = ({ channelId }) => {
       // console.log("Message saved to database:", response.data); // Debug
 
       // Emit message through socket for real-time delivery
-      socketRef.current.emit("private_message", response.data);
+      socket.emit("server_message", response.data);
 
       // Update local state to show message immediately
       setMessages((prev) => [...prev, response.data]);
