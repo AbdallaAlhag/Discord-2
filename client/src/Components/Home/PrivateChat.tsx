@@ -331,7 +331,7 @@ const PrivateChat: React.FC<ChatProps> = ({ friendId }) => {
       </div>
 
       {/* Messages Area */}
-      <div className="flex-1 overflow-y-auto px-4 py-6">
+      <div className="flex-1 overflow-y-auto">
         {isLoading ? (
           <div className="text-center text-[#b9bbbe]">Loading messages...</div>
         ) : error ? (
@@ -354,10 +354,13 @@ const PrivateChat: React.FC<ChatProps> = ({ friendId }) => {
       </div>
 
       {/* Input Area */}
-      <div className="h-16 bg-[#2f3136] flex items-center px-4">
+      <div className="h-16 flex items-center px-4">
+        <div className="flex items-center space-x-2 bg-[#202225] rounded-l-md py-2 pl-3">
+          <Plus className="w-6 h-6 cursor-pointer bg-[#b5bac1] hover:text-white transition-colors rounded-sm" />
+        </div>
         <input
           type="text"
-          className="flex-1 bg-[#202225] text-white rounded px-3 py-2 focus:outline-none"
+          className="flex-1 bg-[#202225] text-white  px-3 py-2 focus:outline-none"
           placeholder="Type your message here..."
           value={newMessage}
           // onChange={handleInputChange}
@@ -367,19 +370,18 @@ const PrivateChat: React.FC<ChatProps> = ({ friendId }) => {
           }}
           onKeyDown={handleKeyPress}
         />
-        <button
+        <div className="flex items-center space-x-2 bg-[#202225] rounded-r-md py-2 pr-3 mr-2">
+          <Gift className="w-6 h-6 cursor-pointer bg-[#b5bac1] hover:text-white transition-colors rounded-sm" />
+          <ImagePlus className="w-6 h-6 cursor-pointer bg-[#b5bac1] hover:text-white transition-colors rounded-sm" />
+          <Smile className="w-6 h-6 cursor-pointer bg-[#b5bac1] hover:text-white transition-colors rounded-sm" />
+        </div>
+        {/* <button
           onClick={sendMessage}
           className="ml-2 bg-[#3ba55d] text-white px-4 py-2 rounded hover:bg-[#2d8049] transition-colors"
           disabled={!newMessage.trim()}
         >
           Send
-        </button>
-        <div className="flex items-center space-x-4 ml-4 text-[#b9bbbe]">
-          <Plus className="w-5 h-5 cursor-pointer hover:text-white transition-colors" />
-          <Gift className="w-5 h-5 cursor-pointer hover:text-white transition-colors" />
-          <ImagePlus className="w-5 h-5 cursor-pointer hover:text-white transition-colors" />
-          <Smile className="w-5 h-5 cursor-pointer hover:text-white transition-colors" />
-        </div>
+        </button> */}
       </div>
     </div>
   );

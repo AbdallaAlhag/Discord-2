@@ -27,7 +27,7 @@ interface MessageBubbleProps {
   isOwn: boolean;
 }
 
-const MessageBubble: React.FC<MessageBubbleProps> = ({ message, isOwn }) => {
+const MessageBubble: React.FC<MessageBubbleProps> = ({ message }) => {
   // console.log("intial message: ", message.content);
   const parseMessageContent = (messageContent: string) => {
     try {
@@ -72,43 +72,35 @@ const MessageBubble: React.FC<MessageBubbleProps> = ({ message, isOwn }) => {
   }
   return (
     <div
-      className={`flex items-start mb-6 ${
-        isOwn ? "justify-end" : "justify-start"
-      }`}
+      className={`flex items-center mb-2 px-4 w-full hover:bg-[#42464D] justify-start`}
     >
-      {!isOwn && (
-        <div className="w-10 h-10 rounded-full bg-[#2f3136] mr-4"></div>
-      )}
-      <div
-        className={`p-3 rounded-lg max-w-[70%] ${
-          isOwn ? "bg-[#3ba55d]" : "bg-[#202225]"
-        }`}
-      >
-        <div className="flex items-center mb-1">
-          <span className="text-sm font-semibold text-[#b9bbbe] mr-2">
+      {<div className="w-10 h-10 rounded-full bg-[#2f3136] mr-4"></div>}
+      <div className="p-2 rounded-lg max-w-[70%]">
+        <div className="flex items-center mb-1 text-center">
+          <span className="text-md font-semibold text-white mr-2">
             {message.user?.username || message.senderUsername}
           </span>
+          <div className="text-xs text-[#b9bbbe]">
+            {new Intl.DateTimeFormat("en-US", {
+              year: "numeric",
+              month: "2-digit",
+              day: "2-digit",
+              hour: "2-digit",
+              minute: "2-digit",
+            }).format(new Date(message.createdAt))}
+          </div>
         </div>
         {typeof message.content === "string" && (
           <span className="text-white break-words">{message.content}</span>
         )}
-        {/* link invite */}
-        {/* {message.type === "invite" && message.inviteData && (
-          <InviteEmbed inviteData={message.inviteData} />
-        )} */}
+
         {/* button invite */}
         {isInviteContent(message.content) && (
           <>
             <InviteEmbed inviteData={message.content} />
           </>
         )}
-        <div className="text-xs text-[#b9bbbe] mt-1">
-          {new Date(message.createdAt).toLocaleString()}
-        </div>
       </div>
-      {isOwn && (
-        <div className="w-10 h-10 rounded-full bg-[#2f3136] ml-4"></div>
-      )}
     </div>
   );
 };

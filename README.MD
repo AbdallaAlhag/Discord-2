@@ -14,6 +14,9 @@
             - Work on accepting invite       
             - invite code is pretty useless, don't know how to do anything with it. 
         - work on server menu
+            - Complete the rest of the server menu later
+        - work on some styling:
+            - make the chat look like discord
 
 
 test users:

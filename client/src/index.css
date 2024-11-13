@@ -1,6 +1,25 @@
 @tailwind base;
+
 @tailwind components;
 @tailwind utilities;
+
+@layer base {
+  *::-webkit-scrollbar {
+    /* width: 15px; */
+    width: 10px;
+  }
+
+  *::-webkit-scrollbar-track {
+    background: #2b2d31;
+    border-radius: 5px;
+  }
+
+  *::-webkit-scrollbar-thumb {
+    background-color: #1a1b1e;
+    border-radius: 9px;
+    border: 1px solid #1a1b1e;
+  }
+}
 
 @layer base {
   :root {

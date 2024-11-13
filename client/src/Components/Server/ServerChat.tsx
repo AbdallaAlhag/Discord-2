@@ -175,7 +175,7 @@ const ServerChat: React.FC<ChatProps> = ({ channelId, serverId }) => {
       </div>
 
       {/* Messages Area */}
-      <div className="flex-1 overflow-y-auto px-4 py-6">
+      <div className="flex-1 overflow-y-auto py-6">
         {isLoading ? (
           <div className="text-center text-[#b9bbbe]">Loading messages...</div>
         ) : error ? (
@@ -185,30 +185,27 @@ const ServerChat: React.FC<ChatProps> = ({ channelId, serverId }) => {
         ) : (
           messages.map((msg) => (
             <div
-              className={`flex items-start mb-6 ${
-                msg.senderId === userId ? "justify-end" : "justify-start"
-              }`}
+              className={`flex items-center mb-6 px-4 w-full hover:bg-[#42464D] justify-start`}
               key={msg.id}
             >
-              {msg.senderId !== userId && (
-                <div className="w-10 h-10 rounded-full bg-[#2f3136] mr-4"></div>
-              )}
-              <div
-                className={`p-3 rounded-lg max-w-[70%] ${
-                  msg.senderId === userId
-                    ? "bg-[#3ba55d] ml-4"
-                    : "bg-[#202225] mr-4"
-                }`}
-              >
+              <div className="w-10 h-10 rounded-full bg-[#2f3136] mr-4"></div>
+              <div className={`p-2 rounded-lg max-w-[70%] `}>
                 <div className="flex items-center mb-1">
-                  <span className="text-sm font-semibold text-[#b9bbbe] mr-2">
+                  <span className="text-md font-semibold text-white mr-2">
                     {msg.user?.username || msg.senderUsername}
                   </span>
+                  <div className="text-xs text-[#b9bbbe]">
+                    {new Intl.DateTimeFormat("en-US", {
+                      year: "numeric",
+                      month: "2-digit",
+                      day: "2-digit",
+                      hour: "2-digit",
+                      minute: "2-digit",
+                      hour12: true,
+                    }).format(new Date(msg.createdAt))}
+                  </div>
                 </div>
                 <span className="text-white break-words">{msg.content}</span>
-                <div className="text-xs text-[#b9bbbe] mt-1">
-                  {new Date(msg.createdAt).toLocaleTimeString()}
-                </div>
               </div>
               {msg.senderId === userId && (
                 <div className="w-10 h-10 rounded-full bg-[#2f3136] ml-4"></div>
@@ -220,28 +217,30 @@ const ServerChat: React.FC<ChatProps> = ({ channelId, serverId }) => {
       </div>
 
       {/* Input Area */}
-      <div className="h-16 bg-[#2f3136] flex items-center px-4">
+      <div className="h-16 flex items-center px-4">
+        <div className="flex items-center space-x-2 bg-[#202225] rounded-l-md py-2 pl-3">
+          <Plus className="w-6 h-6 cursor-pointer bg-[#b5bac1] hover:text-white transition-colors rounded-sm" />
+        </div>
         <input
           type="text"
-          className="flex-1 bg-[#202225] text-white rounded px-3 py-2 focus:outline-none"
+          className="flex-1 bg-[#202225] text-white  px-3 py-2 focus:outline-none"
           placeholder="Type your message here..."
           value={newMessage}
           onChange={handleInputChange}
           onKeyDown={handleKeyPress}
         />
-        <button
+        <div className="flex items-center space-x-2 bg-[#202225] rounded-r-md py-2 pr-3 mr-2">
+          <Gift className="w-6 h-6 cursor-pointer bg-[#b5bac1] hover:text-white transition-colors rounded-sm" />
+          <ImagePlus className="w-6 h-6 cursor-pointer bg-[#b5bac1] hover:text-white transition-colors rounded-sm" />
+          <Smile className="w-6 h-6 cursor-pointer bg-[#b5bac1] hover:text-white transition-colors rounded-sm" />
+        </div>
+        {/* <button
           onClick={sendMessage}
           className="ml-2 bg-[#3ba55d] text-white px-4 py-2 rounded hover:bg-[#2d8049] transition-colors"
           disabled={!newMessage.trim()}
         >
           Send
-        </button>
-        <div className="flex items-center space-x-4 ml-4 text-[#b9bbbe]">
-          <Plus className="w-5 h-5 cursor-pointer hover:text-white transition-colors" />
-          <Gift className="w-5 h-5 cursor-pointer hover:text-white transition-colors" />
-          <ImagePlus className="w-5 h-5 cursor-pointer hover:text-white transition-colors" />
-          <Smile className="w-5 h-5 cursor-pointer hover:text-white transition-colors" />
-        </div>
+        </button> */}
       </div>
     </div>
   );

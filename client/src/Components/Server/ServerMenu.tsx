@@ -75,12 +75,13 @@ const MenuItem: React.FC<{ item: MenuItem; actions: MenuActionMap }> = ({
 
   return (
     <button
-      className="flex items-center justify-between w-full h-full px-4 py-2 text-sm text-gray-300 bg-[#111214] hover:bg-gray-700 transition-colors"
+      className="flex w-full h-full items-center justify-between px-4 py-2 text-sm text-gray-300 bg-[#111214] hover:bg-blue-500 transition-colors"
       onClick={handleClick}
     >
-      <span className={item.done ? "" : "opacity-50 "}>{item.label}</span>
-      <span className="w-6">{item.icon}</span>{" "}
-      <span className="w-6 opacity-0">🚀</span>
+      <span className={item.done ? "text-blue-300" : "opacity-50 "}>
+        {item.label}
+      </span>
+      <span className="w-6">{item.icon}</span>
     </button>
   );
 };
@@ -147,15 +148,27 @@ const ServerMenu: React.FC<{
         />
 
         <div
-          className={`absolute top-full left-0 w-full mt-1 bg-gray-800 rounded-md shadow-lg z-50 transition-all duration-200 transform origin-top ${
+          className={`absolute top-full left-0 w-full mt-1  z-50 transition-all duration-200 transform origin-top ${
             isOpen
               ? "opacity-100 translate-y-0 scale-100"
               : "opacity-0 -translate-y-2 scale-95 pointer-events-none"
           }`}
         >
-          <div className="py-2 w-11/12 mx-auto flex-row justify-center items-center rounded">
-            {menuItems.map((item, index) => (
-              <MenuItem key={index} item={item} actions={actionMap} />
+          <div className="pt-2 w-11/12 mx-auto flex-row justify-center items-center rounded-lg shadow-md">
+            {[...menuItems].map((item, index) => (
+              <React.Fragment key={index}>
+                {index === 1 && (
+                  // <div className="border-b border-[#24252a] px-3 mx-3" />
+                  <div className="border-b border-[#24252a] w-full" />
+                )}
+                {index === 6 && (
+                  <div className="border-b border-[#24252a] w-full" />
+                )}
+                {index === 8 && (
+                  <div className="border-b border-[#24252a] w-full" />
+                )}
+                <MenuItem item={item} actions={actionMap} />
+              </React.Fragment>
             ))}
           </div>
         </div>

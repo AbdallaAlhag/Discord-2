@@ -61,14 +61,14 @@ const InviteEmbed: React.FC<{ inviteData: InviteContent }> = ({
       </div>
       <div className="flex items-center justify-between">
         <div className="flex items-center space-x-3">
-          <div className="w-8 h-8 bg-[#202225] rounded-full flex items-center justify-center">
-            <span className="text-lg">As</span>
+          <div className="w-10 h-8 bg-[#202225] rounded-full flex items-center justify-center">
+            <span className="text-lg">👋</span>
           </div>
           <div>
             <div className="font-semibold">{inviteData.serverName}</div>
 
             {/* link invite */}
-            <div className="flex items-center space-x-2 text-sm text-[#b9bbbe]">
+              {/* <div className="flex items-center space-x-2 text-sm text-[#b9bbbe]">
               <div className="flex items-center">
                 <div className="w-2 h-2 bg-[#3ba55d] rounded-full mr-2"></div>
                 {"onlineCount" in inviteData &&
@@ -76,27 +76,34 @@ const InviteEmbed: React.FC<{ inviteData: InviteContent }> = ({
               </div>
               <div className="flex items-center">
                 <Users size={14} className="mr-1" />
-                {/* {"memberCount" in inviteData && (
+                {"memberCount" in inviteData && (
                   <>
                     {inviteData.memberCount} Member
                     {inviteData.memberCount !== 1 ? "s" : ""}
                   </>
-                )} */}
+                )}
               </div>
-            </div>
+            </div> */}
 
             {/* button invite */}
-            <div className="flex items-center space-x-2 text-sm text-[#b9bbbe]">
+            <div className="flex items-center space-x-2 text-sm text-[#b9bbbe] pr-4">
               {/* link invite */}
               <div className="flex items-center">
                 <div className="w-2 h-2 bg-[#3ba55d] rounded-full mr-2"></div>
                 {"inviteCode" in inviteData &&
-                  `invite code: ${inviteData.inviteCode}`}
+                  `${inviteData.inviteCode}`}
               </div>
               <div className="flex items-center">
                 <Users size={14} className="mr-1" />
                 {"expiresAt" in inviteData && (
-                  <>Expires at: {inviteData.expiresAt}</>
+                  <>{new Intl.DateTimeFormat("en-US", {
+                    year: "numeric",
+                    month: "2-digit",
+                    day: "2-digit",
+                    hour: "2-digit",
+                    minute: "2-digit",
+                    hour12: true,
+                  }).format(new Date(inviteData.expiresAt))}</>
                 )}
               </div>
             </div>
