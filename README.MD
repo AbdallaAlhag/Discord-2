@@ -1,4 +1,6 @@
 # Discord-2
+    npx kill-port 3000 to kill server if already in use
+
 
     todo:
         - fake data works well with front end but does not work with backend unless i update with my temp backend data
@@ -11,7 +13,8 @@
             - fix copy link issue
             - Work on accepting invite       
             - invite code is pretty useless, don't know how to do anything with it. 
-        - fix server webcsocket broadcast, all users recieve message but it's not live
+        - work on server menu
+
 
 test users:
     -   test1@test1.com

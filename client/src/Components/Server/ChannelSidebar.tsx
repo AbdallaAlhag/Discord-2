@@ -1,4 +1,4 @@
-import { Hash, Plus, Users, Settings } from "lucide-react";
+import { Hash, Plus, Settings } from "lucide-react";
 import SettingsButton from "../Profile/SettingsButton";
 import LogoutButton from "../Profile/LogoutButton";
 import { useEffect, useState } from "react";
@@ -8,6 +8,7 @@ import InviteModal from "../InviteModal/InviteModal"; // Import InviteModal
 import { useAuth } from "@/AuthContext";
 import defaultAvatar from "../../assets/default-avatar.svg";
 import { Link } from "react-router-dom";
+import ServerMenu from "./ServerMenu";
 
 interface onlineUsers {
   id: number;
@@ -24,6 +25,12 @@ type ChannelInfo = {
   isVoice: boolean;
   createdAt: Date;
 }[];
+
+interface MenuActionsProps {
+  onInvitePeople: () => void;
+  // onCreateChannel: () => void;
+  // Add other action handlers as needed
+}
 
 const VITE_API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
@@ -101,17 +108,17 @@ const ChannelSidebar: React.FC<{ serverId: string; channelId: string }> = ({
   // Functions to handle modal open/close
   const handleOpenInviteModal = () => setIsInviteModalOpen(true);
   const handleCloseInviteModal = () => setIsInviteModalOpen(false);
+
+  const MenuActions: MenuActionsProps = {
+    onInvitePeople: handleOpenInviteModal,
+    // etc...
+    // OnCreateChannel:
+  };
   return (
     <div className="w-60 bg-[#2f3136] flex flex-col">
       {/* server name */}
-      <div className="h-12 px-4 flex items-center justify-between shadow-md">
-        <h2 className="text-white font-bold">{serverName}</h2>
-        <button
-          onClick={handleOpenInviteModal}
-          className="text-[#b9bbbe] hover:text-white"
-        >
-          <Users className="w-4 h-4" />
-        </button>
+      <div className="h-12 flex items-center justify-between ">
+        <ServerMenu serverName={serverName} menuActions={MenuActions} />
       </div>
       {/* channels */}
       <div className="flex-1 overflow-y-auto ">
