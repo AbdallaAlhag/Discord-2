@@ -109,21 +109,21 @@ export default function FriendSidebar({
             onClick={() => toggleChatSection(null)}
           >
             <Users className="w-5 h-5 mr-4" />
-            <span className="text-bold">Friends</span>
+            <span className="text-lg font-semibold">Friends</span>
           </button>
           <button
             className="w-full flex items-center px-2 py-2 text-[#dcddde] hover:bg-[#42464D] rounded group"
             // onClick={() => toggleChatSection(null)}
           >
             <Gauge className="w-5 h-5 mr-4" />
-            <span className="text-bold">Nitro</span>
+            <span className="text-lg font-semibold">Nitro</span>
           </button>
           <button
             className="w-full flex items-center px-2 py-2 text-[#dcddde] hover:bg-[#42464D] rounded group"
             // onClick={() => toggleChatSection(null)}
           >
             <Store className="w-5 h-5 mr-4" />
-            <span className="text-bold">Shop</span>
+            <span className="text-lg font-semibold">Shop</span>
           </button>
         </div>
 

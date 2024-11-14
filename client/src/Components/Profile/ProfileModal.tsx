@@ -14,10 +14,24 @@ export default function ProfileModal({ isOpen, onClose }: ProfileModalProps) {
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
       <DialogContent className="max-w-none max-h-[95vh] p-0 border-none bg-transparent">
-        <div className="fixed inset-0 bg-[#2f3136] backdrop-blur-sm flex items-center justify-center z-50">
-          <div className="bg-[#36393f] w-full max-w-[1000px] rounded-lg shadow-xl flex h-[85vh] relative animate-in fade-in-0 zoom-in-95">
+        <div
+          className="fixed inset-0 bg-[#2b2d31]
+        backdrop-blur-sm flex items-center justify-center z-50"
+        >
+          {/* start of the modal? */}
+          {/* <div className="bg-[#36393f] w-full max-w-[1000px] rounded-lg shadow-xl flex h-[85vh] relative animate-in fade-in-0 zoom-in-95"> */}
+          <div className="w-full h-[100vh] bg-gradient-to-r from-[#2b2d31] to-[#313338] rounded-lg shadow-xl flex justify-center relative animate-in fade-in-0 zoom-in-95">
             {/* Sidebar */}
-            <div className="w-[232px] bg-[#2f3136] p-3 rounded-l-lg">
+            <div className="w-[232px] bg-[#2b2d31] p-3 rounded-l-lg pt-16">
+              <div className="px-2 py-[6px]">
+                <div className="relative">
+                  <input
+                    type="text"
+                    placeholder="Search"
+                    className="w-full bg-[#1E1F22] text-sm text-gray-300 px-2 py-1 rounded border-none focus:ring-0 placeholder-gray-500"
+                  />
+                </div>
+              </div>
               <div className="text-xs font-semibold text-gray-400 mb-2 px-2">
                 USER SETTINGS
               </div>
@@ -39,7 +53,7 @@ export default function ProfileModal({ isOpen, onClose }: ProfileModalProps) {
             </div>
 
             {/* Main Content */}
-            <div className="flex-1 flex flex-col">
+            <div className="flex-1 flex flex-col max-w-[750px] pt-10">
               <div className="flex items-center justify-between p-4 border-b border-[#202225]">
                 <div className="flex items-center gap-2">
                   <h2 className="text-xl font-semibold text-white">

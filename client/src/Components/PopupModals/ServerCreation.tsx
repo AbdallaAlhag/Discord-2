@@ -21,7 +21,7 @@ export function ServerCreation() {
   const [step, setStep] = useState<Step>("initial");
   const { userId } = useAuth();
 
-  const handleClose = () => {
+  const handleCreate = () => {
     setIsOpen(false);
     axios
       .post(`${VITE_API_BASE_URL}/server/create`, {
@@ -32,6 +32,8 @@ export function ServerCreation() {
       .catch((err) => console.error("Error creating server:", err));
     setTimeout(() => setStep("initial"), 300);
   };
+
+  const handleClose = () => setIsOpen(false);
 
   const renderStep = () => {
     switch (step) {
@@ -200,7 +202,7 @@ export function ServerCreation() {
                 Back
               </button>
               <button
-                onClick={handleClose}
+                onClick={handleCreate}
                 className="px-8 py-2 bg-[#5865F2] hover:bg-[#4752C4] text-white rounded-md transition-colors"
               >
                 Create
