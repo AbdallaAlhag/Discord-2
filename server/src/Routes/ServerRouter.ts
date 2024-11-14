@@ -5,6 +5,7 @@ import {
   handleCreateChannel,
   handleServerInvite,
   handleAddToServer,
+  handleDeleteServer,
 } from "../Controllers/ServerController";
 const router = express.Router();
 
@@ -39,4 +40,8 @@ router.post(
     handleAddToServer(req, res, next);
   }
 );
+
+router.delete('/delete/:serverId', (req: Request, res: Response, next: NextFunction) => {
+  handleDeleteServer(req, res, next);
+});
 export default router;

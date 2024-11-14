@@ -61,8 +61,8 @@ export default function ProfileModal({ isOpen, onClose }: ProfileModalProps) {
                   </h2>
                 </div>
                 <Button
-                  variant="ghost"
-                  size="icon"
+                  variant="dark"
+                  size="circle"
                   onClick={onClose}
                   className="text-gray-400 hover:text-white transition-colors"
                 >

@@ -27,6 +27,7 @@ type MenuActionMap = {
 
 interface MenuActionsProps {
   onInvitePeople: () => void;
+  onDeleteServer: () => void;
   // onCreateChannel: () => void;
   // Add other action handlers as needed
 }
@@ -95,13 +96,10 @@ const ServerMenu: React.FC<{
   const menuRef = useRef<HTMLDivElement>(null);
 
   const menuItems: MenuItem[] = [
-    { icon: "🚀", label: "Server Boost", done: false },
     { icon: "👥", label: "Invite People", done: true },
     { icon: "⚙️", label: "Server Settings", done: false },
     { icon: "➕", label: "Create Channel", done: false },
-    { icon: "📁", label: "Create Category", done: false },
-    { icon: "📅", label: "Create Event", done: false },
-    { icon: "📱", label: "App Directory", done: false },
+    { icon: "📱", label: "Delete Server", done: true },
     { icon: "🔔", label: "Notification Settings", done: false },
     { icon: "🔒", label: "Privacy Settings", done: false },
     { icon: "✏️", label: "Edit Server Profile", done: false },
@@ -133,6 +131,9 @@ const ServerMenu: React.FC<{
     "Invite People": {
       handler: menuActions.onInvitePeople,
     },
+    "Delete Server": {
+      handler: menuActions.onDeleteServer,
+      }
     // "Create Channel": {
     //   handler: menuActions.onCreateChannel,
     // },
@@ -161,10 +162,10 @@ const ServerMenu: React.FC<{
                   // <div className="border-b border-[#24252a] px-3 mx-3" />
                   <div className="border-b border-[#24252a] w-full" />
                 )}
-                {index === 6 && (
+                {index === 4 && (
                   <div className="border-b border-[#24252a] w-full" />
                 )}
-                {index === 8 && (
+                {index === 6 && (
                   <div className="border-b border-[#24252a] w-full" />
                 )}
                 <MenuItem item={item} actions={actionMap} />

@@ -9,6 +9,7 @@ import { useAuth } from "@/AuthContext";
 import defaultAvatar from "../../assets/default-avatar.svg";
 import { Link } from "react-router-dom";
 import ServerMenu from "./ServerMenu";
+import DeleteServerModal from "../PopupModals/DeleteServerModal";
 
 interface onlineUsers {
   id: number;
@@ -28,6 +29,7 @@ type ChannelInfo = {
 
 interface MenuActionsProps {
   onInvitePeople: () => void;
+  onDeleteServer: () => void;
   // onCreateChannel: () => void;
   // Add other action handlers as needed
 }
@@ -42,6 +44,7 @@ const ChannelSidebar: React.FC<{ serverId: string; channelId: string }> = ({
   const [serverName, setServerName] = useState("");
   const [isModalOpen, setIsModalOpen] = useState(false); // State to control the modal
   const [isInviteModalOpen, setIsInviteModalOpen] = useState(false); // For invite modal
+  const [isServerDeleteModalOpen, setIsServerDeleteModalOpen] = useState(false);
 
   const [channelUpdate, setChannelUpdate] = useState(0); // Track channel changes
 
@@ -105,12 +108,16 @@ const ChannelSidebar: React.FC<{ serverId: string; channelId: string }> = ({
   const handleOpenModal = () => setIsModalOpen(true);
   const handleCloseModal = () => setIsModalOpen(false);
 
+  const handleOpenServerDeleteModal = () => setIsServerDeleteModalOpen(true);
+  const handleCloseServerDeleteModal = () => setIsServerDeleteModalOpen(false);
+
   // Functions to handle modal open/close
   const handleOpenInviteModal = () => setIsInviteModalOpen(true);
   const handleCloseInviteModal = () => setIsInviteModalOpen(false);
 
   const MenuActions: MenuActionsProps = {
     onInvitePeople: handleOpenInviteModal,
+    onDeleteServer: handleOpenServerDeleteModal,
     // etc...
     // OnCreateChannel:
   };
@@ -190,6 +197,13 @@ const ChannelSidebar: React.FC<{ serverId: string; channelId: string }> = ({
         serverId={serverId}
         channelName={channelInfo[0]?.name || "general"} // Example, customize based on selected channel
         inviteLink={inviteLink}
+      />
+
+      <DeleteServerModal
+        isOpen={isServerDeleteModalOpen}
+        onClose={handleCloseServerDeleteModal}
+        serverId={serverId}
+        serverName={serverName}
       />
     </div>
   );

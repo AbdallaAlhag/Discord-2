@@ -147,10 +147,67 @@ const addToServer = async (serverId: string, userId: string) => {
   }
 };
 
+const deleteServer = async (serverId: number) => {
+  // Delete all reactions related to messages in the server's channels
+  await prisma.reaction.deleteMany({
+    where: {
+      message: {
+        channel: {
+          serverId,
+        },
+      },
+    },
+  });
+
+  // Delete all messages in the server's channels
+  await prisma.message.deleteMany({
+    where: {
+      channelId: {
+        in: (
+          await prisma.channel.findMany({
+            where: { serverId },
+          })
+        ).map((channel) => channel.id),
+      },
+    },
+  });
+
+  // Delete all permissions related to the server
+  await prisma.permission.deleteMany({
+    where: { serverId },
+  });
+
+  // Delete all roles related to the server
+  await prisma.role.deleteMany({
+    where: { serverId },
+  });
+
+  // Delete all invites related to the server
+  await prisma.serverInvite.deleteMany({
+    where: { serverId },
+  });
+
+  // Delete all server members related to the server
+  await prisma.serverMember.deleteMany({
+    where: { serverId },
+  });
+
+  // Delete all channels related to the server
+  await prisma.channel.deleteMany({
+    where: { serverId },
+  });
+
+  // Finally, delete the server
+  await prisma.server.delete({
+    where: { id: serverId },
+  });
+};
+
 export {
   createServer,
   getServerChannelsInfo,
   createChannel,
   createServerInvite,
   addToServer,
+  deleteServer,
 };

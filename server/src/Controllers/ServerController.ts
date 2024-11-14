@@ -5,6 +5,7 @@ import {
   getServerChannelsInfo,
   createServerInvite,
   addToServer,
+  deleteServer,
 } from "../db/serverQueries";
 import prisma from "../db/prisma";
 
@@ -145,7 +146,7 @@ const handleAddToServer = async (
       },
     });
 
-    const response = await addToServer(serverId,userId);
+    const response = await addToServer(serverId, userId);
 
     if (isMember) {
       return res
@@ -160,10 +161,32 @@ const handleAddToServer = async (
     return res.status(500).json({ error: "Failed to create invite" });
   }
 };
+
+const handleDeleteServer = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  const { serverId } = req.params; // Use req.params instead of req.body
+  if (!serverId) {
+    return res.status(400).json({ error: "Missing required fields" });
+  }
+  console.log("Requested serverId:", serverId);
+
+  try {
+    const deletedServer = await deleteServer(Number(serverId));
+    // console.log("Server channels:", serverChannels);
+    return res.status(201).json(deletedServer); // Ensure a response is always returned
+  } catch (error) {
+    return res.status(500).json({ error: "Failed to delete server" });
+  }
+};
+
 export {
   handleCreateServer,
   handleServerChannelsInfo,
   handleCreateChannel,
   handleServerInvite,
   handleAddToServer,
+  handleDeleteServer,
 };
