@@ -15,6 +15,7 @@ import { useAuth } from "../../AuthContext";
 import axios from "axios";
 import MessageBubble from "../MessageBubble";
 import TypingIndicator from "../TypingIndicator";
+import React from "react";
 // interface Message {
 //   user: { username: string };
 //   id: number;
@@ -331,7 +332,7 @@ const PrivateChat: React.FC<ChatProps> = ({ friendId }) => {
       </div>
 
       {/* Messages Area */}
-      <div className="flex-1 overflow-y-auto">
+      <div className="flex-1 justify-end overflow-y-auto">
         {isLoading ? (
           <div className="text-center text-[#b9bbbe]">Loading messages...</div>
         ) : error ? (
@@ -339,13 +340,43 @@ const PrivateChat: React.FC<ChatProps> = ({ friendId }) => {
         ) : messages.length === 0 ? (
           <div className="text-center text-[#b9bbbe]">No messages yet</div>
         ) : (
-          messages.map((msg) => (
-            <MessageBubble
-              key={msg.id || msg.id}
-              message={msg}
-              isOwn={msg.senderId === userId}
-            />
-          ))
+          // messages.map((msg) => (
+          //   <MessageBubble
+          //     key={msg.id || msg.id}
+          //     message={msg}
+          //     isOwn={msg.senderId === userId}
+          //   />
+          // ))
+          messages.map((msg, index) => {
+            const prevMsg = index > 0 && messages[index - 1];
+            const isDifferentDay =
+              (prevMsg &&
+                new Date(prevMsg.createdAt).toDateString() !==
+                  new Date(msg.createdAt).toDateString()) ||
+              index === 0;
+
+            return (
+              <React.Fragment key={msg.id || index}>
+                {isDifferentDay && (
+                  // <div className="text-center text-[#b9bbbe] my-2">
+                  //   {new Date(msg.createdAt).toDateString()}
+                  // </div>
+                  <div className="flex items-center my-1">
+                    <hr className="w-full border-t border-[#3f4147]" />
+                    <span className="text-center w-1/6 text-[#b9bbbe]">
+                      {new Date(msg.createdAt).toLocaleString("en-US", {
+                        year: "numeric",
+                        month: "short",
+                        day: "numeric",
+                      })}
+                    </span>
+                    <hr className="w-full border-t border-[#3f4147]" />
+                  </div>
+                )}
+                <MessageBubble message={msg} isOwn={msg.senderId === userId} />
+              </React.Fragment>
+            );
+          })
         )}
 
         {friendTyping && <TypingIndicator />}
@@ -354,7 +385,7 @@ const PrivateChat: React.FC<ChatProps> = ({ friendId }) => {
       </div>
 
       {/* Input Area */}
-      <div className="h-16 flex items-center px-4">
+      <div className="h-16 flex items-center px-4 pb-6">
         <div className="flex items-center space-x-2 bg-[#202225] rounded-l-md py-2 pl-3">
           <Plus className="w-6 h-6 cursor-pointer bg-[#b5bac1] hover:text-white transition-colors rounded-sm" />
         </div>

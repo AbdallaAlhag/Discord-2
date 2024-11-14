@@ -16,7 +16,8 @@
         - work on server menu
             - Complete the rest of the server menu later
         - work on some styling:
-            - make the chat look like discord
+            - make the chat look like discord 
+        - bug new servers are being joined?
 
 
 test users:

@@ -36,7 +36,7 @@ const FriendsNavBar: React.FC<FriendsNavBarProps> = ({
   };
 
   return (
-    <div className="h-12 border-b border-[#36393f] flex items-center px-4 space-x-4">
+    <div className="h-12 border-b border-[#36393f] flex items-center px-4 space-x-4 shadow-md">
       <Users className="w-6 h-6 text-[#dcddde]" />
       <span className="text-white font-medium">Friends</span>
       <div className="h-6 w-[1px] bg-[#36393f]" />
