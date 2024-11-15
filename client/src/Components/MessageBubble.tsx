@@ -27,12 +27,14 @@ interface MessageBubbleProps {
   isOwn: boolean;
   prevMessage: Message | false;
   differentDay: boolean;
+  similarNextMsg: boolean;
 }
 
 const MessageBubble: React.FC<MessageBubbleProps> = ({
   message,
   prevMessage,
   differentDay,
+  similarNextMsg,
 }) => {
   // console.log("intial message: ", message.content);
   const parseMessageContent = (messageContent: string) => {
@@ -93,7 +95,7 @@ const MessageBubble: React.FC<MessageBubbleProps> = ({
   return (
     <div
       className={`flex items-center px-4 w-full hover:bg-[#42464D] ${
-        newLine ? "mb-2" : "mb-0"
+        newLine && !similarNextMsg ? "mb-2" : "mb-0"
       }`}
     >
       {/* Profile Picture */}

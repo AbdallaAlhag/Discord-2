@@ -349,13 +349,16 @@ const PrivateChat: React.FC<ChatProps> = ({ friendId }) => {
           // ))
           messages.map((msg, index) => {
             const prevMsg = index > 0 && messages[index - 1];
+            const nextMsg = index < messages.length - 1 && messages[index + 1];
+
             console.log("prevMsg: ", prevMsg);
             const isDifferentDay =
               (prevMsg &&
                 new Date(prevMsg.createdAt).toDateString() !==
                   new Date(msg.createdAt).toDateString()) ||
               index === 0;
-
+            const similarNextMsg =
+              nextMsg && nextMsg.user?.username === msg.user?.username;
             return (
               <React.Fragment key={msg.id || index}>
                 {isDifferentDay && (
@@ -374,7 +377,13 @@ const PrivateChat: React.FC<ChatProps> = ({ friendId }) => {
                     <hr className="w-full border-t border-[#3f4147]" />
                   </div>
                 )}
-                <MessageBubble message={msg} isOwn={msg.senderId === userId} prevMessage={prevMsg} differentDay={isDifferentDay} />
+                <MessageBubble
+                  message={msg}
+                  isOwn={msg.senderId === userId}
+                  prevMessage={prevMsg}
+                  differentDay={isDifferentDay}
+                  similarNextMsg={similarNextMsg}
+                />
               </React.Fragment>
             );
           })

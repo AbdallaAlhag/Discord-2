@@ -187,6 +187,7 @@ const ServerChat: React.FC<ChatProps> = ({ channelId, serverId }) => {
         ) : (
           [...messages].reverse().map((msg, index) => {
             const prevMsg = index < messages.length - 1 && messages[index + 1];
+            const nextMsg = index > 0 && messages[index - 1];
             console.log([...messages].reverse());
             const isDifferentDay =
               (prevMsg &&
@@ -199,6 +200,20 @@ const ServerChat: React.FC<ChatProps> = ({ channelId, serverId }) => {
                 new Date(msg.createdAt).toDateString()
               );
             }
+            const timeInterval =
+              prevMsg &&
+              Math.abs(
+                new Date(prevMsg.createdAt).getTime() -
+                  new Date(msg.createdAt).getTime()
+              ) >
+                5 * 60 * 1000;
+            const similarNextMsg =
+              nextMsg && nextMsg.user?.username === msg.user?.username;
+            const newLine =
+              isDifferentDay ||
+              !prevMsg ||
+              prevMsg.user?.username !== msg.user?.username ||
+              timeInterval;
             return (
               <React.Fragment key={msg.id}>
                 {/* {isDifferentDay && (
@@ -216,25 +231,34 @@ const ServerChat: React.FC<ChatProps> = ({ channelId, serverId }) => {
                   </div>
                 )} */}
                 <div
-                  className={`flex items-center mb-2 px-4 w-full hover:bg-[#42464D] justify-start`}
+                  className={`flex items-center px-4 w-full hover:bg-[#42464D] ${
+                    newLine && !similarNextMsg ? "mb-2" : "mb-0"
+                  }`}
                 >
-                  <div className="w-10 h-10 rounded-full bg-[#2f3136] mr-4"></div>
-                  <div className={`p-2 rounded-lg max-w-[70%] `}>
-                    <div className="flex items-center mb-1">
-                      <span className="text-md font-semibold text-white mr-2">
-                        {msg.user?.username || msg.senderUsername}
-                      </span>
-                      <div className="text-xs text-[#b9bbbe]">
-                        {new Intl.DateTimeFormat("en-US", {
-                          year: "numeric",
-                          month: "2-digit",
-                          day: "2-digit",
-                          hour: "2-digit",
-                          minute: "2-digit",
-                          hour12: true,
-                        }).format(new Date(msg.createdAt))}
+                  {newLine ? (
+                    <div className="w-10 h-10 rounded-full bg-[#2f3136] mr-4"></div>
+                  ) : (
+                    <div className="w-10 h-0 mr-4"></div>
+                  )}
+                  <div>
+                    {/* Username and Timestamp */}
+                    {newLine && (
+                      <div className="flex items-center mb-1 text-center">
+                        <span className="text-md font-semibold text-white mr-2">
+                          {msg.user?.username || msg.senderUsername}
+                        </span>
+                        <span className="text-xs text-[#b9bbbe]">
+                          {new Intl.DateTimeFormat("en-US", {
+                            year: "numeric",
+                            month: "2-digit",
+                            day: "2-digit",
+                            hour: "2-digit",
+                            minute: "2-digit",
+                          }).format(new Date(msg.createdAt))}
+                        </span>
                       </div>
-                    </div>
+                    )}
+
                     <span className="text-white break-words">
                       {msg.content}
                     </span>
