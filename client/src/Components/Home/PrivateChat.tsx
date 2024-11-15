@@ -332,7 +332,7 @@ const PrivateChat: React.FC<ChatProps> = ({ friendId }) => {
       </div>
 
       {/* Messages Area */}
-      <div className="flex-1 justify-end overflow-y-auto">
+      <div className="flex-1 justify-end overflow-y-auto mb-2">
         {isLoading ? (
           <div className="text-center text-[#b9bbbe]">Loading messages...</div>
         ) : error ? (
@@ -349,6 +349,7 @@ const PrivateChat: React.FC<ChatProps> = ({ friendId }) => {
           // ))
           messages.map((msg, index) => {
             const prevMsg = index > 0 && messages[index - 1];
+            console.log("prevMsg: ", prevMsg);
             const isDifferentDay =
               (prevMsg &&
                 new Date(prevMsg.createdAt).toDateString() !==
@@ -373,7 +374,7 @@ const PrivateChat: React.FC<ChatProps> = ({ friendId }) => {
                     <hr className="w-full border-t border-[#3f4147]" />
                   </div>
                 )}
-                <MessageBubble message={msg} isOwn={msg.senderId === userId} />
+                <MessageBubble message={msg} isOwn={msg.senderId === userId} prevMessage={prevMsg} differentDay={isDifferentDay} />
               </React.Fragment>
             );
           })

@@ -17,6 +17,7 @@
             - Complete the rest of the server menu later
         - work on some styling:
             - make the chat look like discord 
+        - work on invites from deleted servers
 
 
 test users:

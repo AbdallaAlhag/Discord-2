@@ -25,9 +25,15 @@ interface Message {
 interface MessageBubbleProps {
   message: Message;
   isOwn: boolean;
+  prevMessage: Message | false;
+  differentDay: boolean;
 }
 
-const MessageBubble: React.FC<MessageBubbleProps> = ({ message }) => {
+const MessageBubble: React.FC<MessageBubbleProps> = ({
+  message,
+  prevMessage,
+  differentDay,
+}) => {
   // console.log("intial message: ", message.content);
   const parseMessageContent = (messageContent: string) => {
     try {
@@ -70,39 +76,60 @@ const MessageBubble: React.FC<MessageBubbleProps> = ({ message }) => {
   ): content is InviteContent {
     return typeof content === "object" && content.type === "invite";
   }
+
+  const timeInterval =
+    prevMessage &&
+    Math.abs(
+      new Date(prevMessage.createdAt).getTime() -
+        new Date(message.createdAt).getTime()
+    ) >
+      5 * 60 * 1000;
+
+  const newLine =
+    differentDay ||
+    !prevMessage ||
+    prevMessage.user?.username !== message.user?.username ||
+    timeInterval;
   return (
     <div
-      className={`flex items-center mb-2 px-4 w-full hover:bg-[#42464D] justify-start`}
+      className={`flex items-center px-4 w-full hover:bg-[#42464D] ${
+        newLine ? "mb-2" : "mb-0"
+      }`}
     >
-      {<div className="w-10 h-10 rounded-full bg-[#2f3136] mr-4"></div>}
-      <div className="p-2 rounded-lg max-w-[70%]">
-        <div className="flex items-center mb-1 text-center">
-          <span className="text-md font-semibold text-white mr-2">
-            {message.user?.username || message.senderUsername}
-          </span>
-          <div className="text-xs text-[#b9bbbe]">
-            {new Intl.DateTimeFormat("en-US", {
-              year: "numeric",
-              month: "2-digit",
-              day: "2-digit",
-              hour: "2-digit",
-              minute: "2-digit",
-            }).format(new Date(message.createdAt))}
+      {/* Profile Picture */}
+      {newLine ? (
+        <div className="w-10 h-10 rounded-full bg-[#2f3136] mr-4"></div>
+      ) : (
+        <div className="w-10 h-0 mr-4"></div>
+      )}
+
+      <div className="flex flex-col">
+        {/* Username and Timestamp */}
+        {newLine && (
+          <div className="flex items-center mb-1 text-center">
+            <span className="text-md font-semibold text-white mr-2">
+              {message.user?.username || message.senderUsername}
+            </span>
+            <span className="text-xs text-[#b9bbbe]">
+              {new Intl.DateTimeFormat("en-US", {
+                year: "numeric",
+                month: "2-digit",
+                day: "2-digit",
+                hour: "2-digit",
+                minute: "2-digit",
+              }).format(new Date(message.createdAt))}
+            </span>
           </div>
-        </div>
-        {typeof message.content === "string" && (
-          <span className="text-white break-words">{message.content}</span>
         )}
 
-        {/* button invite */}
-        {isInviteContent(message.content) && (
-          <>
-            <InviteEmbed inviteData={message.content} />
-          </>
-        )}
+        {/* Message Content */}
+        {typeof message.content === "string" ? (
+          <span className="text-white break-words">{message.content}</span>
+        ) : isInviteContent(message.content) ? (
+          <InviteEmbed inviteData={message.content} />
+        ) : null}
       </div>
     </div>
   );
 };
-
 export default MessageBubble;
