@@ -7,6 +7,10 @@ export const routes = [
     element: <HomePage />,
   },
   {
+    path: "/@me/:friendIdLink?",
+    element: <HomePage />,
+  },
+  {
     path: "/server/:serverId/:channelId",
     element: <ServerPage />,
   },

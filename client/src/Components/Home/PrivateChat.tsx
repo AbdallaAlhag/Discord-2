@@ -271,7 +271,7 @@ const PrivateChat: React.FC<ChatProps> = ({ friendId }) => {
         }),
     };
 
-    console.log("messageData: ", messageData);
+    // console.log("messageData: ", messageData);
     try {
       // Send to server and save in database
       if (inviteData) {
@@ -351,7 +351,7 @@ const PrivateChat: React.FC<ChatProps> = ({ friendId }) => {
             const prevMsg = index > 0 && messages[index - 1];
             const nextMsg = index < messages.length - 1 && messages[index + 1];
 
-            console.log("prevMsg: ", prevMsg);
+            // console.log("prevMsg: ", prevMsg);
             const isDifferentDay =
               (prevMsg &&
                 new Date(prevMsg.createdAt).toDateString() !==

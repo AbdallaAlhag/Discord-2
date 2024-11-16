@@ -176,7 +176,8 @@ const ServerChat: React.FC<ChatProps> = ({ channelId, serverId }) => {
       </div>
 
       {/* Messages Area */}
-      <div className="flex-1 overflow-y-auto flex flex-col-reverse">
+      {/* Maybe make this an independent component */}
+      <div className="flex-1 overflow-y-auto flex flex-col-reverse mb-2">
         <div ref={messagesEndRef} style={{ height: 0 }} />
         {isLoading ? (
           <div className="text-center text-[#b9bbbe]">Loading messages...</div>
@@ -186,20 +187,18 @@ const ServerChat: React.FC<ChatProps> = ({ channelId, serverId }) => {
           <div className="text-center text-[#b9bbbe]">No messages yet</div>
         ) : (
           [...messages].reverse().map((msg, index) => {
-            const prevMsg = index < messages.length - 1 && messages[index + 1];
-            const nextMsg = index > 0 && messages[index - 1];
-            console.log([...messages].reverse());
+            const prevMsg =
+              index > 0 ? [...messages].reverse()[index - 1] : null;
+            const nextMsg =
+              index < messages.length - 1
+                ? [...messages].reverse()[index + 1]
+                : null;
+
             const isDifferentDay =
-              (prevMsg &&
-                new Date(prevMsg.createdAt).toDateString() !==
-                  new Date(msg.createdAt).toDateString()) ||
-              index === messages.length - 1;
-            if (prevMsg && isDifferentDay) {
-              console.log(
-                new Date(prevMsg.createdAt).toDateString(),
-                new Date(msg.createdAt).toDateString()
-              );
-            }
+              !prevMsg ||
+              new Date(prevMsg.createdAt).toDateString() !==
+                new Date(msg.createdAt).toDateString();
+
             const timeInterval =
               prevMsg &&
               Math.abs(
@@ -207,45 +206,40 @@ const ServerChat: React.FC<ChatProps> = ({ channelId, serverId }) => {
                   new Date(msg.createdAt).getTime()
               ) >
                 5 * 60 * 1000;
-            const similarNextMsg =
-              nextMsg && nextMsg.user?.username === msg.user?.username;
-            const newLine =
-              isDifferentDay ||
+
+            const isNewGroup =
+              !nextMsg ||
+              nextMsg.user?.username !== msg.user?.username ||
+              timeInterval ||
+              isDifferentDay;
+
+            const isLastInGroup =
               !prevMsg ||
-              prevMsg.user?.username !== msg.user?.username ||
-              timeInterval;
+              prevMsg.user?.username !== msg.user?.username 
+              // ||
+              // Math.abs(
+              //   new Date(prevMsg.createdAt).getTime() -
+              //     new Date(msg.createdAt).getTime()
+              // ) >
+              //   5 * 60 * 1000;
+
             return (
               <React.Fragment key={msg.id}>
-                {/* {isDifferentDay && (
-                  <div className="flex items-center my-1">
-                    <hr className="w-full border-t border-[#3f4147]" />
-                    <span className="text-center w-1/6 text-[#b9bbbe]">
-                      {index}
-                      {new Date(msg.createdAt).toLocaleString("en-US", {
-                        year: "numeric",
-                        month: "short",
-                        day: "numeric",
-                      })}
-                    </span>
-                    <hr className="w-full border-t border-[#3f4147]" />
-                  </div>
-                )} */}
                 <div
                   className={`flex items-center px-4 w-full hover:bg-[#42464D] ${
-                    newLine && !similarNextMsg ? "mb-2" : "mb-0"
+                    isLastInGroup ? "mb-4" : "mb-0.5"
                   }`}
                 >
-                  {newLine ? (
+                  {isNewGroup ? (
                     <div className="w-10 h-10 rounded-full bg-[#2f3136] mr-4"></div>
                   ) : (
                     <div className="w-10 h-0 mr-4"></div>
                   )}
                   <div>
-                    {/* Username and Timestamp */}
-                    {newLine && (
+                    {isNewGroup && (
                       <div className="flex items-center mb-1 text-center">
                         <span className="text-md font-semibold text-white mr-2">
-                          {msg.user?.username || msg.senderUsername}
+                          {msg.user?.username}
                         </span>
                         <span className="text-xs text-[#b9bbbe]">
                           {new Intl.DateTimeFormat("en-US", {
@@ -258,14 +252,13 @@ const ServerChat: React.FC<ChatProps> = ({ channelId, serverId }) => {
                         </span>
                       </div>
                     )}
-
                     <span className="text-white break-words">
                       {msg.content}
                     </span>
                   </div>
                 </div>
                 {isDifferentDay && (
-                  <div className="flex items-center my-1">
+                  <div className="flex items-center my-4">
                     <hr className="w-full border-t border-[#3f4147]" />
                     <span className="text-center w-1/6 text-[#b9bbbe]">
                       {new Date(msg.createdAt).toLocaleString("en-US", {
@@ -281,7 +274,6 @@ const ServerChat: React.FC<ChatProps> = ({ channelId, serverId }) => {
             );
           })
         )}
-        {/* <div ref={messagesEndRef} style={{ height: 0 }} /> */}
       </div>
 
       {/* Input Area */}

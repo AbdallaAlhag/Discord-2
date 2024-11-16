@@ -3,22 +3,24 @@
 
 
     todo:
+        do this near the end:
         - fake data works well with front end but does not work with backend unless i update with my temp backend data
             - add fake data to backend and use that instead
         - change id in prisma from autoincrement to uuid
-        - create server tooltip when hover on server icon and white left line
+        
+
         - Adding friend is not real time but i think that's okay, we can fix it later, not a priority 
         - typing real time indicator works but not read receipts just yet. Both could use a tune up  
+        - create server active: got hover to work but not active
         - invite sending and both are embedded but link embeds after refresh.
-            - fix copy link issue
-            - Work on accepting invite       
-            - invite code is pretty useless, don't know how to do anything with it. 
+            - invite code is pretty useless, don't know how to do anything with it.
+            - work on expired or deleted servers 
         - work on server menu
             - Complete the rest of the server menu later
-        - work on some styling:
-            - make the chat look like discord 
-        - work on invites from deleted servers
-
+        - work on chat:
+            - make the chat look like discord: add time hover over message to show time
+            - server chat still little bugged but kinda annoying to fix 
+        - change direct messages to links 
 
 test users:
     -   test1@test1.com

@@ -45,7 +45,7 @@ const FriendsNavBar: React.FC<FriendsNavBarProps> = ({
           currentFilter === "online"
             ? "text-white bg-[#42464D]"
             : "text-[#B9BBBE]"
-        } hover:text-white hover:bg-[#42464D] px-2 py-1 rounded text-sm`}
+        } hover:text-white hover:bg-[#42464D] px-2 py-1 rounded text-sm round-md`}
         onClick={() => setCurrentFilter("online")}
       >
         Online
@@ -53,7 +53,7 @@ const FriendsNavBar: React.FC<FriendsNavBarProps> = ({
       <button
         className={`${
           currentFilter === "all" ? "text-white bg-[#42464D]" : "text-[#B9BBBE]"
-        } hover:text-white hover:bg-[#42464D] px-2 py-1 rounded text-sm`}
+        } hover:text-white hover:bg-[#42464D] px-2 py-1 rounded text-sm round-md`}
         onClick={() => setCurrentFilter("all")}
       >
         All
@@ -63,7 +63,7 @@ const FriendsNavBar: React.FC<FriendsNavBarProps> = ({
           currentFilter === "pending"
             ? "text-white bg-[#42464D]"
             : "text-[#B9BBBE]"
-        } hover:text-white hover:bg-[#42464D] px-2 py-1 rounded text-sm`}
+        } hover:text-white hover:bg-[#42464D] px-2 py-1 rounded text-sm round-md`}
         onClick={() => setCurrentFilter("pending")}
       >
         Pending
@@ -73,7 +73,7 @@ const FriendsNavBar: React.FC<FriendsNavBarProps> = ({
           currentFilter === "blocked"
             ? "text-white bg-[#42464D]"
             : "text-[#B9BBBE]"
-        } hover:text-white hover:bg-[#42464D] px-2 py-1 rounded text-sm`}
+        } hover:text-white hover:bg-[#42464D] px-2 py-1 rounded text-sm round-md`}
         onClick={() => setCurrentFilter("blocked")}
       >
         Blocked

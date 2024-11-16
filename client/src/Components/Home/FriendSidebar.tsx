@@ -5,6 +5,7 @@ import { useAuth } from "@/AuthContext";
 import axios from "axios";
 import { useState, useEffect } from "react";
 import defaultAvatar from "../../assets/default-avatar.svg";
+import { Link } from "react-router-dom";
 
 interface onlineUsers {
   id: number;
@@ -104,13 +105,15 @@ export default function FriendSidebar({
 
       <div className="flex-1 overflow-y-auto space-y-2 pt-4">
         <div className="px-2">
-          <button
-            className="w-full flex items-center px-2 py-2 text-[#dcddde] hover:bg-[#42464D] rounded group"
-            onClick={() => toggleChatSection(null)}
-          >
-            <Users className="w-5 h-5 mr-4" />
-            <span className="text-lg font-semibold">Friends</span>
-          </button>
+          <Link to="/">
+            <button
+              className="w-full flex items-center px-2 py-2 text-[#dcddde] hover:bg-[#42464D] rounded group"
+              onClick={() => toggleChatSection(null)}
+            >
+              <Users className="w-5 h-5 mr-4" />
+              <span className="text-lg font-semibold">Friends</span>
+            </button>
+          </Link>
           <button
             className="w-full flex items-center px-2 py-2 text-[#dcddde] hover:bg-[#42464D] rounded group"
             // onClick={() => toggleChatSection(null)}
