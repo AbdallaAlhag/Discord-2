@@ -109,3 +109,27 @@ export const loginAsGuest = async (
 //     res.status(201).json({ message: 'Successfully logged out' });
 //   });
 // };
+
+export const setDefaultPfp = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const userEmail = req.params.email;
+    const { pfp: userPfp } = req.body;
+    console.log("userEmail: ", userEmail);
+    console.log("userPfp: ", userPfp);
+    const user = await prisma.user.update({
+      where: { email: userEmail },
+      data: {
+        avatarUrl: userPfp,
+      },
+    });
+    res.status(200).json({ success: true, user });
+  } catch (err) {
+    if (!res.headersSent) {
+      next(err); // Passes the error to the error handler only if headers aren't sent
+    }
+  }
+};

@@ -21,6 +21,7 @@
             - make the chat look like discord: add time hover over message to show time
             - server chat still little bugged but kinda annoying to fix 
         - change direct messages to links 
+        - register page is pretty slow
 
 test users:
     -   test1@test1.com
@@ -34,3 +35,7 @@ test users:
     -   test3@test3.com
         test3
         test3
+
+
+default profile pfp from : https://better-default-discord.netlify.app/
+

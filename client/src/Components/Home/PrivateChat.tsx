@@ -1,5 +1,4 @@
 import {
-  Hash,
   Bell,
   Pin,
   Users,
@@ -16,16 +15,6 @@ import axios from "axios";
 import MessageBubble from "../MessageBubble";
 import TypingIndicator from "../TypingIndicator";
 import React from "react";
-// interface Message {
-//   user: { username: string };
-//   id: number;
-//   content: string;
-//   senderId: number;
-//   createdAt: string;
-//   recipientId: number;
-//   senderUsername: string;
-//   recipientUsername: string;
-// }
 
 interface InviteContent {
   type: "invite";
@@ -35,17 +24,6 @@ interface InviteContent {
   serverId: string;
 }
 
-// interface Message {
-//   user: { username: string };
-//   id: number;
-//   content: string | InviteContent;
-//   senderId: number;
-//   createdAt: string;
-//   recipientId: number;
-//   senderUsername: string;
-//   recipientUsername: string;
-//   type?: "text" | "invite";
-// }
 interface Message {
   user?: { username: string };
   username?: string;
@@ -57,6 +35,14 @@ interface Message {
   senderUsername?: string;
   recipientUsername?: string;
   type?: "text" | "invite";
+}
+
+interface Friend {
+  avatarUrl: string | null;
+  createdAt: string;
+  email: string;
+  id: number;
+  username: string;
 }
 const VITE_API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
@@ -77,6 +63,7 @@ const PrivateChat: React.FC<ChatProps> = ({ friendId }) => {
   const [isTyping, setIsTyping] = useState(false);
   const typingTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const [friendTyping, setFriendTyping] = useState(false);
+  const [friendInfo, setFriendInfo] = useState<Friend | null>(null);
 
   // Initialize socket connection
   useEffect(() => {
@@ -142,6 +129,18 @@ const PrivateChat: React.FC<ChatProps> = ({ friendId }) => {
   };
   // Fetch message history
   useEffect(() => {
+    const fetchFriendInfo = async () => {
+      try {
+        const response = await axios.get(
+          `${VITE_API_BASE_URL}/user/${friendId}`
+        );
+        console.log("Friend info: ", response.data.user);
+        setFriendInfo(response.data.user);
+      } catch (err) {
+        console.error("Error fetching friend info:", err);
+        setError("Failed to load friend's information");
+      }
+    };
     const fetchMessages = async () => {
       setIsLoading(true);
       setError(null);
@@ -149,7 +148,7 @@ const PrivateChat: React.FC<ChatProps> = ({ friendId }) => {
         const response = await axios.get(
           `${VITE_API_BASE_URL}/chat/private/messages/${userId}/${friendId}`
         );
-        // console.log("messages: ", response.data);
+        console.log("messages: ", response.data);
         setMessages(response.data);
       } catch (err) {
         console.error("Error fetching messages:", err);
@@ -160,6 +159,7 @@ const PrivateChat: React.FC<ChatProps> = ({ friendId }) => {
     };
 
     fetchMessages();
+    fetchFriendInfo();
   }, [userId, friendId]);
   // Mark message as read
   // Handle real-time messages
@@ -321,8 +321,17 @@ const PrivateChat: React.FC<ChatProps> = ({ friendId }) => {
     <div className="flex-1 bg-[#36393f] flex flex-col">
       {/* Header */}
       <div className="h-12 px-4 flex items-center shadow-md">
-        <Hash className="w-6 h-6 text-[#8e9297] mr-2" />
-        <span className="text-white font-bold">Channel ID: {friendId}</span>
+        {/* <Hash className="w-6 h-6 text-[#8e9297] mr-2" /> */}
+        {friendInfo?.avatarUrl ? (
+          <img
+            src={friendInfo.avatarUrl}
+            alt="user avatar"
+            className="w-8 h-8 rounded-full mr-2"
+          />
+        ) : (
+          <div className="w-8 h-8 rounded-full bg-[#2f3136] mr-4"></div>
+        )}
+        <span className="text-white font-bold">{friendInfo?.username}</span>
         <div className="ml-auto flex items-center space-x-4 text-[#b9bbbe]">
           <Bell className="w-5 h-5 cursor-pointer" />
           <Pin className="w-5 h-5 cursor-pointer" />

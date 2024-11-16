@@ -3,6 +3,21 @@ import { Link, useNavigate } from "react-router-dom";
 import { AuthLayout, AuthButton, AuthInput } from "../Components";
 import axios from "axios";
 
+const profilePictures = import.meta.glob("../assets/defaultPfp/*.png", {
+  eager: true,
+}) as Record<string, { default: string }>;
+
+// Extract all the default exports into an array
+const profilePictureArray: string[] = Object.values(profilePictures).map(
+  (module) => module.default
+);
+
+// Generate a random profile picture
+const randomIndex = Math.floor(Math.random() * profilePictureArray.length);
+const randomProfilePicture: string = profilePictureArray[randomIndex];
+
+console.log("Random profile picture: ", randomProfilePicture);
+
 export function RegisterPage() {
   const [formData, setFormData] = useState({
     email: "",
@@ -48,6 +63,14 @@ export function RegisterPage() {
       });
 
       if (res.status === 200) {
+        // generate random pfp and save it to the database
+        try {
+          await axios.post(`${baseURL}/auth/pfp/${email}`, {
+            pfp: randomProfilePicture,
+          });
+        } catch (err) {
+          console.error("Error saving profile picture:", err);
+        }
         navigate("/login", { replace: true });
       } else {
         setError("Sign-up failed. Please try again.");
