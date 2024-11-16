@@ -10,7 +10,7 @@ datasource db {
 model User {
   id               Int             @id @default(autoincrement())
   email            String          @unique
-  avatarUrl        String?  
+  avatarUrl        String?
   createdAt        DateTime        @default(now())
   password         String
   username         String          @unique
@@ -38,6 +38,7 @@ model Server {
   members     ServerMember[]
   invites     ServerInvite[]
 }
+
 model Channel {
   id        Int       @id @default(autoincrement())
   serverId  Int

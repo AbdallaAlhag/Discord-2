@@ -11,7 +11,7 @@ interface InviteContent {
 }
 
 interface Message {
-  user?: { username: string };
+  user?: { username: string, avatarUrl: string };
   username?: string;
   id?: number;
   content: string | InviteContent;
@@ -100,7 +100,11 @@ const MessageBubble: React.FC<MessageBubbleProps> = ({
     >
       {/* Profile Picture */}
       {newLine ? (
-        <div className="w-10 h-10 rounded-full bg-[#2f3136] mr-4"></div>
+        <img
+          src={message.user?.avatarUrl}
+          alt="user avatar"
+          className="w-10 h-10 rounded-full mr-4"
+        />
       ) : (
         <div className="w-10 h-0 mr-4"></div>
       )}

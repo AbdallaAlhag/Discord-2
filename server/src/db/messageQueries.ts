@@ -96,7 +96,7 @@ async function getPrivateMessages(userId: number, friendId: number) {
     },
     include: {
       user: {
-        select: { username: true },
+        select: { username: true, avatarUrl: true },
       },
     },
     orderBy: { createdAt: "asc" },

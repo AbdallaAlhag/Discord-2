@@ -16,7 +16,7 @@ import axios from "axios";
 import React from "react";
 
 interface Message {
-  user: { username: string };
+  user: { username: string; avatarUrl: string };
   id: number;
   content: string;
   senderId: number;
@@ -214,14 +214,13 @@ const ServerChat: React.FC<ChatProps> = ({ channelId, serverId }) => {
               isDifferentDay;
 
             const isLastInGroup =
-              !prevMsg ||
-              prevMsg.user?.username !== msg.user?.username 
-              // ||
-              // Math.abs(
-              //   new Date(prevMsg.createdAt).getTime() -
-              //     new Date(msg.createdAt).getTime()
-              // ) >
-              //   5 * 60 * 1000;
+              !prevMsg || prevMsg.user?.username !== msg.user?.username;
+            // ||
+            // Math.abs(
+            //   new Date(prevMsg.createdAt).getTime() -
+            //     new Date(msg.createdAt).getTime()
+            // ) >
+            //   5 * 60 * 1000;
 
             return (
               <React.Fragment key={msg.id}>
@@ -231,7 +230,11 @@ const ServerChat: React.FC<ChatProps> = ({ channelId, serverId }) => {
                   }`}
                 >
                   {isNewGroup ? (
-                    <div className="w-10 h-10 rounded-full bg-[#2f3136] mr-4"></div>
+                    <img
+                      src={msg.user?.avatarUrl}
+                      alt="user avatar"
+                      className="w-10 h-10 rounded-full mr-4"
+                    />
                   ) : (
                     <div className="w-10 h-0 mr-4"></div>
                   )}

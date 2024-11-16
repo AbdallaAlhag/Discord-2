@@ -25,7 +25,7 @@ interface InviteContent {
 }
 
 interface Message {
-  user?: { username: string };
+  user?: { username: string; avatarUrl: string };
   username?: string;
   id?: number;
   content: string | InviteContent;
