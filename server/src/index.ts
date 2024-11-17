@@ -1,5 +1,6 @@
-import express from "express";
 import dotenv from "dotenv";
+dotenv.config();
+import express from "express";
 import prisma from "./db/prisma";
 import cors from "cors";
 import authRouter from "./Routes/AuthRouter";
@@ -11,8 +12,6 @@ import { errorHandler } from "./Middleware/ErrorHandler";
 import passport from "./Auth/passportConfig";
 import http from "http";
 import { Server } from "socket.io";
-
-dotenv.config();
 
 const app = express();
 const PORT = process.env.PORT || 3000;

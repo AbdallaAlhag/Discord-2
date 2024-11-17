@@ -1,16 +1,20 @@
 import { useState } from 'react';
-import { MagnifyingGlassIcon } from '@heroicons/react/24/outline/index.js';
+import { MagnifyingGlassIcon } from '@heroicons/react/24/outline';
 import clsx from 'clsx';
-import { MediaData, MediaType } from '../Types/tenor';
+import { MediaData, MediaType, TenorResult } from '../Types/tenor';
 import { emojis } from '../Data/emojis';
 import axios, { AxiosError } from 'axios';
 
-const TENOR_API_KEY = 'YOUR_TENOR_API_KEY';
+const TENOR_API_KEY = import.meta.env.VITE_TENOR_API_KEY;
 const TENOR_API_URL = 'https://tenor.googleapis.com/v2';
 
 const tabs: MediaType[] = ['GIFs', 'Stickers', 'Emoji'];
 
-export function GifPicker() {
+interface GifPickerProps {
+  onSelect: (media: MediaData) => void;
+}
+
+export function GifPicker({ onSelect }: GifPickerProps) {
   const [activeTab, setActiveTab] = useState<MediaType>('GIFs');
   const [searchQuery, setSearchQuery] = useState('');
   const [media, setMedia] = useState<MediaData[]>([]);
@@ -56,7 +60,7 @@ export function GifPicker() {
 
       const { data } = await axios.get(endpoint, { params });
       
-      const formattedMedia = data.results.map((item: any) => ({
+      const formattedMedia = data.results.map((item: TenorResult) => ({
         id: item.id,
         title: item.title,
         url: item.media_formats.gif.url,
@@ -72,10 +76,6 @@ export function GifPicker() {
     } finally {
       setLoading(false);
     }
-  };
-
-  const handleMediaSelect = (item: MediaData) => {
-    console.log('Selected item:', item);
   };
 
   return (
@@ -134,7 +134,7 @@ export function GifPicker() {
                   'relative overflow-hidden rounded-md hover:opacity-80 transition-opacity',
                   activeTab === 'Emoji' ? 'aspect-square text-2xl' : 'aspect-video'
                 )}
-                onClick={() => handleMediaSelect(item)}
+                onClick={() => onSelect(item)}
               >
                 {activeTab === 'Emoji' ? (
                   <span className="flex items-center justify-center w-full h-full">

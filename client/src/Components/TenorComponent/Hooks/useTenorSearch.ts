@@ -1,10 +1,10 @@
-import { useState, useEffect } from 'react';
-import axios, { AxiosError } from 'axios';
-import { MediaData, MediaType, TenorResponse } from '../Types/tenor';
-import { emojis } from '../data/emojis';
+import { useState, useEffect } from "react";
+import axios, { AxiosError } from "axios";
+import { MediaData, MediaType, TenorResponse } from "../Types/tenor";
+import { emojis } from "../Data/emojis";
 
-const TENOR_API_KEY = 'YOUR_TENOR_API_KEY';
-const TENOR_API_URL = 'https://tenor.googleapis.com/v2';
+const TENOR_API_KEY = import.meta.env.VITE_TENOR_API_KEY;
+const TENOR_API_URL = "https://tenor.googleapis.com/v2";
 
 export function useMediaSearch(type: MediaType, searchQuery: string) {
   const [media, setMedia] = useState<MediaData[]>([]);
@@ -17,46 +17,51 @@ export function useMediaSearch(type: MediaType, searchQuery: string) {
       setError(null);
 
       try {
-        if (type === 'Emoji') {
+        if (type === "Emoji") {
           // Filter emojis based on search query
           const filteredEmojis = emojis
-            .filter(emoji => 
-              searchQuery ? 
-                emoji.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                emoji.character.includes(searchQuery)
-              : true
+            .filter((emoji) =>
+              searchQuery
+                ? emoji.name
+                    .toLowerCase()
+                    .includes(searchQuery.toLowerCase()) ||
+                  emoji.character.includes(searchQuery)
+                : true
             )
             .slice(0, 20)
-            .map(emoji => ({
+            .map((emoji) => ({
               id: emoji.id,
               title: emoji.name,
               url: emoji.character,
               preview: emoji.character,
-              type: 'Emoji' as MediaType
+              type: "Emoji" as MediaType,
             }));
-          
+
           setMedia(filteredEmojis);
           return;
         }
 
         // Handle GIFs and Stickers
-        const endpoint = searchQuery ? `${TENOR_API_URL}/search` : `${TENOR_API_URL}/featured`;
+        const endpoint = searchQuery
+          ? `${TENOR_API_URL}/search`
+          : `${TENOR_API_URL}/featured`;
         const params = {
           key: TENOR_API_KEY,
           q: searchQuery,
           limit: 20,
-          contentfilter: 'medium',
-          media_filter: type === 'Stickers' ? 'sticker' : 'gif'
+          contentfilter: "medium",
+          media_filter: type === "Stickers" ? "sticker" : "gif",
         };
 
         const { data } = await axios.get<TenorResponse>(endpoint, { params });
-        
+
         const formattedMedia = data.results.map((item) => ({
           id: item.id,
           title: item.title,
           url: item.media_formats.gif.url,
-          preview: item.media_formats.tinygif?.url || item.media_formats.gif.url,
-          type
+          preview:
+            item.media_formats.tinygif?.url || item.media_formats.gif.url,
+          type,
         }));
 
         setMedia(formattedMedia);

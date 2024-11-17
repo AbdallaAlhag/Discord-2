@@ -4,7 +4,7 @@ import {
   Users,
   Search,
   Plus,
-  Gift,
+  ImagePlay,
   ImagePlus,
   Smile,
 } from "lucide-react";
@@ -15,6 +15,8 @@ import axios from "axios";
 import MessageBubble from "../MessageBubble";
 import TypingIndicator from "../TypingIndicator";
 import React from "react";
+import { GifPicker } from "../TenorComponent/Components/GifPicker";
+import { MediaData } from "../TenorComponent/Types/tenor";
 
 interface InviteContent {
   type: "invite";
@@ -65,6 +67,13 @@ const PrivateChat: React.FC<ChatProps> = ({ friendId }) => {
   const [friendTyping, setFriendTyping] = useState(false);
   const [friendInfo, setFriendInfo] = useState<Friend | null>(null);
 
+  const [isMediaPickerOpen, setIsMediaPickerOpen] = useState(false);
+  const [SelectedMedia, setSelectedMedia] = useState<MediaData | null>(null);
+
+  const handleMediaSelect = (media: MediaData) => {
+    setSelectedMedia(media);
+    setIsMediaPickerOpen(false);
+  };
   // Initialize socket connection
   useEffect(() => {
     socketRef.current = io(VITE_API_BASE_URL, { query: { userId } });
@@ -421,7 +430,10 @@ const PrivateChat: React.FC<ChatProps> = ({ friendId }) => {
           onKeyDown={handleKeyPress}
         />
         <div className="flex items-center space-x-2 bg-[#202225] rounded-r-md py-2 pr-3 mr-2">
-          <Gift className="w-6 h-6 cursor-pointer bg-[#b5bac1] hover:text-white transition-colors rounded-sm" />
+          <ImagePlay
+            className="w-6 h-6 cursor-pointer bg-[#b5bac1] hover:text-white transition-colors rounded-sm"
+            onClick={() => setIsMediaPickerOpen(true)}
+          />
           <ImagePlus className="w-6 h-6 cursor-pointer bg-[#b5bac1] hover:text-white transition-colors rounded-sm" />
           <Smile className="w-6 h-6 cursor-pointer bg-[#b5bac1] hover:text-white transition-colors rounded-sm" />
         </div>
@@ -433,6 +445,36 @@ const PrivateChat: React.FC<ChatProps> = ({ friendId }) => {
           Send
         </button> */}
       </div>
+      {/* Gif Picker */}
+      {/* <div className="min-h-screen bg-gray-900 flex items-center justify-center">
+        <GifPicker />
+      </div> */}
+      {SelectedMedia && (
+        <div className="text-white">
+          {SelectedMedia.type === "Emoji" ? (
+            <span className="text-4xl">{SelectedMedia.url}</span>
+          ) : (
+            <img
+              src={SelectedMedia.url}
+              alt={SelectedMedia.title}
+              className="max-w-[200px] rounded-md"
+            />
+          )}
+        </div>
+      )}
+      {isMediaPickerOpen && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+          <div className="relative">
+            <button
+              onClick={() => setIsMediaPickerOpen(false)}
+              className="absolute -top-4 -right-4 w-8 h-8 bg-gray-700 hover:bg-gray-600 text-white rounded-full flex items-center justify-center"
+            >
+              ×
+            </button>
+            <GifPicker onSelect={handleMediaSelect} />
+          </div>
+        </div>
+      )}
     </div>
   );
 };

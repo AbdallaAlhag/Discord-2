@@ -21,6 +21,23 @@
             - make the chat look like discord: add time hover over message to show time
             - server chat still little bugged but kinda annoying to fix 
         - register page background is pretty slow
+        - Work on gif picker, make it a modal and work on opening and closing it. 
+            - make sure it works with messaging
+
+-haven't done yet:
+    - right click menu 
+    - Notifications from server or users on new message
+    - mic and headphone next to profile settings
+    - users online status
+    - reactions
+    - permissions and roles
+    - voice chat / video chat
+    - discover tab in server side -> maybe make all servers public or something like that
+    - profile settings and settings in general
+    - dark mode (never done this before)
+    - mobile mode (eh)
+    - group message for private chats
+    - discord loading page
 
 test users:
     -   test1@test1.com
