@@ -23,6 +23,7 @@
         - register page background is pretty slow
         - Work on gif picker, make it a modal and work on opening and closing it. 
             - make sure it works with messaging
+                - gifs work !!
             - Add loaders to values
 
 -haven't done yet:

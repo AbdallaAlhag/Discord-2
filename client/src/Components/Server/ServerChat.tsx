@@ -5,15 +5,17 @@ import {
   Users,
   Search,
   Plus,
-  Gift,
+  ImagePlay,
   ImagePlus,
   Smile,
 } from "lucide-react";
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState, useRef, useCallback } from "react";
 import { useSocket } from "./useSocket";
 import { useAuth } from "../../AuthContext";
 import axios from "axios";
 import React from "react";
+import { GifPicker } from "../TenorComponent/Components/GifPicker";
+import { MediaData, MediaType } from "../TenorComponent/Types/tenor";
 
 interface Message {
   user: { username: string; avatarUrl: string };
@@ -33,6 +35,10 @@ interface ChatProps {
   serverId: string;
 }
 
+interface MediaItem {
+  url: string;
+}
+
 const ServerChat: React.FC<ChatProps> = ({ channelId, serverId }) => {
   const [messages, setMessages] = useState<Message[]>([]);
   const [newMessage, setNewMessage] = useState("");
@@ -42,6 +48,15 @@ const ServerChat: React.FC<ChatProps> = ({ channelId, serverId }) => {
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const { socket, joinServer, joinChannel, leaveChannel } = useSocket();
 
+  const [isMediaPickerOpen, setIsMediaPickerOpen] = useState(false);
+  const [SelectedMedia, setSelectedMedia] = useState<MediaData | null>(null);
+  const [activeTab, setActiveTab] = useState<MediaType>("GIFs");
+  const gifPickerRef = useRef<HTMLDivElement | null>(null);
+
+  const handleMediaSelect = (media: MediaData) => {
+    setSelectedMedia(media);
+    setIsMediaPickerOpen(false);
+  };
   // Initialize socket connection
   useEffect(() => {
     let isActive = true;
@@ -72,7 +87,7 @@ const ServerChat: React.FC<ChatProps> = ({ channelId, serverId }) => {
         const response = await axios.get(
           `${VITE_API_BASE_URL}/chat/channel/messages/${channelId}`
         );
-        // console.log("messages: ", response.data);
+        // console.log("fetched messages: ", response.data);
         setMessages(response.data);
       } catch (err) {
         console.error("Error fetching messages:", err);
@@ -137,9 +152,10 @@ const ServerChat: React.FC<ChatProps> = ({ channelId, serverId }) => {
 
       // Emit message through socket for real-time delivery
       socket.emit("server_message", response.data);
-
+      console.log("response data: ", response.data);
       // Update local state to show message immediately
       setMessages((prev) => [...prev, response.data]);
+      console.log("overall messages: ", messages);
       setNewMessage("");
       scrollToBottom();
     } catch (err) {
@@ -147,7 +163,48 @@ const ServerChat: React.FC<ChatProps> = ({ channelId, serverId }) => {
       setError("Failed to send message");
     }
   };
+  // send Media
+  const sendMedia = useCallback(
+    async (media: MediaItem) => {
+      if (!media?.url || !socket) return;
 
+      const messageData = {
+        content: media.url,
+        userId: userId,
+        channelId: channelId,
+        createdAt: new Date().toISOString(),
+      };
+
+      try {
+        // Send to server and save in database
+        const response = await axios.post(
+          `${VITE_API_BASE_URL}/chat/channel/messages`,
+          messageData
+        );
+        // console.log("Message saved to database:", response.data); // Debug
+
+        // Emit message through socket for real-time delivery
+        socket.emit("server_message", response.data);
+
+        // Update local state to show message immediately
+        setMessages((prev) => [...prev, response.data]);
+        setNewMessage("");
+        scrollToBottom();
+      } catch (err) {
+        console.error("Error sending message:", err);
+        setError("Failed to send message");
+      }
+    },
+    [socket, userId, channelId]
+  );
+
+  // send selected media through gifpicker
+  useEffect(() => {
+    if (SelectedMedia) {
+      sendMedia(SelectedMedia);
+      setSelectedMedia(null);
+    }
+  }, [SelectedMedia, sendMedia]);
   // Handle input change
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setNewMessage(e.target.value);
@@ -158,6 +215,18 @@ const ServerChat: React.FC<ChatProps> = ({ channelId, serverId }) => {
     if (e.key === "Enter" && !e.shiftKey) {
       e.preventDefault();
       sendMessage();
+    }
+  };
+
+  const isGifUrl = (url: string): boolean => {
+    // Check if the string ends with .gif
+    const isGif = url.toLowerCase().endsWith(".gif");
+    // Check if it's a valid URL
+    try {
+      new URL(url);
+      return isGif;
+    } catch {
+      return false;
     }
   };
 
@@ -215,12 +284,6 @@ const ServerChat: React.FC<ChatProps> = ({ channelId, serverId }) => {
 
             const isLastInGroup =
               !prevMsg || prevMsg.user?.username !== msg.user?.username;
-            // ||
-            // Math.abs(
-            //   new Date(prevMsg.createdAt).getTime() -
-            //     new Date(msg.createdAt).getTime()
-            // ) >
-            //   5 * 60 * 1000;
 
             return (
               <React.Fragment key={msg.id}>
@@ -255,9 +318,20 @@ const ServerChat: React.FC<ChatProps> = ({ channelId, serverId }) => {
                         </span>
                       </div>
                     )}
-                    <span className="text-white break-words">
-                      {msg.content}
-                    </span>
+                    {isGifUrl(msg.content) ? (
+                      <div className="max-w-sm mb-1">
+                        <img
+                          src={msg.content}
+                          alt="GIF"
+                          className="rounded-lg max-w-full h-auto"
+                          loading="lazy"
+                        />
+                      </div>
+                    ) : (
+                      <span className="text-white break-words">
+                        {msg.content}
+                      </span>
+                    )}
                   </div>
                 </div>
                 {isDifferentDay && (
@@ -293,9 +367,27 @@ const ServerChat: React.FC<ChatProps> = ({ channelId, serverId }) => {
           onKeyDown={handleKeyPress}
         />
         <div className="flex items-center space-x-2 bg-[#202225] rounded-r-md py-2 pr-3 mr-2">
-          <Gift className="w-6 h-6 cursor-pointer bg-[#b5bac1] hover:text-white transition-colors rounded-sm" />
-          <ImagePlus className="w-6 h-6 cursor-pointer bg-[#b5bac1] hover:text-white transition-colors rounded-sm" />
-          <Smile className="w-6 h-6 cursor-pointer bg-[#b5bac1] hover:text-white transition-colors rounded-sm" />
+          <ImagePlay
+            className="w-6 h-6 cursor-pointer bg-[#b5bac1] hover:text-white transition-colors rounded-sm"
+            onClick={() => {
+              setIsMediaPickerOpen((prev) => !prev);
+              setActiveTab("GIFs");
+            }}
+          />
+          <ImagePlus
+            className="w-6 h-6 cursor-pointer bg-[#b5bac1] hover:text-white transition-colors rounded-sm"
+            onClick={() => {
+              setIsMediaPickerOpen((prev) => !prev);
+              setActiveTab("Stickers");
+            }}
+          />
+          <Smile
+            className="w-6 h-6 cursor-pointer bg-[#b5bac1] hover:text-white transition-colors rounded-sm"
+            onClick={() => {
+              setIsMediaPickerOpen((prev) => !prev);
+              setActiveTab("Emoji");
+            }}
+          />
         </div>
         {/* <button
           onClick={sendMessage}
@@ -305,6 +397,22 @@ const ServerChat: React.FC<ChatProps> = ({ channelId, serverId }) => {
           Send
         </button> */}
       </div>
+      {isMediaPickerOpen && (
+        <div
+          ref={gifPickerRef}
+          className="fixed bottom-12 right-[16.5rem] flex items-start justify-end mb-5 z-50"
+        >
+          <div className="relative">
+            <button
+              onClick={() => setIsMediaPickerOpen(false)}
+              className="absolute -top-4 -right-4 w-8 h-8 bg-gray-700 hover:bg-gray-600 text-white rounded-full flex items-center justify-center"
+            >
+              ×
+            </button>
+            <GifPicker onSelect={handleMediaSelect} tabOnOpen={activeTab} />
+          </div>
+        </div>
+      )}
     </div>
   );
 };

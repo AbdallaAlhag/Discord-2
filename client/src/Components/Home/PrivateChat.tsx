@@ -528,24 +528,7 @@ const PrivateChat: React.FC<ChatProps> = ({ friendId }) => {
           Send
         </button> */}
       </div>
-      {/* Gif Picker */}
-      {/* <div className="min-h-screen bg-gray-900 flex items-center justify-center">
-        <GifPicker />
-      </div> */}
-      {/* {
-        SelectedMedia && 
-        // <div className="text-white">
-        //   {SelectedMedia.type === "Emoji" ? (
-        //     <span className="text-4xl">{SelectedMedia.url}</span>
-        //   ) : (
-        //     <img
-        //       src={SelectedMedia.url}
-        //       alt={SelectedMedia.title}
-        //       className="max-w-[200px] rounded-md"
-        //     />
-        //   )}
-        // </div>
-      } */}
+
       {isMediaPickerOpen && (
         <div
           ref={gifPickerRef}

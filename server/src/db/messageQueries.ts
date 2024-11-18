@@ -6,14 +6,28 @@ async function createChannelMessage(
   userId: number,
   channelId: number
 ) {
-  return prisma.message.create({
+  const message = await prisma.message.create({
     data: {
       content,
       userId,
       channelId,
       messageType: "CHANNEL",
     },
+    include: {
+      user: {
+        select: {
+          username: true,
+          avatarUrl: true,
+        },
+      },
+    },
   });
+
+  return {
+    ...message,
+    username: message.user.username,
+    avatarUrl: message.user.avatarUrl,
+  };
 }
 
 // Get all messages for a channel
@@ -23,7 +37,17 @@ async function getChannelMessages(channelId: number) {
       channelId,
       messageType: "CHANNEL",
     },
-    include: { user: true },
+    include: {
+      user: {
+        select: {
+          id: true,
+          username: true,
+          avatarUrl: true,
+          createdAt: true,
+          email: true,
+        },
+      },
+    },
     orderBy: { createdAt: "asc" },
   });
 }
