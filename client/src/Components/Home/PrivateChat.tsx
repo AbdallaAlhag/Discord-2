@@ -16,7 +16,7 @@ import MessageBubble from "../MessageBubble";
 import TypingIndicator from "../TypingIndicator";
 import React from "react";
 import { GifPicker } from "../TenorComponent/Components/GifPicker";
-import { MediaData } from "../TenorComponent/Types/tenor";
+import { MediaData, MediaType } from "../TenorComponent/Types/tenor";
 
 interface InviteContent {
   type: "invite";
@@ -69,6 +69,7 @@ const PrivateChat: React.FC<ChatProps> = ({ friendId }) => {
 
   const [isMediaPickerOpen, setIsMediaPickerOpen] = useState(false);
   const [SelectedMedia, setSelectedMedia] = useState<MediaData | null>(null);
+  const [activeTab, setActiveTab] = useState<MediaType>("GIFs");
 
   const handleMediaSelect = (media: MediaData) => {
     setSelectedMedia(media);
@@ -432,10 +433,25 @@ const PrivateChat: React.FC<ChatProps> = ({ friendId }) => {
         <div className="flex items-center space-x-2 bg-[#202225] rounded-r-md py-2 pr-3 mr-2">
           <ImagePlay
             className="w-6 h-6 cursor-pointer bg-[#b5bac1] hover:text-white transition-colors rounded-sm"
-            onClick={() => setIsMediaPickerOpen(true)}
+            onClick={() => {
+              setIsMediaPickerOpen(true);
+              setActiveTab("GIFs");
+            }}
           />
-          <ImagePlus className="w-6 h-6 cursor-pointer bg-[#b5bac1] hover:text-white transition-colors rounded-sm" />
-          <Smile className="w-6 h-6 cursor-pointer bg-[#b5bac1] hover:text-white transition-colors rounded-sm" />
+          <ImagePlus
+            className="w-6 h-6 cursor-pointer bg-[#b5bac1] hover:text-white transition-colors rounded-sm"
+            onClick={() => {
+              setIsMediaPickerOpen(true);
+              setActiveTab("Stickers");
+            }}
+          />
+          <Smile
+            className="w-6 h-6 cursor-pointer bg-[#b5bac1] hover:text-white transition-colors rounded-sm"
+            onClick={() => {
+              setIsMediaPickerOpen(true);
+              setActiveTab("Emoji");
+            }}
+          />
         </div>
         {/* <button
           onClick={sendMessage}
@@ -463,7 +479,7 @@ const PrivateChat: React.FC<ChatProps> = ({ friendId }) => {
         </div>
       )}
       {isMediaPickerOpen && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+        <div className="fixed bottom-12 right-6 flex items-end justify-end mb-5 z-50">
           <div className="relative">
             <button
               onClick={() => setIsMediaPickerOpen(false)}
@@ -471,7 +487,7 @@ const PrivateChat: React.FC<ChatProps> = ({ friendId }) => {
             >
               ×
             </button>
-            <GifPicker onSelect={handleMediaSelect} />
+            <GifPicker onSelect={handleMediaSelect} tabOnOpen={activeTab} />
           </div>
         </div>
       )}

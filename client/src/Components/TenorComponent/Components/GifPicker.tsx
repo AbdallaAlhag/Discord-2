@@ -1,71 +1,78 @@
-import { useState } from 'react';
-import { MagnifyingGlassIcon } from '@heroicons/react/24/outline';
-import clsx from 'clsx';
-import { MediaData, MediaType, TenorResult } from '../Types/tenor';
-import { emojis } from '../Data/emojis';
-import axios, { AxiosError } from 'axios';
+import { useEffect, useState } from "react";
+import { MagnifyingGlassIcon } from "@heroicons/react/24/outline";
+import clsx from "clsx";
+import { MediaData, MediaType, TenorResult } from "../Types/tenor";
+import { emojis } from "../Data/emojis";
+import axios, { AxiosError } from "axios";
 
 const TENOR_API_KEY = import.meta.env.VITE_TENOR_API_KEY;
-const TENOR_API_URL = 'https://tenor.googleapis.com/v2';
+const TENOR_API_URL = "https://tenor.googleapis.com/v2";
 
-const tabs: MediaType[] = ['GIFs', 'Stickers', 'Emoji'];
+const tabs: MediaType[] = ["GIFs", "Stickers", "Emoji"];
 
 interface GifPickerProps {
   onSelect: (media: MediaData) => void;
+  tabOnOpen: MediaType;
 }
 
-export function GifPicker({ onSelect }: GifPickerProps) {
-  const [activeTab, setActiveTab] = useState<MediaType>('GIFs');
-  const [searchQuery, setSearchQuery] = useState('');
+export function GifPicker({ onSelect, tabOnOpen }: GifPickerProps) {
+  const [activeTab, setActiveTab] = useState<MediaType>("GIFs");
+  const [searchQuery, setSearchQuery] = useState("");
   const [media, setMedia] = useState<MediaData[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  useEffect(() => {
+    setActiveTab(tabOnOpen);
+  }, [tabOnOpen]);
+  
   const handleSearch = async (query: string) => {
     setLoading(true);
     setError(null);
     setSearchQuery(query);
 
     try {
-      if (activeTab === 'Emoji') {
+      if (activeTab === "Emoji") {
         const filteredEmojis = emojis
-          .filter(emoji => 
-            query ? 
-              emoji.name.toLowerCase().includes(query.toLowerCase()) ||
-              emoji.character.includes(query)
-            : true
+          .filter((emoji) =>
+            query
+              ? emoji.name.toLowerCase().includes(query.toLowerCase()) ||
+                emoji.character.includes(query)
+              : true
           )
           .slice(0, 20)
-          .map(emoji => ({
+          .map((emoji) => ({
             id: emoji.id,
             title: emoji.name,
             url: emoji.character,
             preview: emoji.character,
-            type: 'Emoji' as MediaType
+            type: "Emoji" as MediaType,
           }));
-        
+
         setMedia(filteredEmojis);
         setLoading(false);
         return;
       }
 
-      const endpoint = query ? `${TENOR_API_URL}/search` : `${TENOR_API_URL}/featured`;
+      const endpoint = query
+        ? `${TENOR_API_URL}/search`
+        : `${TENOR_API_URL}/featured`;
       const params = {
         key: TENOR_API_KEY,
         q: query,
         limit: 20,
-        contentfilter: 'medium',
-        media_filter: activeTab === 'Stickers' ? 'sticker' : 'gif'
+        contentfilter: "medium",
+        media_filter: activeTab === "Stickers" ? "sticker" : "gif",
       };
 
       const { data } = await axios.get(endpoint, { params });
-      
+
       const formattedMedia = data.results.map((item: TenorResult) => ({
         id: item.id,
         title: item.title,
         url: item.media_formats.gif.url,
         preview: item.media_formats.tinygif?.url || item.media_formats.gif.url,
-        type: activeTab
+        type: activeTab,
       }));
 
       setMedia(formattedMedia);
@@ -85,10 +92,10 @@ export function GifPicker({ onSelect }: GifPickerProps) {
           <button
             key={tab}
             className={clsx(
-              'px-4 py-2 text-sm font-medium',
+              "px-4 py-2 text-sm font-medium",
               activeTab === tab
-                ? 'text-white border-b-2 border-blue-500'
-                : 'text-gray-400 hover:text-gray-200'
+                ? "text-white border-b-2 border-blue-500"
+                : "text-gray-400 hover:text-gray-200"
             )}
             onClick={() => {
               setActiveTab(tab);
@@ -99,7 +106,7 @@ export function GifPicker({ onSelect }: GifPickerProps) {
           </button>
         ))}
       </div>
-      
+
       <div className="p-2">
         <div className="relative">
           <input
@@ -123,20 +130,24 @@ export function GifPicker({ onSelect }: GifPickerProps) {
             <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-white"></div>
           </div>
         ) : (
-          <div className={clsx(
-            'grid gap-2',
-            activeTab === 'Emoji' ? 'grid-cols-6' : 'grid-cols-2'
-          )}>
+          <div
+            className={clsx(
+              "grid gap-2",
+              activeTab === "Emoji" ? "grid-cols-6" : "grid-cols-2"
+            )}
+          >
             {media.map((item) => (
               <button
                 key={item.id}
                 className={clsx(
-                  'relative overflow-hidden rounded-md hover:opacity-80 transition-opacity',
-                  activeTab === 'Emoji' ? 'aspect-square text-2xl' : 'aspect-video'
+                  "relative overflow-hidden rounded-md hover:opacity-80 transition-opacity",
+                  activeTab === "Emoji"
+                    ? "aspect-square text-2xl"
+                    : "aspect-video"
                 )}
                 onClick={() => onSelect(item)}
               >
-                {activeTab === 'Emoji' ? (
+                {activeTab === "Emoji" ? (
                   <span className="flex items-center justify-center w-full h-full">
                     {item.url}
                   </span>
