@@ -8,7 +8,7 @@ import {
   ImagePlus,
   Smile,
 } from "lucide-react";
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState, useRef, useCallback } from "react";
 import { io, Socket } from "socket.io-client";
 import { useAuth } from "../../AuthContext";
 import axios from "axios";
@@ -34,8 +34,8 @@ interface Message {
   senderId: number;
   createdAt: string;
   recipientId: number;
-  senderUsername?: string;
-  senderAvatarUrl?: string;
+  // senderUsername?: string;
+  // senderAvatarUrl?: string;
   recipientUsername?: string;
   type?: "text" | "invite";
 }
@@ -51,6 +51,10 @@ const VITE_API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
 interface ChatProps {
   friendId: number;
+}
+
+interface MediaItem {
+  url: string;
 }
 
 const PrivateChat: React.FC<ChatProps> = ({ friendId }) => {
@@ -336,6 +340,46 @@ const PrivateChat: React.FC<ChatProps> = ({ friendId }) => {
     }
   };
 
+  // send Media
+  const sendMedia = useCallback(async (media: MediaItem) => {
+    if (!media?.url || !socketRef.current) return;
+
+    const messageData = {
+      content: media.url,
+      senderId: userId,
+      recipientId: friendId,
+      createdAt: new Date().toISOString(),
+    };
+
+    try {
+        // Send to server and save in database
+        const response = await axios.post(
+          `${VITE_API_BASE_URL}/chat/private/messages`,
+          messageData
+        );
+        console.log("Message saved to database:", response.data); // Debug
+        // Emit message through socket for real-time delivery
+        socketRef.current.emit("private_message", response.data);
+        // Update local state to show message immediately
+        setMessages((prev) => [...prev, response.data]);
+        console.log("messages: ", messages);
+        setNewMessage("");
+        scrollToBottom();
+      
+    } catch (err) {
+      console.error("Error sending message:", err);
+      setError("Failed to send message");
+    }
+  }, [friendId, messages, userId]);
+
+  // send selected media through gifpicker
+  useEffect(() => {
+    if (SelectedMedia) {
+      sendMedia(SelectedMedia);
+      setSelectedMedia(null);
+    }
+  }, [SelectedMedia, sendMedia]);
+
   // Handle input change
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setNewMessage(e.target.value);
@@ -488,21 +532,25 @@ const PrivateChat: React.FC<ChatProps> = ({ friendId }) => {
       {/* <div className="min-h-screen bg-gray-900 flex items-center justify-center">
         <GifPicker />
       </div> */}
-      {SelectedMedia && (
-        <div className="text-white">
-          {SelectedMedia.type === "Emoji" ? (
-            <span className="text-4xl">{SelectedMedia.url}</span>
-          ) : (
-            <img
-              src={SelectedMedia.url}
-              alt={SelectedMedia.title}
-              className="max-w-[200px] rounded-md"
-            />
-          )}
-        </div>
-      )}
+      {/* {
+        SelectedMedia && 
+        // <div className="text-white">
+        //   {SelectedMedia.type === "Emoji" ? (
+        //     <span className="text-4xl">{SelectedMedia.url}</span>
+        //   ) : (
+        //     <img
+        //       src={SelectedMedia.url}
+        //       alt={SelectedMedia.title}
+        //       className="max-w-[200px] rounded-md"
+        //     />
+        //   )}
+        // </div>
+      } */}
       {isMediaPickerOpen && (
-        <div ref={gifPickerRef} className="fixed bottom-12 right-6 flex items-end justify-end mb-5 z-50">
+        <div
+          ref={gifPickerRef}
+          className="fixed bottom-12 right-6 flex items-end justify-end mb-5 z-50"
+        >
           <div className="relative">
             <button
               onClick={() => setIsMediaPickerOpen(false)}
@@ -510,11 +558,7 @@ const PrivateChat: React.FC<ChatProps> = ({ friendId }) => {
             >
               ×
             </button>
-            <GifPicker
-              
-              onSelect={handleMediaSelect}
-              tabOnOpen={activeTab}
-            />
+            <GifPicker onSelect={handleMediaSelect} tabOnOpen={activeTab} />
           </div>
         </div>
       )}

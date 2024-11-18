@@ -11,7 +11,7 @@ interface InviteContent {
 }
 
 interface Message {
-  user?: { username: string, avatarUrl: string };
+  user?: { username: string; avatarUrl: string };
   username?: string;
   id?: number;
   content: string | InviteContent;
@@ -37,6 +37,19 @@ const MessageBubble: React.FC<MessageBubbleProps> = ({
   similarNextMsg,
 }) => {
   // console.log("intial message: ", message.content);
+
+  const isGifUrl = (url: string): boolean => {
+    // Check if the string ends with .gif
+    const isGif = url.toLowerCase().endsWith(".gif");
+    // Check if it's a valid URL
+    try {
+      new URL(url);
+      return isGif;
+    } catch {
+      return false;
+    }
+  };
+
   const parseMessageContent = (messageContent: string) => {
     try {
       const parsedContent = JSON.parse(messageContent);
@@ -92,6 +105,28 @@ const MessageBubble: React.FC<MessageBubbleProps> = ({
     !prevMessage ||
     prevMessage.user?.username !== message.user?.username ||
     timeInterval;
+
+  const renderContent = () => {
+    if (typeof message.content === "string") {
+      if (isGifUrl(message.content)) {
+        return (
+          <div className="max-w-sm mb-1">
+            <img
+              src={message.content}
+              alt="GIF"
+              className="rounded-lg max-w-full h-auto"
+              loading="lazy"
+            />
+          </div>
+        );
+      }
+      return <span className="text-white break-words">{message.content}</span>;
+    } else if (isInviteContent(message.content)) {
+      return <InviteEmbed inviteData={message.content} />;
+    }
+    return null;
+  };
+
   return (
     <div
       className={`flex items-center px-4 w-full hover:bg-[#42464D] ${
@@ -112,7 +147,7 @@ const MessageBubble: React.FC<MessageBubbleProps> = ({
       <div className="flex flex-col">
         {/* Username and Timestamp */}
         {newLine && (
-          <div className="flex items-center mb-1 text-center">
+          <div className="flex items-center  mb-1 text-center">
             <span className="text-md font-semibold text-white mr-2">
               {message.user?.username || message.senderUsername}
             </span>
@@ -129,11 +164,12 @@ const MessageBubble: React.FC<MessageBubbleProps> = ({
         )}
 
         {/* Message Content */}
-        {typeof message.content === "string" ? (
+        {/* {typeof message.content === "string" ? (
           <span className="text-white break-words">{message.content}</span>
         ) : isInviteContent(message.content) ? (
           <InviteEmbed inviteData={message.content} />
-        ) : null}
+        ) : null} */}
+        {renderContent()}
       </div>
     </div>
   );
