@@ -24,7 +24,8 @@
         - Work on gif picker, make it a modal and work on opening and closing it. 
             - make sure it works with messaging
                 - gifs work !!
-            - Add loaders to values
+            - Add loaders to values (already have loader but i like the square ones better)
+        - stickers are not working? i guess and its okay for now.
 
 -haven't done yet:
     - right click menu 

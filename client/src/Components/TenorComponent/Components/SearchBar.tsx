@@ -26,12 +26,16 @@ export function SearchBar({
         <MagnifyingGlassIcon className="absolute left-2 top-2 h-5 w-5 text-gray-400" />
 
         {suggestions.length > 0 && (
-          <div className="absolute z-10 w-full mt-1 bg-gray-900 rounded-md shadow-lg">
+          <div className="z-10 w-full mt-1 bg-gray-900 rounded-md shadow-lg">
+            {/* <div className="absolute z-10 w-full mt-1 bg-gray-900 rounded-md shadow-lg"> */}
             {suggestions.map((suggestion, index) => (
               <button
                 key={index}
-                className="w-full px-4 py-2 text-left text-sm text-gray-200 hover:bg-gray-800"
-                onClick={() => onSuggestionClick(suggestion)}
+                className=" px-4 py-2 text-left text-sm text-gray-200 hover:bg-gray-800"
+                onClick={() => {
+                  onSuggestionClick(suggestion);
+                  suggestions.length = 0;
+                }}
               >
                 {suggestion}
               </button>

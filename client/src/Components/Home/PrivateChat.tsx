@@ -535,12 +535,12 @@ const PrivateChat: React.FC<ChatProps> = ({ friendId }) => {
           className="fixed bottom-12 right-6 flex items-end justify-end mb-5 z-50"
         >
           <div className="relative">
-            <button
+            {/* <button
               onClick={() => setIsMediaPickerOpen(false)}
               className="absolute -top-4 -right-4 w-8 h-8 bg-gray-700 hover:bg-gray-600 text-white rounded-full flex items-center justify-center"
             >
               ×
-            </button>
+            </button> */}
             <GifPicker onSelect={handleMediaSelect} tabOnOpen={activeTab} />
           </div>
         </div>

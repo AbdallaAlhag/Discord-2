@@ -85,13 +85,13 @@ export function useMediaSearch(type: MediaType, searchQuery: string) {
           client_key: CLIENT_KEY,
           q: searchQuery,
           limit: 20,
-          searchFilter: type === "Stickers" ? "sticker" : "",
+          searchFilter: type === "Stickers" ? "sticker,-static" : "",
           // Strongly recommended
           // string
           // Comma-separated list of GIF formats to filter the Response Objects. By default, media_filter returns all formats for each Response Object.
           // Example: media_filter=gif,tinygif,mp4,tinymp4
           // Doesn't have a default value.
-          media_filter:"gif",
+          media_filter: "gif",
         };
 
         const { data } = await axios.get(endpoint, { params });

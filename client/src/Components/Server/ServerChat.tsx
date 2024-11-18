@@ -337,7 +337,7 @@ const ServerChat: React.FC<ChatProps> = ({ channelId, serverId }) => {
                 {isDifferentDay && (
                   <div className="flex items-center my-1">
                     <hr className="w-full border-t border-[#3f4147]" />
-                    <span className="text-center w-1/6 text-[#b9bbbe]">
+                    <span className="text-center w-1/5 text-[#b9bbbe]">
                       {new Date(msg.createdAt).toLocaleString("en-US", {
                         year: "numeric",
                         month: "short",
@@ -403,12 +403,12 @@ const ServerChat: React.FC<ChatProps> = ({ channelId, serverId }) => {
           className="fixed bottom-12 right-[16.5rem] flex items-start justify-end mb-5 z-50"
         >
           <div className="relative">
-            <button
+            {/* <button
               onClick={() => setIsMediaPickerOpen(false)}
               className="absolute -top-4 -right-4 w-8 h-8 bg-gray-700 hover:bg-gray-600 text-white rounded-full flex items-center justify-center"
             >
               ×
-            </button>
+            </button> */}
             <GifPicker onSelect={handleMediaSelect} tabOnOpen={activeTab} />
           </div>
         </div>
