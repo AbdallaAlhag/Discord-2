@@ -16,7 +16,7 @@ const profilePictureArray: string[] = Object.values(profilePictures).map(
 const randomIndex = Math.floor(Math.random() * profilePictureArray.length);
 const randomProfilePicture: string = profilePictureArray[randomIndex];
 
-console.log("Random profile picture: ", randomProfilePicture);
+// console.log("Random profile picture: ", randomProfilePicture);
 
 export function RegisterPage() {
   const [formData, setFormData] = useState({
@@ -55,6 +55,7 @@ export function RegisterPage() {
     }
 
     try {
+      // could have combine these two lol
       const res = await axios.post(`${baseURL}/auth/register`, {
         username,
         email,

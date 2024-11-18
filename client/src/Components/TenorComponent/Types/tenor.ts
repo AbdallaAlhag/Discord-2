@@ -1,15 +1,21 @@
 export interface TenorMedia {
   gif: {
     url: string;
+    dims: [number, number];
+    duration: number;
+    size: number;
   };
   tinygif: {
     url: string;
+    dims: [number, number];
+    duration: number;
+    size: number;
   };
   mediumgif?: {
     url: string;
-  };
-  webm?: {
-    url: string;
+    dims: [number, number];
+    duration: number;
+    size: number;
   };
 }
 
@@ -17,20 +23,18 @@ export interface TenorResult {
   id: string;
   title: string;
   media_formats: TenorMedia;
-  content_type?: 'gif' | 'sticker';
+  content_description: string;
+  created: number;
+  hasaudio: boolean;
+  tags: string[];
 }
 
 export interface TenorResponse {
+  next: string;
   results: TenorResult[];
 }
 
-export interface EmojiData {
-  id: string;
-  character: string;
-  name: string;
-}
-
-export type MediaType = 'GIFs' | 'Stickers' | 'Emoji';
+export type MediaType = "GIFs" | "Stickers" | "Emoji";
 
 export interface MediaData {
   id: string;

@@ -35,6 +35,7 @@ interface Message {
   createdAt: string;
   recipientId: number;
   senderUsername?: string;
+  senderAvatarUrl?: string;
   recipientUsername?: string;
   type?: "text" | "invite";
 }
@@ -70,11 +71,31 @@ const PrivateChat: React.FC<ChatProps> = ({ friendId }) => {
   const [isMediaPickerOpen, setIsMediaPickerOpen] = useState(false);
   const [SelectedMedia, setSelectedMedia] = useState<MediaData | null>(null);
   const [activeTab, setActiveTab] = useState<MediaType>("GIFs");
+  const gifPickerRef = useRef<HTMLDivElement | null>(null);
 
   const handleMediaSelect = (media: MediaData) => {
     setSelectedMedia(media);
     setIsMediaPickerOpen(false);
   };
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (
+        gifPickerRef.current &&
+        !gifPickerRef.current.contains(event.target as Node)
+      ) {
+        setIsMediaPickerOpen(false);
+      }
+    };
+
+    if (isMediaPickerOpen) {
+      document.addEventListener("mousedown", handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [isMediaPickerOpen]);
   // Initialize socket connection
   useEffect(() => {
     socketRef.current = io(VITE_API_BASE_URL, { query: { userId } });
@@ -294,16 +315,18 @@ const PrivateChat: React.FC<ChatProps> = ({ friendId }) => {
         setNewMessage("");
         scrollToBottom();
       }
+      // console.log('messageData: ', messageData);
       if (!inviteData) {
         const response = await axios.post(
           `${VITE_API_BASE_URL}/chat/private/messages`,
           messageData
         );
-        // console.log("Message saved to database:", response.data); // Debug
+        console.log("Message saved to database:", response.data); // Debug
         // Emit message through socket for real-time delivery
         socketRef.current.emit("private_message", response.data);
         // Update local state to show message immediately
         setMessages((prev) => [...prev, response.data]);
+        console.log("messages: ", messages);
         setNewMessage("");
         scrollToBottom();
       }
@@ -434,21 +457,21 @@ const PrivateChat: React.FC<ChatProps> = ({ friendId }) => {
           <ImagePlay
             className="w-6 h-6 cursor-pointer bg-[#b5bac1] hover:text-white transition-colors rounded-sm"
             onClick={() => {
-              setIsMediaPickerOpen(true);
+              setIsMediaPickerOpen((prev) => !prev);
               setActiveTab("GIFs");
             }}
           />
           <ImagePlus
             className="w-6 h-6 cursor-pointer bg-[#b5bac1] hover:text-white transition-colors rounded-sm"
             onClick={() => {
-              setIsMediaPickerOpen(true);
+              setIsMediaPickerOpen((prev) => !prev);
               setActiveTab("Stickers");
             }}
           />
           <Smile
             className="w-6 h-6 cursor-pointer bg-[#b5bac1] hover:text-white transition-colors rounded-sm"
             onClick={() => {
-              setIsMediaPickerOpen(true);
+              setIsMediaPickerOpen((prev) => !prev);
               setActiveTab("Emoji");
             }}
           />
@@ -479,7 +502,7 @@ const PrivateChat: React.FC<ChatProps> = ({ friendId }) => {
         </div>
       )}
       {isMediaPickerOpen && (
-        <div className="fixed bottom-12 right-6 flex items-end justify-end mb-5 z-50">
+        <div ref={gifPickerRef} className="fixed bottom-12 right-6 flex items-end justify-end mb-5 z-50">
           <div className="relative">
             <button
               onClick={() => setIsMediaPickerOpen(false)}
@@ -487,7 +510,11 @@ const PrivateChat: React.FC<ChatProps> = ({ friendId }) => {
             >
               ×
             </button>
-            <GifPicker onSelect={handleMediaSelect} tabOnOpen={activeTab} />
+            <GifPicker
+              
+              onSelect={handleMediaSelect}
+              tabOnOpen={activeTab}
+            />
           </div>
         </div>
       )}

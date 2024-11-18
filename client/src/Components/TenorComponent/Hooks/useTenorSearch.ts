@@ -1,16 +1,53 @@
 import { useState, useEffect } from "react";
 import axios, { AxiosError } from "axios";
-import { MediaData, MediaType, TenorResponse } from "../Types/tenor";
+import { MediaData, MediaType, TenorResult } from "../Types/tenor";
 import { emojis } from "../Data/emojis";
 
 const TENOR_API_KEY = import.meta.env.VITE_TENOR_API_KEY;
-const TENOR_API_URL = "https://tenor.googleapis.com/v2";
+// const TENOR_API_URL = "https://tenor.googleapis.com/v2";
+const CLIENT_KEY = import.meta.env.VITE_TENOR_CLIENT_KEY;
 
 export function useMediaSearch(type: MediaType, searchQuery: string) {
   const [media, setMedia] = useState<MediaData[]>([]);
+  const [suggestions, setSuggestions] = useState<string[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  // Fetch search suggestions
+  useEffect(() => {
+    const fetchSuggestions = async () => {
+      if (!searchQuery || searchQuery.length < 2) {
+        setSuggestions([]);
+        return;
+      }
+
+      try {
+        const endpoint =
+          searchQuery.length === 2
+            ? "/tenor-api/autocomplete"
+            : "/tenor-api/search_suggestions";
+
+        const { data } = await axios.get(endpoint, {
+          params: {
+            key: TENOR_API_KEY,
+            client_key: CLIENT_KEY,
+            q: searchQuery,
+            limit: 5,
+          },
+        });
+
+        setSuggestions(data.results || []);
+      } catch (err) {
+        console.error("Failed to fetch suggestions:", err);
+        setSuggestions([]);
+      }
+    };
+
+    const debounceTimer = setTimeout(fetchSuggestions, 300);
+    return () => clearTimeout(debounceTimer);
+  }, [searchQuery]);
+
+  // Fetch media content
   useEffect(() => {
     const fetchMedia = async () => {
       setLoading(true);
@@ -18,7 +55,6 @@ export function useMediaSearch(type: MediaType, searchQuery: string) {
 
       try {
         if (type === "Emoji") {
-          // Filter emojis based on search query
           const filteredEmojis = emojis
             .filter((emoji) =>
               searchQuery
@@ -28,7 +64,6 @@ export function useMediaSearch(type: MediaType, searchQuery: string) {
                   emoji.character.includes(searchQuery)
                 : true
             )
-            .slice(0, 20)
             .map((emoji) => ({
               id: emoji.id,
               title: emoji.name,
@@ -41,21 +76,27 @@ export function useMediaSearch(type: MediaType, searchQuery: string) {
           return;
         }
 
-        // Handle GIFs and Stickers
         const endpoint = searchQuery
-          ? `${TENOR_API_URL}/search`
-          : `${TENOR_API_URL}/featured`;
+          ? "/tenor-api/search"
+          : "/tenor-api/featured";
+
         const params = {
           key: TENOR_API_KEY,
+          client_key: CLIENT_KEY,
           q: searchQuery,
           limit: 20,
-          contentfilter: "medium",
-          media_filter: type === "Stickers" ? "sticker" : "gif",
+          searchFilter: type === "Stickers" ? "sticker" : "",
+          // Strongly recommended
+          // string
+          // Comma-separated list of GIF formats to filter the Response Objects. By default, media_filter returns all formats for each Response Object.
+          // Example: media_filter=gif,tinygif,mp4,tinymp4
+          // Doesn't have a default value.
+          media_filter:"gif",
         };
 
-        const { data } = await axios.get<TenorResponse>(endpoint, { params });
+        const { data } = await axios.get(endpoint, { params });
 
-        const formattedMedia = data.results.map((item) => ({
+        const formattedMedia = data.results.map((item: TenorResult) => ({
           id: item.id,
           title: item.title,
           url: item.media_formats.gif.url,
@@ -65,6 +106,7 @@ export function useMediaSearch(type: MediaType, searchQuery: string) {
         }));
 
         setMedia(formattedMedia);
+        console.log("formattedMedia: ", formattedMedia);
       } catch (err) {
         const error = err as Error | AxiosError;
         setError(error.message);
@@ -78,5 +120,5 @@ export function useMediaSearch(type: MediaType, searchQuery: string) {
     return () => clearTimeout(debounceTimer);
   }, [searchQuery, type]);
 
-  return { media, loading, error };
+  return { media, loading, error, suggestions };
 }

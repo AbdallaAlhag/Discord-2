@@ -62,7 +62,7 @@ async function createPrivateMessage(
 
     const sender = await prisma.user.findUnique({
       where: { id: senderId },
-      select: { username: true },
+      select: { username: true, avatarUrl: true },
     });
 
     const recipient = await prisma.user.findUnique({
@@ -74,7 +74,9 @@ async function createPrivateMessage(
       id: createdMessage.id,
       content: createdMessage.content,
       senderId: createdMessage.userId,
-      senderUsername: sender?.username,
+      // senderUsername: sender?.username,
+      // senderAvatarUrl: sender?.avatarUrl,
+      user: { username: sender?.username, avatarUrl: sender?.avatarUrl },
       createdAt: createdMessage.createdAt,
       recipientId: createdMessage.recipientId,
       recipientUsername: recipient?.username,
