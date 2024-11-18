@@ -10,6 +10,9 @@ import defaultAvatar from "../../assets/default-avatar.svg";
 import { Link } from "react-router-dom";
 import ServerMenu from "./ServerMenu";
 import DeleteServerModal from "../PopupModals/DeleteServerModal";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faMicrophone } from "@fortawesome/free-solid-svg-icons";
+import { faHeadphones } from "@fortawesome/free-solid-svg-icons";
 
 interface onlineUsers {
   id: number;
@@ -167,7 +170,7 @@ const ChannelSidebar: React.FC<{ serverId: string; channelId: string }> = ({
         </div>
       </div>
       {/* profile */}
-      <div className="h-14 bg-[#292b2f] px-2 flex items-center mt-auto">
+      <div className="h-14 bg-[#292b2f] px-2 flex items-center mt-auto gap-1">
         <img
           src={user?.avatarUrl || defaultAvatar}
           className="w-8 h-8 rounded-full mr-2"
@@ -180,8 +183,22 @@ const ChannelSidebar: React.FC<{ serverId: string; channelId: string }> = ({
           <div className="text-white text-sm font-medium">{user?.username}</div>
           <div className="text-[#b9bbbe] text-xs">#{user?.id}</div>
         </div>
-        <LogoutButton className="pr-4 pt-1" />
-        <SettingsButton />
+        <FontAwesomeIcon
+          icon={faMicrophone}
+          size="lg"
+          className="p-2 hover:bg-[#383a40] cursor-pointer rounded-sm"
+          style={{ color: "#959ba7" }}
+        />
+        <FontAwesomeIcon
+          icon={faHeadphones}
+          size="lg"
+          className="p-2 hover:bg-[#383a40]  cursor-pointer rounded-sm"
+          style={{ color: "#959ba7" }}
+        />
+        <LogoutButton className="p-2 hover:bg-[#383a40] rounded-sm " />
+        <div className="hover:bg-[#383a40] rounded-sm">
+          <SettingsButton className="hover:animate-spin  p-2 " />
+        </div>
       </div>
       {/* Channel Creation Modal */}
       <ChannelModal

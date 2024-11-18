@@ -58,3 +58,4 @@ test users:
 
 default profile pfp from : https://better-default-discord.netlify.app/
 
+tenor docs: https://developers.google.com/tenor/guides/endpoints
