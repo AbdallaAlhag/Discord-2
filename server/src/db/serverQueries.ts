@@ -5,9 +5,15 @@ const createServer = async (name: string, userId: number) => {
     data: {
       name,
       channels: {
-        create: {
-          name: "general",
-        },
+        create: [
+          {
+            name: "general",
+          },
+          {
+            name: "General",
+            isVoice: true,
+          },
+        ],
       },
       members: {
         create: {

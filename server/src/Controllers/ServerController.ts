@@ -38,10 +38,10 @@ const handleCreateChannel = async (
   } = req.body;
   console.log(req.body);
   if (!name || !type || isPrivate === undefined || !serverId) {
-    console.log("name: ", name);
-    console.log("type: ", type);
-    console.log("isPrivate: ", isPrivate);
-    console.log("serverId: ", serverId);
+    // console.log("name: ", name);
+    // console.log("type: ", type);
+    // console.log("isPrivate: ", isPrivate);
+    // console.log("serverId: ", serverId);
     return res.status(400).json({ error: "Missing required fields" });
   }
 

@@ -26,11 +26,11 @@
                 - gifs work !!
             - Add loaders to values (already have loader but i like the square ones better)
         - stickers are not working? i guess and its okay for now.
-
+        - Create channel is not real time, just needs a refresh
+        to see it.
 -haven't done yet:
     - right click menu 
     - Notifications from server or users on new message
-    - mic and headphone next to profile settings
     - users online status
     - reactions
     - permissions and roles

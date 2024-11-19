@@ -1,4 +1,4 @@
-import { Hash, Plus, Settings } from "lucide-react";
+import { Hash, Plus, Settings, Volume2 } from "lucide-react";
 import SettingsButton from "../Profile/SettingsButton";
 import LogoutButton from "../Profile/LogoutButton";
 import { useEffect, useState } from "react";
@@ -33,6 +33,7 @@ type ChannelInfo = {
 interface MenuActionsProps {
   onInvitePeople: () => void;
   onDeleteServer: () => void;
+  onCreateChannel: () => void;
   // onCreateChannel: () => void;
   // Add other action handlers as needed
 }
@@ -45,7 +46,8 @@ const ChannelSidebar: React.FC<{ serverId: string; channelId: string }> = ({
 }) => {
   const [channelInfo, setChannelInfo] = useState<ChannelInfo>([]);
   const [serverName, setServerName] = useState("");
-  const [isModalOpen, setIsModalOpen] = useState(false); // State to control the modal
+  const [isCreateChannelModalOpen, setIsCreateChannelModalOpen] =
+    useState(false); // State to control the modal
   const [isInviteModalOpen, setIsInviteModalOpen] = useState(false); // For invite modal
   const [isServerDeleteModalOpen, setIsServerDeleteModalOpen] = useState(false);
 
@@ -76,7 +78,7 @@ const ChannelSidebar: React.FC<{ serverId: string; channelId: string }> = ({
     } catch (error) {
       console.error("Error creating channel:", error);
     }
-    setIsModalOpen(false);
+    setIsCreateChannelModalOpen(false);
   };
   useEffect(() => {
     const fetchUser = async () => {
@@ -108,8 +110,9 @@ const ChannelSidebar: React.FC<{ serverId: string; channelId: string }> = ({
     fetchChannels();
   }, [serverId, userId, channelUpdate]);
 
-  const handleOpenModal = () => setIsModalOpen(true);
-  const handleCloseModal = () => setIsModalOpen(false);
+  const handleCreateChannelOpenModal = () => setIsCreateChannelModalOpen(true);
+  const handleCreateChannelCloseModal = () =>
+    setIsCreateChannelModalOpen(false);
 
   const handleOpenServerDeleteModal = () => setIsServerDeleteModalOpen(true);
   const handleCloseServerDeleteModal = () => setIsServerDeleteModalOpen(false);
@@ -121,6 +124,7 @@ const ChannelSidebar: React.FC<{ serverId: string; channelId: string }> = ({
   const MenuActions: MenuActionsProps = {
     onInvitePeople: handleOpenInviteModal,
     onDeleteServer: handleOpenServerDeleteModal,
+    onCreateChannel: handleCreateChannelOpenModal,
     // etc...
     // OnCreateChannel:
   };
@@ -133,24 +137,21 @@ const ChannelSidebar: React.FC<{ serverId: string; channelId: string }> = ({
       {/* channels */}
       <div className="flex-1 overflow-y-auto ">
         <div className="px-2 mt-4">
-          {/* <p>TEXT CHANNELS + </p> */}
           <div className="flex items-center justify-between mb-2">
             <span className="text-xs font-bold text-[#72767d]">
               TEXT CHANNELS
             </span>
             <button
-              onClick={handleOpenModal}
+              onClick={handleCreateChannelOpenModal}
               className="text-[#b9bbbe] hover:text-white"
             >
               <Plus className="w-4 h-4" />
             </button>
           </div>
-          {/* <div className="flex items-center px-2 text-[#8e9297] text-sm mb-1">
-            <Hash className="w-5 h-5 mr-1.5" />
-            <span>general</span>
-          </div> */}
           {/* list */}
-          {Object.entries(channelInfo).map(([, channel]) => (
+          {Object.entries(channelInfo)
+            .filter(([, channel]) => !channel.isVoice)
+            .map(([, channel]) => (
             <Link
               to={`/server/${serverId}/${channel.id}`}
               key={channel.id}
@@ -167,6 +168,36 @@ const ChannelSidebar: React.FC<{ serverId: string; channelId: string }> = ({
               </div>
             </Link>
           ))}
+          <div className="flex items-center justify-between my-2">
+            <span className="text-xs font-bold text-[#72767d]">
+              VOICE CHANNELS
+            </span>
+            <button
+              onClick={handleCreateChannelOpenModal}
+              className="text-[#b9bbbe] hover:text-white"
+            >
+              <Plus className="w-4 h-4" />
+            </button>
+          </div>
+          {Object.entries(channelInfo)
+            .filter(([, channel]) => channel.isVoice)
+            .map(([, channel]) => (
+              <Link
+                to={`/server/${serverId}/${channel.id}`}
+                key={channel.id}
+                className="flex items-center justify-between px-2 py-1  rounded-md hover:bg-[#40444b] cursor-pointer transition-all"
+              >
+                <div className="flex items-center space-x-2 text-[#8e9297]">
+                  <Volume2 className="w-5 h-5 mr-1.5" />
+                  <span className=" text-white">{channel.name}</span>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <button className="text-[#b9bbbe] hover:text-white">
+                    <Settings className="w-4 h-4" />
+                  </button>
+                </div>
+              </Link>
+            ))}
         </div>
       </div>
       {/* profile */}
@@ -202,8 +233,8 @@ const ChannelSidebar: React.FC<{ serverId: string; channelId: string }> = ({
       </div>
       {/* Channel Creation Modal */}
       <ChannelModal
-        isOpen={isModalOpen}
-        onClose={handleCloseModal}
+        isOpen={isCreateChannelModalOpen}
+        onClose={handleCreateChannelCloseModal}
         onCreateChannel={handleCreateChannel}
       />
       {/* Invite Modal */}

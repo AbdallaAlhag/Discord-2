@@ -28,6 +28,7 @@ type MenuActionMap = {
 interface MenuActionsProps {
   onInvitePeople: () => void;
   onDeleteServer: () => void;
+  onCreateChannel: () => void;
   // onCreateChannel: () => void;
   // Add other action handlers as needed
 }
@@ -98,7 +99,7 @@ const ServerMenu: React.FC<{
   const menuItems: MenuItem[] = [
     { icon: "👥", label: "Invite People", done: true },
     { icon: "⚙️", label: "Server Settings", done: false },
-    { icon: "➕", label: "Create Channel", done: false },
+    { icon: "➕", label: "Create Channel", done: true },
     { icon: "📱", label: "Delete Server", done: true },
     { icon: "🔔", label: "Notification Settings", done: false },
     { icon: "🔒", label: "Privacy Settings", done: false },
@@ -133,10 +134,10 @@ const ServerMenu: React.FC<{
     },
     "Delete Server": {
       handler: menuActions.onDeleteServer,
-      }
-    // "Create Channel": {
-    //   handler: menuActions.onCreateChannel,
-    // },
+      },
+    "Create Channel": {
+      handler: menuActions.onCreateChannel,
+    },
   };
 
   return (

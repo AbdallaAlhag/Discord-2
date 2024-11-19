@@ -1,6 +1,6 @@
 import {
-  Bell,
-  Pin,
+  PhoneCall,
+  Video,
   Users,
   Search,
   Plus,
@@ -341,17 +341,18 @@ const PrivateChat: React.FC<ChatProps> = ({ friendId }) => {
   };
 
   // send Media
-  const sendMedia = useCallback(async (media: MediaItem) => {
-    if (!media?.url || !socketRef.current) return;
+  const sendMedia = useCallback(
+    async (media: MediaItem) => {
+      if (!media?.url || !socketRef.current) return;
 
-    const messageData = {
-      content: media.url,
-      senderId: userId,
-      recipientId: friendId,
-      createdAt: new Date().toISOString(),
-    };
+      const messageData = {
+        content: media.url,
+        senderId: userId,
+        recipientId: friendId,
+        createdAt: new Date().toISOString(),
+      };
 
-    try {
+      try {
         // Send to server and save in database
         const response = await axios.post(
           `${VITE_API_BASE_URL}/chat/private/messages`,
@@ -365,12 +366,13 @@ const PrivateChat: React.FC<ChatProps> = ({ friendId }) => {
         console.log("messages: ", messages);
         setNewMessage("");
         scrollToBottom();
-      
-    } catch (err) {
-      console.error("Error sending message:", err);
-      setError("Failed to send message");
-    }
-  }, [friendId, messages, userId]);
+      } catch (err) {
+        console.error("Error sending message:", err);
+        setError("Failed to send message");
+      }
+    },
+    [friendId, messages, userId]
+  );
 
   // send selected media through gifpicker
   useEffect(() => {
@@ -410,10 +412,10 @@ const PrivateChat: React.FC<ChatProps> = ({ friendId }) => {
         )}
         <span className="text-white font-bold">{friendInfo?.username}</span>
         <div className="ml-auto flex items-center space-x-4 text-[#b9bbbe]">
-          <Bell className="w-5 h-5 cursor-pointer" />
-          <Pin className="w-5 h-5 cursor-pointer" />
-          <Users className="w-5 h-5 cursor-pointer" />
-          <Search className="w-5 h-5 cursor-pointer" />
+          <PhoneCall className="w-7 h-7 cursor-pointer" />
+          <Video className="w-7 h-7 cursor-pointer" />
+          <Users className="w-7 h-7 cursor-pointer" />
+          <Search className="w-7 h-7 cursor-pointer" />
         </div>
       </div>
 
