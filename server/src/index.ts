@@ -100,6 +100,53 @@ io.on("connection", (socket) => {
     console.log(`User ${userId} disconnected`);
     activeUsers.delete(userId);
   });
+
+  // webrtc setup
+  socket.on("join_room", (roomId) => {
+    const rooms = io.sockets.adapter.rooms;
+    const room = rooms.get(roomId);
+
+    if (room && room.size >= 2) {
+      socket.emit("room_full");
+      return;
+    }
+
+    socket.join(roomId);
+    console.log(`User joined room ${roomId}`);
+
+    // Notify other users in the room
+    socket.to(roomId).emit("user_joined", {
+      socketId: socket.id,
+      userId: socket.handshake.query.userId,
+    });
+  });
+
+  // WebRTC Signaling for Peer Connection
+  socket.on("offer", (data) => {
+    socket.to(data.to).emit("offer", {
+      offer: data.offer,
+      from: socket.id,
+    });
+  });
+
+  socket.on("answer", (data) => {
+    socket.to(data.to).emit("answer", {
+      answer: data.answer,
+      from: socket.id,
+    });
+  });
+
+  socket.on("ice_candidate", (data) => {
+    socket.to(data.to).emit("ice_candidate", {
+      candidate: data.candidate,
+      from: socket.id,
+    });
+  });
+
+  socket.on("leave_room", (roomId) => {
+    socket.leave(roomId);
+    socket.to(roomId).emit("peer_left", { socketId: socket.id });
+  });
 });
 
 app.use(express.json());

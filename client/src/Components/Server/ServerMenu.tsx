@@ -45,7 +45,7 @@ const MenuButton: React.FC<MenuButtonProps> = ({ isOpen, onClick, label }) => (
     onClick={onClick}
     className="flex items-center w-full px-4 py-3 text-white bg-[#2f3136] hover:bg-gray-700 transition-colors"
   >
-    <span className="flex-1 text-left">{label}</span>
+    <span className="flex-1 text-left font-semibold">{label}</span>
     <div className="relative w-5 h-5">
       <ChevronDown
         className={`absolute top-0 left-0 transition-all duration-300 transform ${
@@ -134,7 +134,7 @@ const ServerMenu: React.FC<{
     },
     "Delete Server": {
       handler: menuActions.onDeleteServer,
-      },
+    },
     "Create Channel": {
       handler: menuActions.onCreateChannel,
     },

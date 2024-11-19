@@ -171,7 +171,7 @@ export default function FriendSidebar({
         </div>
       </div>
 
-      <div className="h-14 bg-[#292b2f] px-2 flex items-center mt-auto gap-1">
+      <div className="h-14 bg-[#232428] px-2 flex items-center mt-auto gap-1">
         <img
           src={user?.avatarUrl || defaultAvatar}
           className="w-8 h-8 rounded-full mr-2"

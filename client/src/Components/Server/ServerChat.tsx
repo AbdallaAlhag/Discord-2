@@ -1,7 +1,5 @@
 import {
   Hash,
-  Bell,
-  Pin,
   Users,
   Search,
   Plus,
@@ -237,8 +235,6 @@ const ServerChat: React.FC<ChatProps> = ({ channelId, serverId }) => {
         <Hash className="w-6 h-6 text-[#8e9297] mr-2" />
         <span className="text-white font-bold">Channel ID: {channelId}</span>
         <div className="ml-auto flex items-center space-x-4 text-[#b9bbbe]">
-          <Bell className="w-5 h-5 cursor-pointer" />
-          <Pin className="w-5 h-5 cursor-pointer" />
           <Users className="w-5 h-5 cursor-pointer" />
           <Search className="w-5 h-5 cursor-pointer" />
         </div>

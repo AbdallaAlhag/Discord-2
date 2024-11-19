@@ -13,6 +13,16 @@ import DeleteServerModal from "../PopupModals/DeleteServerModal";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faMicrophone } from "@fortawesome/free-solid-svg-icons";
 import { faHeadphones } from "@fortawesome/free-solid-svg-icons";
+import WebRTCChat from "../WebRTCChat";
+import { io, Socket } from "socket.io-client";
+import {
+  AudioLines,
+  PhoneOff,
+  Signal,
+  VolumeOff,
+  VideoOff,
+  ScreenShare,
+} from "lucide-react";
 
 interface onlineUsers {
   id: number;
@@ -29,6 +39,14 @@ type ChannelInfo = {
   isVoice: boolean;
   createdAt: Date;
 }[];
+
+type SingleChannelInfo = {
+  id: number;
+  serverId: number;
+  name: string;
+  isVoice: boolean;
+  createdAt: Date;
+};
 
 interface MenuActionsProps {
   onInvitePeople: () => void;
@@ -50,14 +68,36 @@ const ChannelSidebar: React.FC<{ serverId: string; channelId: string }> = ({
     useState(false); // State to control the modal
   const [isInviteModalOpen, setIsInviteModalOpen] = useState(false); // For invite modal
   const [isServerDeleteModalOpen, setIsServerDeleteModalOpen] = useState(false);
-
   const [channelUpdate, setChannelUpdate] = useState(0); // Track channel changes
-
   const [user, setUser] = useState<onlineUsers | null>(null);
   const { userId } = useAuth();
 
+  // webRtc
+  const [socket, setSocket] = useState<Socket>({} as Socket);
+  const [selectedVoiceChannel, setSelectedVoiceChannel] =
+    useState<SingleChannelInfo>();
+  const [isVoiceModalOpen, setIsVoiceModalOpen] = useState(false);
+  const [isVideoEnabled, setIsVideoEnabled] = useState(false);
+
   // Example invite link (customize based on your requirements)
   const inviteLink = `${VITE_API_BASE_URL}/server/${serverId}/${channelId}`;
+
+  useEffect(() => {
+    // Ensure you have the user's authentication token
+
+    // Create socket connection
+    const newSocket = io("http://localhost:3000", {});
+
+    // Set up socket connection
+    setSocket(newSocket);
+
+    // Clean up socket on component unmount
+    return () => {
+      if (newSocket) {
+        newSocket.disconnect();
+      }
+    };
+  }, []); // Empty dependency array means this runs once on mount
   const handleCreateChannel = async (data: {
     name: string;
     type: "text" | "voice";
@@ -152,22 +192,22 @@ const ChannelSidebar: React.FC<{ serverId: string; channelId: string }> = ({
           {Object.entries(channelInfo)
             .filter(([, channel]) => !channel.isVoice)
             .map(([, channel]) => (
-            <Link
-              to={`/server/${serverId}/${channel.id}`}
-              key={channel.id}
-              className="flex items-center justify-between px-2 py-1  rounded-md hover:bg-[#40444b] cursor-pointer transition-all"
-            >
-              <div className="flex items-center space-x-2 text-[#8e9297]">
-                <Hash className="w-5 h-5 mr-1.5" />
-                <span className=" text-white">{channel.name}</span>
-              </div>
-              <div className="flex items-center space-x-2">
-                <button className="text-[#b9bbbe] hover:text-white">
-                  <Settings className="w-4 h-4" />
-                </button>
-              </div>
-            </Link>
-          ))}
+              <Link
+                to={`/server/${serverId}/${channel.id}`}
+                key={channel.id}
+                className="flex items-center justify-between px-2 py-1  rounded-md hover:bg-[#40444b] cursor-pointer transition-all"
+              >
+                <div className="flex items-center space-x-2 text-[#8e9297]">
+                  <Hash className="w-5 h-5 mr-1.5" />
+                  <span className=" text-white">{channel.name}</span>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <button className="text-[#b9bbbe] hover:text-white">
+                    <Settings className="w-4 h-4" />
+                  </button>
+                </div>
+              </Link>
+            ))}
           <div className="flex items-center justify-between my-2">
             <span className="text-xs font-bold text-[#72767d]">
               VOICE CHANNELS
@@ -179,7 +219,7 @@ const ChannelSidebar: React.FC<{ serverId: string; channelId: string }> = ({
               <Plus className="w-4 h-4" />
             </button>
           </div>
-          {Object.entries(channelInfo)
+          {/* {Object.entries(channelInfo)
             .filter(([, channel]) => channel.isVoice)
             .map(([, channel]) => (
               <Link
@@ -197,11 +237,85 @@ const ChannelSidebar: React.FC<{ serverId: string; channelId: string }> = ({
                   </button>
                 </div>
               </Link>
+            ))} */}
+          {Object.entries(channelInfo)
+            .filter(([, channel]) => channel.isVoice)
+            .map(([, channel]) => (
+              <div
+                key={channel.id}
+                className="flex items-center justify-between px-2 py-1 rounded-md hover:bg-[#40444b] cursor-pointer transition-all"
+                onClick={() => {
+                  // Open voice/video chat modal or navigate to voice channel
+                  setSelectedVoiceChannel(channel);
+                  setIsVoiceModalOpen(true);
+                }}
+              >
+                <div className="flex items-center space-x-2 text-[#8e9297]">
+                  <Volume2 className="w-5 h-5 mr-1.5" />
+                  <span className="text-white">{channel.name}</span>
+                </div>
+              </div>
             ))}
+
+          {/* Voice Channel Modal */}
+          {isVoiceModalOpen && selectedVoiceChannel && socket && (
+            <WebRTCChat
+              socket={socket}
+              channelId={selectedVoiceChannel.id}
+              userId={userId}
+              type={isVideoEnabled ? "video" : "audio"}
+            />
+          )}
         </div>
       </div>
+      {isVoiceModalOpen && selectedVoiceChannel && (
+        <div className=" bg-[#232428] flex flex-col items-end mb-1">
+          <div className="w-full h-12 bg-[#232428] px-2 flex items-center justify-between gap-1">
+            <div className="flex flex-col">
+              <div className="flex items-center gap-1">
+                <Signal color="#2cc76f" size={25} />
+                <p className="text-[#2cc76f] text-xs font-semibold ">
+                  Voice Connected
+                </p>
+              </div>
+              <div className="text-[#b9bbbe] text-xs cursor-pointer hover:underline truncate max-w-[20ch]">
+                {selectedVoiceChannel.name} / {serverName}
+              </div>
+            </div>
+            {/* Control Icons */}
+            <button className="p-2 text-[#b9bbbe] hover:bg-[#383a40] rounded-md transition-colors">
+              <AudioLines size={20} />
+            </button>
+            <button className="p-2 text-[#b9bbbe] hover:bg-[#383a40] rounded-md transition-colors">
+              <PhoneOff
+                size={20}
+                onClick={() => {
+                  // Open voice/video chat modal or navigate to voice channel
+                  setIsVoiceModalOpen(false);
+                }}
+              />
+            </button>
+          </div>
+
+          {/* Additional Controls Panel */}
+          <div className=" w-full h-14 bg-[#232428] shadow-lg p-2 flex justify-center gap-1">
+            <button className="p-2 px-4 text-[white] bg-[#383a40] rounded-md transition-colors">
+              <VideoOff size={20} />
+            </button>
+            <button className="p-2 px-4 text-[white] bg-[#383a40] rounded-md transition-colors">
+              <ScreenShare size={20} />
+            </button>
+            <button className="p-2 px-4 text-[white] bg-[#383a40] rounded-md transition-colors">
+              <VolumeOff size={20} />
+            </button>
+            <button className="p-2 px-4 text-[white] bg-[#383a40] rounded-md transition-colors">
+              <Volume2 size={20} />
+            </button>
+          </div>
+        </div>
+      )}
       {/* profile */}
-      <div className="h-14 bg-[#292b2f] px-2 flex items-center mt-auto gap-1">
+      <div className="h-14 bg-[#232428] px-2 flex items-center mt-auto gap-1">
         <img
           src={user?.avatarUrl || defaultAvatar}
           className="w-8 h-8 rounded-full mr-2"
