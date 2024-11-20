@@ -106,10 +106,10 @@ io.on("connection", (socket) => {
     const rooms = io.sockets.adapter.rooms;
     const room = rooms.get(roomId);
 
-    if (room && room.size >= 2) {
-      socket.emit("room_full");
-      return;
-    }
+    // if (room && room.size >= 2) {
+    //   socket.emit("room_full");
+    //   return;
+    // }
 
     socket.join(roomId);
     console.log(`User joined room ${roomId}`);

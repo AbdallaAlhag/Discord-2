@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from "react";
+import React, { useState, useRef, useEffect, useCallback } from "react";
 import { Socket } from "socket.io-client";
 
 interface WebRTCChatProps {
@@ -8,10 +8,13 @@ interface WebRTCChatProps {
   type: "audio" | "video";
 }
 
+interface EnhancedRTCPeerConnection extends RTCPeerConnection {
+  remoteStream?: MediaStream;
+}
 const WebRTCChat: React.FC<WebRTCChatProps> = ({
   socket,
   channelId,
-  userId,
+  //   userId,
   type,
 }) => {
   const [localStream, setLocalStream] = useState<MediaStream | null>(null);
@@ -23,33 +26,75 @@ const WebRTCChat: React.FC<WebRTCChatProps> = ({
   const remoteVideoRefs = useRef<(HTMLVideoElement | null)[]>([]);
   const peerConnectionsRef = useRef<{ [key: string]: RTCPeerConnection }>({});
 
+  // Move createPeerConnection to useCallback to avoid dependency issues
+  const createPeerConnection = useCallback(
+    (socketId: string) => {
+      const configuration: RTCConfiguration = {
+        iceServers: [{ urls: "stun:stun.l.google.com:19302" }],
+      };
+
+      const peerConnection = new RTCPeerConnection(
+        configuration
+      ) as EnhancedRTCPeerConnection;
+
+      peerConnection.ontrack = (event) => {
+        const remoteStream = event.streams[0];
+        peerConnection.remoteStream = remoteStream; // Store the remote stream
+
+        setRemoteStreams((prev) => {
+          if (!prev.includes(remoteStream)) {
+            return [...prev, remoteStream];
+          }
+          return prev;
+        });
+      };
+
+      peerConnection.onicecandidate = (event) => {
+        if (event.candidate) {
+          socket.emit("ice_candidate", {
+            to: socketId,
+            candidate: event.candidate,
+          });
+        }
+      };
+
+      peerConnectionsRef.current[socketId] = peerConnection;
+      return peerConnection;
+    },
+    [socket]
+  );
+
   useEffect(() => {
-    // Initialize media stream and WebRTC connection
+    let currentLocalStream: MediaStream | null = null;
+    const currentPeerConnections = peerConnectionsRef.current;
+
     const initializeWebRTC = async () => {
       try {
         const stream = await navigator.mediaDevices.getUserMedia({
           video: type === "video",
           audio: true,
         });
+
         setLocalStream(stream);
+        currentLocalStream = stream;
 
         if (localVideoRef.current) {
           localVideoRef.current.srcObject = stream;
         }
 
-        // Join the room
         socket.emit("join_room", channelId);
 
-        // Setup socket listeners for WebRTC signaling
         socket.on("user_joined", async (data) => {
           const peerConnection = createPeerConnection(data.socketId);
 
-          // Add local stream tracks to peer connection
-          stream
-            .getTracks()
-            .forEach((track) => peerConnection.addTrack(track, stream));
+          if (currentLocalStream) {
+            currentLocalStream
+              .getTracks()
+              .forEach((track) =>
+                peerConnection.addTrack(track, currentLocalStream!)
+              );
+          }
 
-          // Create and send offer
           const offer = await peerConnection.createOffer();
           await peerConnection.setLocalDescription(offer);
           socket.emit("offer", {
@@ -61,16 +106,18 @@ const WebRTCChat: React.FC<WebRTCChatProps> = ({
         socket.on("offer", async (data) => {
           const peerConnection = createPeerConnection(data.from);
 
-          // Add local stream tracks to peer connection
-          stream
-            .getTracks()
-            .forEach((track) => peerConnection.addTrack(track, stream));
+          if (currentLocalStream) {
+            currentLocalStream
+              .getTracks()
+              .forEach((track) =>
+                peerConnection.addTrack(track, currentLocalStream!)
+              );
+          }
 
           await peerConnection.setRemoteDescription(
             new RTCSessionDescription(data.offer)
           );
 
-          // Create and send answer
           const answer = await peerConnection.createAnswer();
           await peerConnection.setLocalDescription(answer);
           socket.emit("answer", {
@@ -80,7 +127,7 @@ const WebRTCChat: React.FC<WebRTCChatProps> = ({
         });
 
         socket.on("answer", async (data) => {
-          const peerConnection = peerConnectionsRef.current[data.from];
+          const peerConnection = currentPeerConnections[data.from];
           if (peerConnection) {
             await peerConnection.setRemoteDescription(
               new RTCSessionDescription(data.answer)
@@ -89,7 +136,7 @@ const WebRTCChat: React.FC<WebRTCChatProps> = ({
         });
 
         socket.on("ice_candidate", async (data) => {
-          const peerConnection = peerConnectionsRef.current[data.from];
+          const peerConnection = currentPeerConnections[data.from];
           if (peerConnection) {
             await peerConnection.addIceCandidate(
               new RTCIceCandidate(data.candidate)
@@ -98,15 +145,17 @@ const WebRTCChat: React.FC<WebRTCChatProps> = ({
         });
 
         socket.on("peer_left", (data) => {
-          // Clean up peer connection
-          const peerConnection = peerConnectionsRef.current[data.socketId];
+          const peerConnection = currentPeerConnections[
+            data.socketId
+          ] as EnhancedRTCPeerConnection;
           if (peerConnection) {
+            if (peerConnection.remoteStream) {
+              setRemoteStreams((prev) =>
+                prev.filter((stream) => stream !== peerConnection.remoteStream)
+              );
+            }
             peerConnection.close();
-            delete peerConnectionsRef.current[data.socketId];
-
-            setRemoteStreams((prev) =>
-              prev.filter((stream) => stream !== peerConnection.remoteStream)
-            );
+            delete currentPeerConnections[data.socketId];
           }
         });
       } catch (error) {
@@ -116,52 +165,22 @@ const WebRTCChat: React.FC<WebRTCChatProps> = ({
 
     initializeWebRTC();
 
-    // Cleanup on component unmount
+    // Cleanup function
     return () => {
-      // Close all peer connections
-      Object.values(peerConnectionsRef.current).forEach((pc) => pc.close());
-
-      // Stop local stream tracks
-      localStream?.getTracks().forEach((track) => track.stop());
-
-      // Leave the room
-      socket.emit("leave_room", channelId);
-    };
-  }, [socket, channelId, type]);
-
-  const createPeerConnection = (socketId: string) => {
-    const configuration: RTCConfiguration = {
-      iceServers: [
-        { urls: "stun:stun.l.google.com:19302" },
-        // Add TURN servers here for better connectivity
-      ],
-    };
-
-    const peerConnection = new RTCPeerConnection(configuration);
-
-    peerConnection.ontrack = (event) => {
-      const remoteStream = event.streams[0];
-      setRemoteStreams((prev) => {
-        // Prevent duplicate streams
-        if (!prev.includes(remoteStream)) {
-          return [...prev, remoteStream];
-        }
-        return prev;
-      });
-    };
-
-    peerConnection.onicecandidate = (event) => {
-      if (event.candidate) {
-        socket.emit("ice_candidate", {
-          to: socketId,
-          candidate: event.candidate,
-        });
+      Object.values(currentPeerConnections).forEach((pc) => pc.close());
+      if (currentLocalStream) {
+        currentLocalStream.getTracks().forEach((track) => track.stop());
       }
-    };
+      socket.emit("leave_room", channelId);
 
-    peerConnectionsRef.current[socketId] = peerConnection;
-    return peerConnection;
-  };
+      // Clean up socket listeners
+      socket.off("user_joined");
+      socket.off("offer");
+      socket.off("answer");
+      socket.off("ice_candidate");
+      socket.off("peer_left");
+    };
+  }, [socket, channelId, type, createPeerConnection]);
 
   const toggleMute = () => {
     if (localStream) {
@@ -182,32 +201,164 @@ const WebRTCChat: React.FC<WebRTCChatProps> = ({
   };
 
   return (
-    <div className="webrtc-container">
-      {/* Local Video/Audio */}
-      <video
-        ref={localVideoRef}
-        autoPlay
-        muted
-        className={`local-stream ${type === "audio" ? "hidden" : ""}`}
-      />
+    <div className="flex flex-col h-full w-full bg-gray-900 p-4">
+      {/* Video Grid Container */}
+      <div className="grid gap-4 flex-grow w-full">
+        {type === "video" && (
+          <div
+            className="grid gap-4"
+            style={{
+              gridTemplateColumns: `repeat(${Math.ceil(
+                Math.sqrt(remoteStreams.length + 1)
+              )}, 1fr)`,
+            }}
+          >
+            {/* Local Video */}
+            <div className="relative aspect-video bg-gray-800 rounded-lg overflow-hidden">
+              <video
+                ref={localVideoRef}
+                autoPlay
+                muted
+                className="w-full h-full object-cover"
+              />
+              <div className="absolute bottom-2 left-2 bg-black bg-opacity-50 px-2 py-1 rounded text-white text-sm">
+                You
+              </div>
+            </div>
 
-      {/* Remote Streams */}
-      {remoteStreams.map((stream, index) => (
-        <video
-          key={index}
-          ref={(el) => (remoteVideoRefs.current[index] = el)}
-          srcObject={stream}
-          autoPlay
-          className={`remote-stream ${type === "audio" ? "hidden" : ""}`}
-        />
-      ))}
+            {/* Remote Videos */}
+            {remoteStreams.map((stream, index) => (
+              <div
+                key={stream.id}
+                className="relative aspect-video bg-gray-800 rounded-lg overflow-hidden"
+              >
+                <video
+                  ref={(el) => {
+                    if (el) {
+                      el.srcObject = stream; // Set the MediaStream to the video element
+                    }
+                    remoteVideoRefs.current[index] = el;
+                  }}
+                  autoPlay
+                  className="w-full h-full object-cover"
+                />
+                <div className="absolute bottom-2 left-2 bg-black bg-opacity-50 px-2 py-1 rounded text-white text-sm">
+                  Participant {index + 1}
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+
+        {/* Audio-only Mode */}
+        {type === "audio" && (
+          <div className="flex flex-wrap gap-4 p-4">
+            <div className="flex items-center space-x-2 bg-gray-800 rounded-lg p-3">
+              <div className="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center">
+                <span className="text-white font-semibold">You</span>
+              </div>
+              <span className="text-white">
+                Speaking: {!isMuted ? "Yes" : "No"}
+              </span>
+            </div>
+            {remoteStreams.map((stream, index) => (
+              <div
+                key={stream.id}
+                className="flex items-center space-x-2 bg-gray-800 rounded-lg p-3"
+              >
+                <div className="w-8 h-8 bg-green-500 rounded-full flex items-center justify-center">
+                  <span className="text-white font-semibold">{index + 1}</span>
+                </div>
+                <span className="text-white">Connected</span>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
 
       {/* Controls */}
-      <div className="controls">
-        <button onClick={toggleMute}>{isMuted ? "Unmute" : "Mute"}</button>
+      <div className="flex justify-center space-x-4 mt-4 p-4 bg-gray-800 rounded-lg">
+        <button
+          onClick={toggleMute}
+          className="px-4 py-2 bg-gray-700 hover:bg-gray-600 rounded-md text-white flex items-center space-x-2"
+        >
+          {isMuted ? (
+            <>
+              <svg
+                className="w-5 h-5"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z"
+                />
+              </svg>
+              <span>Unmute</span>
+            </>
+          ) : (
+            <>
+              <svg
+                className="w-5 h-5"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z"
+                />
+              </svg>
+              <span>Mute</span>
+            </>
+          )}
+        </button>
+
         {type === "video" && (
-          <button onClick={toggleVideo}>
-            {isVideoOff ? "Turn Video On" : "Turn Video Off"}
+          <button
+            onClick={toggleVideo}
+            className="px-4 py-2 bg-gray-700 hover:bg-gray-600 rounded-md text-white flex items-center space-x-2"
+          >
+            {isVideoOff ? (
+              <>
+                <svg
+                  className="w-5 h-5"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"
+                  />
+                </svg>
+                <span>Turn Video On</span>
+              </>
+            ) : (
+              <>
+                <svg
+                  className="w-5 h-5"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"
+                  />
+                </svg>
+                <span>Turn Video Off</span>
+              </>
+            )}
           </button>
         )}
       </div>

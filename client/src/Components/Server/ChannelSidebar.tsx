@@ -58,9 +58,14 @@ interface MenuActionsProps {
 
 const VITE_API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
-const ChannelSidebar: React.FC<{ serverId: string; channelId: string }> = ({
+const ChannelSidebar: React.FC<{
+  serverId: string;
+  channelId: string;
+  setIsVoiceChannelDisplay: React.Dispatch<React.SetStateAction<boolean>>;
+}> = ({
   serverId,
   channelId,
+  setIsVoiceChannelDisplay,
 }) => {
   const [channelInfo, setChannelInfo] = useState<ChannelInfo>([]);
   const [serverName, setServerName] = useState("");
@@ -78,7 +83,6 @@ const ChannelSidebar: React.FC<{ serverId: string; channelId: string }> = ({
     useState<SingleChannelInfo>();
   const [isVoiceModalOpen, setIsVoiceModalOpen] = useState(false);
   const [isVideoEnabled, setIsVideoEnabled] = useState(false);
-
   // Example invite link (customize based on your requirements)
   const inviteLink = `${VITE_API_BASE_URL}/server/${serverId}/${channelId}`;
 
@@ -196,6 +200,11 @@ const ChannelSidebar: React.FC<{ serverId: string; channelId: string }> = ({
                 to={`/server/${serverId}/${channel.id}`}
                 key={channel.id}
                 className="flex items-center justify-between px-2 py-1  rounded-md hover:bg-[#40444b] cursor-pointer transition-all"
+                onClick={() => {
+                  if (isVoiceModalOpen && selectedVoiceChannel) {
+                    setIsVoiceChannelDisplay(false);
+                  }
+                }}
               >
                 <div className="flex items-center space-x-2 text-[#8e9297]">
                   <Hash className="w-5 h-5 mr-1.5" />
@@ -248,6 +257,9 @@ const ChannelSidebar: React.FC<{ serverId: string; channelId: string }> = ({
                   // Open voice/video chat modal or navigate to voice channel
                   setSelectedVoiceChannel(channel);
                   setIsVoiceModalOpen(true);
+                  if (isVoiceModalOpen && selectedVoiceChannel) {
+                    setIsVoiceChannelDisplay(true);
+                  }
                 }}
               >
                 <div className="flex items-center space-x-2 text-[#8e9297]">
@@ -292,6 +304,7 @@ const ChannelSidebar: React.FC<{ serverId: string; channelId: string }> = ({
                 onClick={() => {
                   // Open voice/video chat modal or navigate to voice channel
                   setIsVoiceModalOpen(false);
+                  setIsVoiceChannelDisplay(false);
                 }}
               />
             </button>
@@ -367,6 +380,8 @@ const ChannelSidebar: React.FC<{ serverId: string; channelId: string }> = ({
         serverId={serverId}
         serverName={serverName}
       />
+
+      {/* <VoiceChannelDisplay /> */}
     </div>
   );
 };

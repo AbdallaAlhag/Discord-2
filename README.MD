@@ -20,10 +20,10 @@
         - work on chat:
             - make the chat look like discord: add time hover over message to show time
             - server chat still little bugged but kinda annoying to fix 
-        - register page background is pretty slow
+        - register page background is pretty slow sometimes
         - Work on gif picker, make it a modal and work on opening and closing it. 
-            - make sure it works with messaging
-                - gifs work !!
+            - make sure it works with messaging (.gifs work)
+            - try to get stickers working
             - Add loaders to values (already have loader but i like the square ones better)
         - stickers are not working? i guess and its okay for now.
         - Create channel is not real time, just needs a refresh
