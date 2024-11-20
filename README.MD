@@ -1,6 +1,6 @@
 # Discord-2
     npx kill-port 3000 to kill server if already in use
-
+    7,414 lines of code 11/20/2022
 
     todo:
         do this near the end:
@@ -28,6 +28,8 @@
         - stickers are not working? i guess and its okay for now.
         - Create channel is not real time, just needs a refresh
         to see it.
+        - server chat is not real time?
+
 -haven't done yet:
     - right click menu 
     - Notifications from server or users on new message

@@ -62,11 +62,7 @@ const ChannelSidebar: React.FC<{
   serverId: string;
   channelId: string;
   setIsVoiceChannelDisplay: React.Dispatch<React.SetStateAction<boolean>>;
-}> = ({
-  serverId,
-  channelId,
-  setIsVoiceChannelDisplay,
-}) => {
+}> = ({ serverId, channelId, setIsVoiceChannelDisplay }) => {
   const [channelInfo, setChannelInfo] = useState<ChannelInfo>([]);
   const [serverName, setServerName] = useState("");
   const [isCreateChannelModalOpen, setIsCreateChannelModalOpen] =
@@ -189,7 +185,7 @@ const ChannelSidebar: React.FC<{
               onClick={handleCreateChannelOpenModal}
               className="text-[#b9bbbe] hover:text-white"
             >
-              <Plus className="w-4 h-4" />
+              <Plus className="w-4 h-4 mr-2" />
             </button>
           </div>
           {/* list */}
@@ -225,7 +221,7 @@ const ChannelSidebar: React.FC<{
               onClick={handleCreateChannelOpenModal}
               className="text-[#b9bbbe] hover:text-white"
             >
-              <Plus className="w-4 h-4" />
+              <Plus className="w-4 h-4 mr-2" />
             </button>
           </div>
           {/* {Object.entries(channelInfo)
