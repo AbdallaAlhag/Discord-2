@@ -1,6 +1,8 @@
 # Discord-2
     npx kill-port 3000 to kill server if already in use
-    7,414 lines of code 11/20/2022
+    7,
+    
+    414 lines of code 11/20/2022
 
     todo:
         do this near the end:
@@ -29,6 +31,7 @@
         - Create channel is not real time, just needs a refresh
         to see it.
         - server chat is not real time?
+        - change invite if already joined
 
 -haven't done yet:
     - right click menu 

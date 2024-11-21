@@ -78,7 +78,7 @@ const ChannelSidebar: React.FC<{
   const [selectedVoiceChannel, setSelectedVoiceChannel] =
     useState<SingleChannelInfo>();
   const [isVoiceModalOpen, setIsVoiceModalOpen] = useState(false);
-  const [isVideoEnabled, setIsVideoEnabled] = useState(false);
+  const [isVideoEnabled, setIsVideoEnabled] = useState(true);
   // Example invite link (customize based on your requirements)
   const inviteLink = `${VITE_API_BASE_URL}/server/${serverId}/${channelId}`;
 
@@ -86,7 +86,9 @@ const ChannelSidebar: React.FC<{
     // Ensure you have the user's authentication token
 
     // Create socket connection
-    const newSocket = io("http://localhost:3000", {});
+    const newSocket = io("http://localhost:3000", {
+      query: { userId },
+    });
 
     // Set up socket connection
     setSocket(newSocket);
@@ -104,16 +106,13 @@ const ChannelSidebar: React.FC<{
     isPrivate: boolean;
   }) => {
     // Logic to create a new channel
-    console.log("Channel created:", data);
+    // console.log("Channel created:", data);
     try {
-      const response = await axios.post(
-        `${VITE_API_BASE_URL}/server/createChannel`,
-        {
-          data,
-          serverId: Number(serverId),
-        }
-      );
-      console.log(response);
+      await axios.post(`${VITE_API_BASE_URL}/server/createChannel`, {
+        data,
+        serverId: Number(serverId),
+      });
+      // console.log(response);
       setChannelUpdate((prev) => prev + 1); // Update channel state
     } catch (error) {
       console.error("Error creating channel:", error);
@@ -137,8 +136,8 @@ const ChannelSidebar: React.FC<{
         const response = await axios.get(
           `${VITE_API_BASE_URL}/server/channels/${Number(serverId)}`
         );
-        console.log("server response: ", response);
-        console.log("servername: ", response.data.name);
+        // console.log("server response: ", response);
+        // console.log("servername: ", response.data.name);
         setChannelInfo(response.data.channels);
         setServerName(response.data.name);
         // console.log("channels: ", response.data);

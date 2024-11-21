@@ -62,7 +62,7 @@ const handleServerChannelsInfo = async (
   if (!serverId) {
     return res.status(400).json({ error: "Missing required fields" });
   }
-  console.log("Requested serverId:", serverId);
+  // console.log("Requested serverId:", serverId);
 
   try {
     const serverChannels = await getServerChannelsInfo(Number(serverId));
@@ -171,7 +171,7 @@ const handleDeleteServer = async (
   if (!serverId) {
     return res.status(400).json({ error: "Missing required fields" });
   }
-  console.log("Requested serverId:", serverId);
+  // console.log("Requested serverId:", serverId);
 
   try {
     const deletedServer = await deleteServer(Number(serverId));

@@ -14,7 +14,7 @@ interface EnhancedRTCPeerConnection extends RTCPeerConnection {
 const WebRTCChat: React.FC<WebRTCChatProps> = ({
   socket,
   channelId,
-  //   userId,
+  userId,
   type,
 }) => {
   const [localStream, setLocalStream] = useState<MediaStream | null>(null);
@@ -26,43 +26,62 @@ const WebRTCChat: React.FC<WebRTCChatProps> = ({
   const remoteVideoRefs = useRef<(HTMLVideoElement | null)[]>([]);
   const peerConnectionsRef = useRef<{ [key: string]: RTCPeerConnection }>({});
 
+  const streamMetadata = new WeakMap<MediaStream, { userId: number | null }>();
+
   // Move createPeerConnection to useCallback to avoid dependency issues
-  const createPeerConnection = useCallback(
-    (socketId: string) => {
-      const configuration: RTCConfiguration = {
-        iceServers: [{ urls: "stun:stun.l.google.com:19302" }],
-      };
+  const createPeerConnection = useCallback((socketId: string) => {
+    // Cause: If createPeerConnection is called multiple times for the same socketId, it will create duplicate connections, leading to multiple events being fired.
+    // Solution: Check if a peerConnection already exists for the socketId:
 
-      const peerConnection = new RTCPeerConnection(
-        configuration
-      ) as EnhancedRTCPeerConnection;
+    if (peerConnectionsRef.current[socketId]) {
+      return peerConnectionsRef.current[socketId];
+    }
+    const configuration: RTCConfiguration = {
+      iceServers: [{ urls: "stun:stun.l.google.com:19302" }],
+    };
 
-      peerConnection.ontrack = (event) => {
-        const remoteStream = event.streams[0];
-        peerConnection.remoteStream = remoteStream; // Store the remote stream
+    const peerConnection = new RTCPeerConnection(
+      configuration
+    ) as EnhancedRTCPeerConnection;
 
-        setRemoteStreams((prev) => {
-          if (!prev.includes(remoteStream)) {
-            return [...prev, remoteStream];
-          }
-          return prev;
-        });
-      };
+    peerConnection.ontrack = (event) => {
+      const remoteStream = event.streams[0];
+      console.log("Received new remote stream:", remoteStream.id);
+      // Multiple ontrack Triggers
+      // The ontrack event might fire multiple times due to how WebRTC handles streams:
+      // Each track (audio or video) results in a separate ontrack event.
+      // If multiple tracks are being sent (e.g., one video and one audio track), you will see multiple triggers.
 
-      peerConnection.onicecandidate = (event) => {
-        if (event.candidate) {
-          socket.emit("ice_candidate", {
-            to: socketId,
-            candidate: event.candidate,
-          });
+      if (streamMetadata.has(remoteStream)) return; // Avoid duplicate processing
+      streamMetadata.set(remoteStream, { userId });
+      peerConnection.remoteStream = remoteStream; // Store the remote stream
+
+      // Associate metadata with the MediaStream
+
+      setRemoteStreams((prev) => {
+        // Avoid adding the same stream twice
+        const streamExists = prev.some(
+          (stream) => stream.id === remoteStream.id
+        );
+        if (!streamExists) {
+          return [...prev, remoteStream];
         }
-      };
+        return prev;
+      });
+    };
 
-      peerConnectionsRef.current[socketId] = peerConnection;
-      return peerConnection;
-    },
-    [socket]
-  );
+    peerConnection.onicecandidate = (event) => {
+      if (event.candidate) {
+        socket.emit("ice_candidate", {
+          to: socketId,
+          candidate: event.candidate,
+        });
+      }
+    };
+
+    peerConnectionsRef.current[socketId] = peerConnection;
+    return peerConnection;
+  }, []);
 
   useEffect(() => {
     let currentLocalStream: MediaStream | null = null;
@@ -84,9 +103,11 @@ const WebRTCChat: React.FC<WebRTCChatProps> = ({
 
         socket.emit("join_room", channelId);
 
+        console.log("Adding socket listener for 'user_joined'");
         socket.on("user_joined", async (data) => {
           const peerConnection = createPeerConnection(data.socketId);
-
+          // console.log("peerConnection: ", peerConnection);
+          console.log("localStream on user joining: ", currentLocalStream);
           if (currentLocalStream) {
             currentLocalStream
               .getTracks()
@@ -180,7 +201,7 @@ const WebRTCChat: React.FC<WebRTCChatProps> = ({
       socket.off("ice_candidate");
       socket.off("peer_left");
     };
-  }, [socket, channelId, type, createPeerConnection]);
+  }, []);
 
   const toggleMute = () => {
     if (localStream) {
@@ -192,6 +213,15 @@ const WebRTCChat: React.FC<WebRTCChatProps> = ({
   };
 
   const toggleVideo = () => {
+    const localStreamId = localStream?.id;
+    const remoteStream = remoteStreams.find(
+      (stream) => stream.id === localStreamId
+    );
+    if (remoteStream) {
+      remoteStream.getVideoTracks().forEach((track) => {
+        track.enabled = isVideoOff;
+      });
+    }
     if (localStream) {
       localStream.getVideoTracks().forEach((track) => {
         track.enabled = isVideoOff;
@@ -200,6 +230,9 @@ const WebRTCChat: React.FC<WebRTCChatProps> = ({
     }
   };
 
+  console.log("remote streams: ", remoteStreams);
+  console.log("local stream: ", localStream);
+  console.log("metadata: ", streamMetadata);
   return (
     <div className="flex flex-col h-full w-full bg-gray-900 p-4">
       {/* Video Grid Container */}
@@ -222,31 +255,35 @@ const WebRTCChat: React.FC<WebRTCChatProps> = ({
                 className="w-full h-full object-cover"
               />
               <div className="absolute bottom-2 left-2 bg-black bg-opacity-50 px-2 py-1 rounded text-white text-sm">
-                You
+                You: {userId}
               </div>
             </div>
 
             {/* Remote Videos */}
-            {remoteStreams.map((stream, index) => (
-              <div
-                key={stream.id}
-                className="relative aspect-video bg-gray-800 rounded-lg overflow-hidden"
-              >
-                <video
-                  ref={(el) => {
-                    if (el) {
-                      el.srcObject = stream; // Set the MediaStream to the video element
-                    }
-                    remoteVideoRefs.current[index] = el;
-                  }}
-                  autoPlay
-                  className="w-full h-full object-cover"
-                />
-                <div className="absolute bottom-2 left-2 bg-black bg-opacity-50 px-2 py-1 rounded text-white text-sm">
-                  Participant {index + 1}
+            {remoteStreams.map((stream, index) => {
+              const metadata = streamMetadata.get(stream); // Retrieve userId or other metadata
+              // console.log("metadata: ", metadata);
+              return (
+                <div
+                  key={stream.id}
+                  className="relative aspect-video bg-gray-800 rounded-lg overflow-hidden"
+                >
+                  <video
+                    ref={(el) => {
+                      if (el) {
+                        el.srcObject = stream; // Set the MediaStream to the video element
+                      }
+                      remoteVideoRefs.current[index] = el;
+                    }}
+                    autoPlay
+                    className="w-full h-full object-cover"
+                  />
+                  <div className="absolute bottom-2 left-2 bg-black bg-opacity-50 px-2 py-1 rounded text-white text-sm">
+                    Participant: {metadata?.userId || `Unknown (${index + 1})`}
+                  </div>
                 </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         )}
 

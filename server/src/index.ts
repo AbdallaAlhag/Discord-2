@@ -36,14 +36,14 @@ const activeUsers = new Map();
 io.on("connection", (socket) => {
   const { userId } = socket.handshake.query;
   if (!userId) {
-    console.warn("User connected without userId!");
+    // console.warn("User connected without userId!");
     return;
   }
 
   // Join user-specific room
-  socket.join(userId.toString());
+  userId && socket.join(userId.toString());
   activeUsers.set(userId, socket.id);
-  console.log(`User ${userId} connected and joined room ${userId}`);
+  // console.log(`User ${userId} connected and joined room`);
 
   // Handle private message
   socket.on("private_message", (messageData) => {
@@ -57,17 +57,17 @@ io.on("connection", (socket) => {
   // Handle server and channel messages
   socket.on("join_server", (serverId) => {
     socket.join(`server-${serverId}`);
-    console.log(`User ${userId} joined server ${serverId}`);
+    // console.log(`User ${userId} joined server ${serverId}`);
   });
 
   socket.on("join_channel", (channelId) => {
     socket.join(`channel-${channelId}`);
-    console.log(`User ${userId} joined channel ${channelId}`);
+    // console.log(`User ${userId} joined channel ${channelId}`);
   });
 
   socket.on("leave_channel", (channelId) => {
     socket.leave(`channel-${channelId}`);
-    console.log(`User ${userId} left channel ${channelId}`);
+    // console.log(`User ${userId} left channel ${channelId}`);
   });
 
   socket.on("server_message", (messageData) => {
@@ -97,7 +97,7 @@ io.on("connection", (socket) => {
 
   // Handle disconnect
   socket.on("disconnect", () => {
-    console.log(`User ${userId} disconnected`);
+    // console.log(`User ${userId} disconnected`);
     activeUsers.delete(userId);
   });
 
@@ -112,7 +112,7 @@ io.on("connection", (socket) => {
     // }
 
     socket.join(roomId);
-    console.log(`User joined room ${roomId}`);
+    console.log(`User joined room voice ${roomId}`);
 
     // Notify other users in the room
     socket.to(roomId).emit("user_joined", {
@@ -143,9 +143,20 @@ io.on("connection", (socket) => {
     });
   });
 
+  // socket.on("leave_room", (roomId) => {
+  //   console.log(`User left room voice ${roomId}`);
+  //   socket.leave(roomId);
+  //   socket.to(roomId).emit("peer_left", { socketId: socket.id });
+  // });
   socket.on("leave_room", (roomId) => {
-    socket.leave(roomId);
-    socket.to(roomId).emit("peer_left", { socketId: socket.id });
+    try {
+      console.log(`User left room voice ${roomId}`);
+      // console.log(`Socket ID: ${socket.id}`); // Additional debugging
+      socket.leave(roomId);
+      socket.to(roomId).emit("peer_left", { socketId: socket.id });
+    } catch (error) {
+      console.error("Error in leave_room:", error);
+    }
   });
 });
 

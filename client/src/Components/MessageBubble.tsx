@@ -41,7 +41,7 @@ const MessageBubble: React.FC<MessageBubbleProps> = ({
   const isGifUrl = (url: string): boolean => {
     // Check if the string ends with .gif
     const isGif = url.toLowerCase().endsWith(".gif");
-    console.log("isGif: ", isGif);
+    // console.log("isGif: ", isGif);
     // Check if it's a valid URL
     try {
       new URL(url);

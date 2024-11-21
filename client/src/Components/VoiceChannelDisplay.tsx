@@ -164,11 +164,7 @@ const VoiceChannelDisplay: React.FC<VoiceChannelDisplayProps> = ({
   //   }
   // };
 
-  // const user = {
-  //   username: "Abdalla",
-  //   avatarUrl:
-  //     "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=100&h=100&fit=crop",
-  // };
+
 
   return (
     <div className="h-screen flex-1 flex-col bg-[black] relative group overflow-hidden	">
