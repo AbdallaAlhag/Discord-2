@@ -32,6 +32,7 @@ console.log("Backend server has started..."); // This should log when the server
 
 // Track active users
 const activeUsers = new Map();
+let activeRooms = new Map(); // Track active room memberships
 
 io.on("connection", (socket) => {
   const { userId } = socket.handshake.query;
@@ -96,28 +97,51 @@ io.on("connection", (socket) => {
   });
 
   // Handle disconnect
+  // socket.on("disconnect", () => {
+  //   // console.log(`User ${userId} disconnected`);
+  //   activeUsers.delete(userId);
+  // });
   socket.on("disconnect", () => {
-    // console.log(`User ${userId} disconnected`);
-    activeUsers.delete(userId);
+    const userSession = activeRooms.get(socket.id);
+    if (userSession) {
+      const { roomId, userId } = userSession;
+      console.log(`User ${userId} left room voice ${roomId}`);
+
+      // Notify others in the room
+      socket.to(roomId).emit("peer_left", {
+        socketId: socket.id,
+        userId: userId,
+      });
+
+      activeRooms.delete(socket.id);
+    }
   });
 
   // webrtc setup
   socket.on("join_room", (roomId) => {
+    const userId = socket.handshake.query.userId;
+
+    // Validate userId exists and is a number/string
+    if (!userId) {
+      console.error("User tried to join room without userId");
+      return;
+    }
+    activeRooms.set(socket.id, {
+      roomId,
+      userId,
+    });
+
     const rooms = io.sockets.adapter.rooms;
     const room = rooms.get(roomId);
 
-    // if (room && room.size >= 2) {
-    //   socket.emit("room_full");
-    //   return;
-    // }
-
     socket.join(roomId);
-    console.log(`User joined room voice ${roomId}`);
+    console.log(`User ${userId} joined room voice ${roomId}`);
 
     // Notify other users in the room
+    console.log("userId does in fact work?:", userId);
     socket.to(roomId).emit("user_joined", {
       socketId: socket.id,
-      userId: socket.handshake.query.userId,
+      userId: userId,
     });
   });
 
@@ -126,6 +150,7 @@ io.on("connection", (socket) => {
     socket.to(data.to).emit("offer", {
       offer: data.offer,
       from: socket.id,
+      userId: userId,
     });
   });
 
@@ -149,13 +174,17 @@ io.on("connection", (socket) => {
   //   socket.to(roomId).emit("peer_left", { socketId: socket.id });
   // });
   socket.on("leave_room", (roomId) => {
-    try {
-      console.log(`User left room voice ${roomId}`);
-      // console.log(`Socket ID: ${socket.id}`); // Additional debugging
+    const userSession = activeRooms.get(socket.id);
+    if (userSession) {
       socket.leave(roomId);
-      socket.to(roomId).emit("peer_left", { socketId: socket.id });
-    } catch (error) {
-      console.error("Error in leave_room:", error);
+      console.log(`User ${userSession.userId} left room voice ${roomId}`);
+
+      socket.to(roomId).emit("peer_left", {
+        socketId: socket.id,
+        userId: userSession.userId,
+      });
+
+      activeRooms.delete(socket.id);
     }
   });
 });

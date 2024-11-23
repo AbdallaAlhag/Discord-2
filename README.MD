@@ -32,7 +32,7 @@
         to see it.
         - server chat is not real time?
         - change invite if already joined
-
+        - when clicking on server, should get users in voice channels
 -haven't done yet:
     - right click menu 
     - Notifications from server or users on new message

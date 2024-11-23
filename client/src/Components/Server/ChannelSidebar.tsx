@@ -86,8 +86,10 @@ const ChannelSidebar: React.FC<{
     // Ensure you have the user's authentication token
 
     // Create socket connection
-    const newSocket = io("http://localhost:3000", {
+    const newSocket = io(`${VITE_API_BASE_URL}`, {
       query: { userId },
+      transports: ["websocket"],
+      autoConnect: true,
     });
 
     // Set up socket connection
