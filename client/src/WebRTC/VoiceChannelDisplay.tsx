@@ -1,5 +1,4 @@
 import { useEffect, useRef } from "react";
-import { Socket } from "socket.io-client";
 import {
   Volume2,
   Users,
@@ -13,15 +12,16 @@ import {
   PictureInPicture,
   ScreenShare,
 } from "lucide-react";
-import { useWebRTC } from "./useWebRTC";
+// import { useWebRTC } from "./useWebRTC";
+import { useWebRTCContext } from "./WebRTCContext";
 
 // Types
-interface VoiceChannelDisplayProps {
-  socket: Socket;
-  channelId: string;
-  type?: "video" | "audio";
-  userId: number | null;
-}
+// interface VoiceChannelDisplayProps {
+//   socket: Socket;
+//   channelId: number;
+//   type?: "video" | "audio";
+//   userId: number | null;
+// }
 
 interface StreamMetadata {
   userId: number;
@@ -134,32 +134,63 @@ const VideoElement: React.FC<{
   </div>
 );
 
+// interface VoiceChannelDisplayProps {
+//   socket: Socket;
+//   channelId: number;
+//   userId: number | null;
+//   type?: "video" | "audio";
+//   localStream: MediaStream | null;
+//   remoteStreams: MediaStream[];
+//   streamMetadata: WeakMap<MediaStream, { userId: number | null }>;
+// }
+
 // Main Component
-const VoiceChannelDisplay: React.FC<VoiceChannelDisplayProps> = ({
-  socket,
-  channelId,
-  userId,
-  type = "video",
-}) => {
+const VoiceChannelDisplay: React.FC = () => {
   const localVideoRef = useRef<HTMLVideoElement>(null);
   const remoteVideoRefs = useRef<(HTMLVideoElement | null)[]>([]);
-  const { localStream, remoteStreams, streamMetadata } = useWebRTC({
-    socket,
-    channelId,
+  const {
+    // socket,
+    // channelId,
+    // type = "video",
     userId,
-    type,
-  });
+    localStream,
+    remoteStreams,
+    streamMetadata,
+  } = useWebRTCContext();
+
+  // const { localStream, remoteStreams, streamMetadata } = useWebRTC({
+  //   socket,
+  //   channelId,
+  //   userId,
+  //   type,
+  // });
   console.log("checking remote stream: ", remoteStreams);
   useEffect(() => {
     if (localStream && localVideoRef.current) {
       localVideoRef.current.srcObject = localStream;
     }
-    remoteStreams.forEach((remoteStream, index) => {
-      if (remoteVideoRefs.current[index]) {
-        remoteVideoRefs.current[index]!.srcObject = remoteStream;
-      }
-    });
-  }, [localStream, remoteStreams]);
+    // remoteStreams.forEach((remoteStream, index) => {
+    //   if (remoteVideoRefs.current[index]) {
+    //     console.log("", remoteStream);
+    //     remoteVideoRefs.current[index]!.srcObject = remoteStream;
+    //   }
+    // });
+
+    // console.log("checking remote null stream: ", remoteVideoRefs.current);
+
+    const filteredRemoteStreams = remoteStreams.filter(
+      (stream) => streamMetadata.get(stream)?.userId !== userId
+    );
+
+    if (filteredRemoteStreams.length > remoteVideoRefs.current.length) {
+      remoteVideoRefs.current = [
+        ...remoteVideoRefs.current.slice(0, filteredRemoteStreams.length), // Keep refs for existing streams
+        ...new Array(
+          filteredRemoteStreams.length - remoteVideoRefs.current.length
+        ).fill(null), // Add placeholders for new streams
+      ];
+    }
+  }, [localStream, remoteStreams, streamMetadata, userId]);
 
   const gridColumns = Math.ceil(
     Math.sqrt(remoteStreams.length ? remoteStreams.length + 1 : 2)
@@ -199,7 +230,7 @@ const VoiceChannelDisplay: React.FC<VoiceChannelDisplayProps> = ({
             );
           })}
 
-          {!remoteVideoRefs.current && <EmptyState />}
+          {remoteVideoRefs.current.length == 0 && <EmptyState />}
         </div>
       </div>
 

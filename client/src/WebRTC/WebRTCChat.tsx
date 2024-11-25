@@ -1,23 +1,28 @@
 import React, { useRef, useEffect } from "react";
-import { Socket } from "socket.io-client";
-import { useWebRTC } from "./useWebRTC";
+// import { useWebRTC } from "./useWebRTC";
+import { useWebRTCContext } from "./WebRTCContext";
 
-interface WebRTCChatProps {
-  socket: Socket;
-  channelId: number;
-  userId: number | null;
-  type: "audio" | "video";
-}
-const WebRTCChat: React.FC<WebRTCChatProps> = ({
-  socket,
-  channelId,
-  userId,
-  type,
-}) => {
-  const localVideoRef = useRef<HTMLVideoElement>(null);
-  const remoteVideoRefs = useRef<(HTMLVideoElement | null)[]>([]);
+// interface WebRTCChatProps {
+//   socket: Socket;
+//   channelId: string | number;
+//   userId: number | null;
+//   type: "video" | "audio";
+//   localStream: MediaStream | null;
+//   remoteStreams: MediaStream[];
+//   isMuted: boolean;
+//   isVideoOff: boolean;
+//   toggleMute: () => void;
+//   toggleVideo: () => void;
+//   streamMetadata: WeakMap<MediaStream, { userId: number | null }>;
+// }
 
+// const WebRTCChat: React.FC<WebRTCChatProps> = ({
+const WebRTCChat: React.FC = () => {
   const {
+    // socket,
+    // channelId,
+    userId,
+    type,
     localStream,
     remoteStreams,
     isMuted,
@@ -25,12 +30,11 @@ const WebRTCChat: React.FC<WebRTCChatProps> = ({
     toggleMute,
     toggleVideo,
     streamMetadata,
-  } = useWebRTC({
-    socket,
-    channelId,
-    userId,
-    type,
-  });
+  } = useWebRTCContext();
+
+  const localVideoRef = useRef<HTMLVideoElement>(null);
+  const remoteVideoRefs = useRef<(HTMLVideoElement | null)[]>([]);
+
   console.log("webrtc remoteStreams: ", remoteStreams);
   useEffect(() => {
     if (localStream && localVideoRef.current) {
@@ -81,48 +85,32 @@ const WebRTCChat: React.FC<WebRTCChatProps> = ({
             </div>
 
             {/* Remote Videos */}
-            {remoteStreams
-              // .filter((stream) => {
-              //   const metadata = streamMetadata.get(stream);
-              //   // Include only streams with a userId that doesn't match the local user
-              //   return metadata?.userId && metadata.userId !== userId;
-              // })
-              // .filter((stream) => {
-              //   const metadata = streamMetadata.get(stream);
-              //   console.log("Stream Metadata Check:", {
-              //     streamId: stream.id,
-              //     metadata: metadata,
-              //     localUserId: userId
-              //   });
-              //   return true; // Temporarily remove filtering to diagnose
-              // })
-              .map((stream, index) => {
-                const metadata = streamMetadata.get(stream);
+            {remoteStreams.map((stream, index) => {
+              const metadata = streamMetadata.get(stream);
 
-                return (
-                  <div
-                    key={stream.id}
-                    className="relative aspect-video bg-gray-800 rounded-lg overflow-hidden"
-                  >
-                    <video
-                      ref={(el) => {
-                        if (el && el.srcObject !== stream) {
-                          el.srcObject = stream;
-                        }
-                        remoteVideoRefs.current[index] = el;
-                      }}
-                      autoPlay
-                      playsInline
-                      muted={false}
-                      className="w-full h-full object-cover"
-                    />
-                    <div className="absolute bottom-2 left-2 bg-black bg-opacity-50 px-2 py-1 rounded text-white text-sm">
-                      Participant:{" "}
-                      {metadata?.userId ?? `Unknown (${index + 1})`}
-                    </div>
+              return (
+                <div
+                  key={stream.id}
+                  className="relative aspect-video bg-gray-800 rounded-lg overflow-hidden"
+                >
+                  <video
+                    ref={(el) => {
+                      if (el && el.srcObject !== stream) {
+                        el.srcObject = stream;
+                      }
+                      remoteVideoRefs.current[index] = el;
+                    }}
+                    autoPlay
+                    playsInline
+                    muted={false}
+                    className="w-full h-full object-cover"
+                  />
+                  <div className="absolute bottom-2 left-2 bg-black bg-opacity-50 px-2 py-1 rounded text-white text-sm">
+                    Participant: {metadata?.userId ?? `Unknown (${index + 1})`}
                   </div>
-                );
-              })}
+                </div>
+              );
+            })}
           </div>
         )}
 

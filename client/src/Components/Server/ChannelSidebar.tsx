@@ -13,7 +13,6 @@ import DeleteServerModal from "../PopupModals/DeleteServerModal";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faMicrophone } from "@fortawesome/free-solid-svg-icons";
 import { faHeadphones } from "@fortawesome/free-solid-svg-icons";
-import WebRTCChat from "../WebRTCChat";
 import { io, Socket } from "socket.io-client";
 import {
   AudioLines,
@@ -62,7 +61,8 @@ const ChannelSidebar: React.FC<{
   serverId: string;
   channelId: string;
   setIsVoiceChannelDisplay: React.Dispatch<React.SetStateAction<boolean>>;
-}> = ({ serverId, channelId, setIsVoiceChannelDisplay }) => {
+  WebRTCChat: React.FC;
+}> = ({ serverId, channelId, setIsVoiceChannelDisplay, WebRTCChat }) => {
   const [channelInfo, setChannelInfo] = useState<ChannelInfo>([]);
   const [serverName, setServerName] = useState("");
   const [isCreateChannelModalOpen, setIsCreateChannelModalOpen] =
@@ -78,6 +78,7 @@ const ChannelSidebar: React.FC<{
   const [selectedVoiceChannel, setSelectedVoiceChannel] =
     useState<SingleChannelInfo>();
   const [isVoiceModalOpen, setIsVoiceModalOpen] = useState(false);
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [isVideoEnabled, setIsVideoEnabled] = useState(true);
   // Example invite link (customize based on your requirements)
   const inviteLink = `${VITE_API_BASE_URL}/server/${serverId}/${channelId}`;
@@ -267,14 +268,7 @@ const ChannelSidebar: React.FC<{
             ))}
 
           {/* Voice Channel Modal */}
-          {isVoiceModalOpen && selectedVoiceChannel && socket && (
-            <WebRTCChat
-              socket={socket}
-              channelId={selectedVoiceChannel.id}
-              userId={userId}
-              type={isVideoEnabled ? "video" : "audio"}
-            />
-          )}
+          {isVoiceModalOpen && selectedVoiceChannel && socket && <WebRTCChat />}
         </div>
       </div>
       {isVoiceModalOpen && selectedVoiceChannel && (

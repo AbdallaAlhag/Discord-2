@@ -5,7 +5,7 @@ interface UseWebRTCProps {
   socket: Socket | null;
   channelId: string | number;
   userId: number | null;
-  type: "audio" | "video";
+  type?: "audio" | "video";
 }
 
 interface StreamMetadata {
@@ -16,16 +16,14 @@ export const useWebRTC = ({
   socket,
   channelId,
   userId,
-  // type,
-}: UseWebRTCProps) => {
+  type = "video",
+}: // type,
+UseWebRTCProps) => {
   const [localStream, setLocalStream] = useState<MediaStream | null>(null);
   const [remoteStreams, setRemoteStreams] = useState<MediaStream[]>([]);
   const [isMuted, setIsMuted] = useState(false);
   const [isVideoOff, setIsVideoOff] = useState(false);
   const [isConnected, setIsConnected] = useState(false);
-  const [connectionStates, setConnectionStates] = useState<{
-    [key: string]: RTCPeerConnectionState;
-  }>({});
 
   const peerConnectionsRef = useRef<{ [key: string]: RTCPeerConnection }>({});
   const streamMetadata = useRef(new WeakMap<MediaStream, StreamMetadata>());
@@ -34,22 +32,18 @@ export const useWebRTC = ({
     (socketId: string, remoteUserId: number | null) => {
       if (!socket) return null;
 
-      // Close existing connection if it's in a closed or failed state
+      // Close existing connection if it exists
       if (peerConnectionsRef.current[socketId]) {
         const existingConnection = peerConnectionsRef.current[socketId];
-        if (
-          existingConnection.connectionState === "closed" ||
-          existingConnection.connectionState === "failed"
-        ) {
-          existingConnection.close();
-          delete peerConnectionsRef.current[socketId];
-        } else {
-          return existingConnection;
-        }
+        existingConnection.close();
+        delete peerConnectionsRef.current[socketId];
       }
 
       const configuration: RTCConfiguration = {
-        iceServers: [{ urls: "stun:stun.l.google.com:19302" }],
+        iceServers: [
+          { urls: "stun:stun.l.google.com:19302" },
+          // Consider adding TURN servers for better connectivity
+        ],
       };
 
       const peerConnection = new RTCPeerConnection(configuration);
@@ -65,22 +59,14 @@ export const useWebRTC = ({
 
       peerConnection.ontrack = (event) => {
         const remoteStream = event.streams[0];
-        // console.log("Remote Stream Received:", {
-        //   streamId: remoteStream.id,
-        //   tracks: remoteStream.getTracks().length,
-        //   userId: remoteUserId,
-        // });
-
         setRemoteStreams((prev) => {
-          const streamExists = prev.some(
-            (stream) => stream.id === remoteStream.id
-          );
+          // Prevent duplicate streams
+          const streamExists = prev.some((s) => s.id === remoteStream.id);
           if (!streamExists) {
-            // console.log("Adding New Remote Stream", {
-            //   userId: remoteUserId,
-            //   streamId: remoteStream.id,
-            // });
-            streamMetadata.current.set(remoteStream, { userId: remoteUserId });
+            // Store metadata using stream ID as key
+            streamMetadata.current.set(remoteStream, {
+              userId: remoteUserId,
+            });
             return [...prev, remoteStream];
           }
           return prev;
@@ -118,34 +104,29 @@ export const useWebRTC = ({
     const initializeMedia = async () => {
       try {
         const stream = await navigator.mediaDevices.getUserMedia({
-          // video: type === "video",
-          // hardcode video to true for now
-          // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-          video: true,
+          video: type === "video",
           audio: true,
         });
-        // console.log("Media access granted:", stream);
         setLocalStream(stream);
-        return stream;
       } catch (error) {
-        console.error("Error accessing media devices:", error);
-        return null;
+        console.error("Media access error:", error);
       }
     };
 
     initializeMedia();
 
     return () => {
-      if (localStream) {
-        localStream.getTracks().forEach((track) => track.stop());
-      }
+      localStream?.getTracks().forEach((track) => track.stop());
     };
-  }, []);
+  }, [type]);
 
   // Handle WebRTC connections
   useEffect(() => {
     if (!socket || !channelId || !localStream) return;
 
+    if (!socket || typeof socket.on !== "function") {
+      console.error("Invalid socket object:", socket);
+    }
     const currentLocalStream = localStream;
     const currentPeerConnections = peerConnectionsRef.current;
 
@@ -242,15 +223,10 @@ export const useWebRTC = ({
         const peerConnection = currentPeerConnections[data.socketId];
         if (peerConnection) {
           setRemoteStreams((prev) =>
-            prev.filter((stream) => !streamMetadata.current.has(stream))
+            prev.filter((stream) => stream.id !== data.socketId)
           );
           peerConnection.close();
           delete currentPeerConnections[data.socketId];
-          setConnectionStates((prev) => {
-            const newStates = { ...prev };
-            delete newStates[data.socketId];
-            return newStates;
-          });
         }
       });
     }
@@ -305,13 +281,23 @@ export const useWebRTC = ({
     }
   }, [localStream, remoteStreams, isVideoOff]);
 
+  console.log("checking remote stream before returning: ", remoteStreams);
+  console.log("checking local stream before returning: ", localStream);
+  console.log("Remote Streams Debug:", {
+    streamCount: remoteStreams.length,
+    streams: remoteStreams.map((stream) => ({
+      id: stream.id,
+      audioTracks: stream.getAudioTracks().length,
+      videoTracks: stream.getVideoTracks().length,
+    })),
+  });
+
   return {
     localStream,
     remoteStreams,
     isMuted,
     isVideoOff,
     isConnected,
-    connectionStates,
     toggleMute,
     toggleVideo,
     streamMetadata: streamMetadata.current,
