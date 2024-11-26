@@ -20,11 +20,12 @@ function ServerPage() {
   const [isVoiceChannelDisplay, setIsVoiceChannelDisplay] = useState(false);
   const [socket, setSocket] = useState<Socket>({} as Socket);
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const [channelType, setChannelType] = useState<"audio" | "video">("audio");
+  const [channelType, setChannelType] = useState<"audio" | "video">("video");
   const { userId } = useAuth();
 
   // Add this to your ServerPage component to handle the socket connection
   useEffect(() => {
+    if (!userId) return;
     // const newSocket = io("http://localhost:3000");
     const newSocket = io(`${VITE_API_BASE_URL}`, {
       query: { userId },
@@ -40,7 +41,10 @@ function ServerPage() {
       }
     };
   }, [userId]);
-  
+
+  if (!socket || !userId || !serverId || !channelId) {
+    return <div>Loading...</div>;
+  }
 
   // console.log(serverId, channelId);
   return (
@@ -59,7 +63,7 @@ function ServerPage() {
             setIsVoiceChannelDisplay={setIsVoiceChannelDisplay}
             WebRTCChat={WebRTCChat}
           />
-        )}{" "}
+        )}
         {serverId && channelId && (
           <>
             {isVoiceChannelDisplay ? (

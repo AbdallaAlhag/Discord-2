@@ -1,22 +1,7 @@
-import React, { createContext, useContext, ReactNode } from "react";
+import React, { ReactNode, useEffect } from "react";
 import { Socket } from "socket.io-client";
 import { useWebRTC } from "./useWebRTC"; // Import your WebRTC hook
-
-interface UseWebRTCProps {
-  socket: Socket;
-  channelId: string | number;
-  userId: number | null;
-  type: "video" | "audio";
-  localStream: MediaStream | null;
-  remoteStreams: MediaStream[];
-  isMuted: boolean;
-  isVideoOff: boolean;
-  toggleMute: () => void;
-  toggleVideo: () => void;
-  streamMetadata: WeakMap<MediaStream, { userId: number | null }>;
-}
-
-const WebRTCContext = createContext<UseWebRTCProps | null>(null);
+import { WebRTCContext } from "./WebRTCHelper"; // Import your WebRTC context
 
 export const WebRTCProvider: React.FC<{
   socket: Socket;
@@ -27,6 +12,16 @@ export const WebRTCProvider: React.FC<{
 }> = ({ socket, channelId, userId, type, children }) => {
   const webRTCState = useWebRTC({ socket, channelId, userId, type });
 
+  useEffect(() => {
+    // console.log("WebRTC Provider - Params changed", {
+    //   socket: !!socket,
+    //   channelId,
+    //   userId,
+    //   type,
+    // });
+    console.log("updating all states");
+  }, [children]);
+
   return (
     <WebRTCContext.Provider
       value={{ socket, channelId, userId, type, ...webRTCState }}
@@ -34,12 +29,4 @@ export const WebRTCProvider: React.FC<{
       {children}
     </WebRTCContext.Provider>
   );
-};
-
-export const useWebRTCContext = () => {
-  const context = useContext(WebRTCContext);
-  if (!context) {
-    throw new Error("useWebRTCContext must be used within a WebRTCProvider");
-  }
-  return context;
 };

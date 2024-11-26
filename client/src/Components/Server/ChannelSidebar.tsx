@@ -85,7 +85,6 @@ const ChannelSidebar: React.FC<{
 
   useEffect(() => {
     // Ensure you have the user's authentication token
-
     // Create socket connection
     const newSocket = io(`${VITE_API_BASE_URL}`, {
       query: { userId },
@@ -102,7 +101,7 @@ const ChannelSidebar: React.FC<{
         newSocket.disconnect();
       }
     };
-  }, []); // Empty dependency array means this runs once on mount
+  }, [userId]); // Empty dependency array means this runs once on mount
   const handleCreateChannel = async (data: {
     name: string;
     type: "text" | "voice";
@@ -268,7 +267,9 @@ const ChannelSidebar: React.FC<{
             ))}
 
           {/* Voice Channel Modal */}
-          {isVoiceModalOpen && selectedVoiceChannel && socket && <WebRTCChat />}
+          {isVoiceModalOpen && selectedVoiceChannel && socket && (
+            <WebRTCChat/>
+          )}
         </div>
       </div>
       {isVoiceModalOpen && selectedVoiceChannel && (

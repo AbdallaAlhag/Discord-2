@@ -1,6 +1,6 @@
 import React, { useRef, useEffect } from "react";
 // import { useWebRTC } from "./useWebRTC";
-import { useWebRTCContext } from "./WebRTCContext";
+import { useWebRTCContext } from "./useWebRTCContext";
 
 // interface WebRTCChatProps {
 //   socket: Socket;
@@ -35,12 +35,17 @@ const WebRTCChat: React.FC = () => {
   const localVideoRef = useRef<HTMLVideoElement>(null);
   const remoteVideoRefs = useRef<(HTMLVideoElement | null)[]>([]);
 
-  console.log("webrtc remoteStreams: ", remoteStreams);
+  // console.log("webrtc remoteStreams: ", remoteStreams);
+
   useEffect(() => {
     if (localStream && localVideoRef.current) {
       localVideoRef.current.srcObject = localStream;
     }
 
+    
+  }, [localStream]);
+
+  useEffect(() => {
     const filteredRemoteStreams = remoteStreams.filter(
       (stream) => streamMetadata.get(stream)?.userId !== userId
     );
@@ -55,7 +60,12 @@ const WebRTCChat: React.FC = () => {
     }
 
     // console.log("Filtered remote streams: ", filteredRemoteStreams.length);
-  }, [localStream, remoteStreams, userId, streamMetadata]);
+  }, [
+    localStream,
+    remoteStreams,
+    userId,
+    streamMetadata,
+  ]);
 
   return (
     <div className="flex flex-col h-full w-full bg-gray-900 p-4">

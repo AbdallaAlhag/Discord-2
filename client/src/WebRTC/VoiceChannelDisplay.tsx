@@ -13,7 +13,7 @@ import {
   ScreenShare,
 } from "lucide-react";
 // import { useWebRTC } from "./useWebRTC";
-import { useWebRTCContext } from "./WebRTCContext";
+import { useWebRTCContext } from "./useWebRTCContext";
 
 // Types
 // interface VoiceChannelDisplayProps {
@@ -158,39 +158,67 @@ const VoiceChannelDisplay: React.FC = () => {
     streamMetadata,
   } = useWebRTCContext();
 
+  
+
   // const { localStream, remoteStreams, streamMetadata } = useWebRTC({
   //   socket,
   //   channelId,
   //   userId,
   //   type,
   // });
-  console.log("checking remote stream: ", remoteStreams);
+  // Effect to handle local stream
   useEffect(() => {
-    if (localStream && localVideoRef.current) {
+    if (localVideoRef.current && localStream) {
       localVideoRef.current.srcObject = localStream;
     }
-    // remoteStreams.forEach((remoteStream, index) => {
-    //   if (remoteVideoRefs.current[index]) {
-    //     console.log("", remoteStream);
-    //     remoteVideoRefs.current[index]!.srcObject = remoteStream;
-    //   }
-    // });
+  }, [localStream]);
 
-    // console.log("checking remote null stream: ", remoteVideoRefs.current);
+  // Effect to handle remote streams
+  useEffect(() => {
+    if (remoteStreams.length > 0) {
+      // Update remote video refs
+      remoteVideoRefs.current = remoteStreams.map(
+        (_, index) => remoteVideoRefs.current[index] || null
+      );
 
-    const filteredRemoteStreams = remoteStreams.filter(
-      (stream) => streamMetadata.get(stream)?.userId !== userId
-    );
-
-    if (filteredRemoteStreams.length > remoteVideoRefs.current.length) {
-      remoteVideoRefs.current = [
-        ...remoteVideoRefs.current.slice(0, filteredRemoteStreams.length), // Keep refs for existing streams
-        ...new Array(
-          filteredRemoteStreams.length - remoteVideoRefs.current.length
-        ).fill(null), // Add placeholders for new streams
-      ];
+      // Set source objects for remote streams
+      remoteStreams.forEach((stream, index) => {
+        const videoElement = remoteVideoRefs.current[index];
+        if (videoElement && stream) {
+          videoElement.srcObject = stream;
+        }
+      });
     }
-  }, [localStream, remoteStreams, streamMetadata, userId]);
+  }, [remoteStreams]);
+
+  // console.log("checking remote stream: ", remoteStreams);
+
+  // useEffect(() => {
+  //   if (localStream && localVideoRef.current) {
+  //     localVideoRef.current.srcObject = localStream;
+  //   }
+  //   // remoteStreams.forEach((remoteStream, index) => {
+  //   //   if (remoteVideoRefs.current[index]) {
+  //   //     console.log("", remoteStream);
+  //   //     remoteVideoRefs.current[index]!.srcObject = remoteStream;
+  //   //   }
+  //   // });
+
+  //   // console.log("checking remote null stream: ", remoteVideoRefs.current);
+
+  //   const filteredRemoteStreams = remoteStreams.filter(
+  //     (stream) => streamMetadata.get(stream)?.userId !== userId
+  //   );
+
+  //   if (filteredRemoteStreams.length > remoteVideoRefs.current.length) {
+  //     remoteVideoRefs.current = [
+  //       ...remoteVideoRefs.current.slice(0, filteredRemoteStreams.length), // Keep refs for existing streams
+  //       ...new Array(
+  //         filteredRemoteStreams.length - remoteVideoRefs.current.length
+  //       ).fill(null), // Add placeholders for new streams
+  //     ];
+  //   }
+  // }, [localStream, remoteStreams, streamMetadata, userId]);
 
   const gridColumns = Math.ceil(
     Math.sqrt(remoteStreams.length ? remoteStreams.length + 1 : 2)

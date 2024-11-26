@@ -16,8 +16,8 @@ export const useWebRTC = ({
   socket,
   channelId,
   userId,
-  type = "video",
-}: // type,
+}: // type = "video",
+// type,
 UseWebRTCProps) => {
   const [localStream, setLocalStream] = useState<MediaStream | null>(null);
   const [remoteStreams, setRemoteStreams] = useState<MediaStream[]>([]);
@@ -59,7 +59,16 @@ UseWebRTCProps) => {
 
       peerConnection.ontrack = (event) => {
         const remoteStream = event.streams[0];
+        // console.log("Ontrack triggered", {
+        //   streamId: remoteStream.id,
+        //   isLocalStream: localStream && remoteStream.id === localStream.id,
+        //   localStreamId: localStream?.id,
+        // });
         setRemoteStreams((prev) => {
+          // Prevent adding local stream to remote streams
+          if (localStream && remoteStream.id === localStream.id) {
+            return prev;
+          }
           // Prevent duplicate streams
           const streamExists = prev.some((s) => s.id === remoteStream.id);
           if (!streamExists) {
@@ -76,7 +85,7 @@ UseWebRTCProps) => {
       peerConnectionsRef.current[socketId] = peerConnection;
       return peerConnection;
     },
-    [socket]
+    [localStream, socket]
   );
 
   const addTrackSafely = useCallback(
@@ -103,13 +112,29 @@ UseWebRTCProps) => {
   useEffect(() => {
     const initializeMedia = async () => {
       try {
+        const devices = await navigator.mediaDevices.enumerateDevices();
+        const videoDevices = devices.filter(
+          (device) => device.kind === "videoinput"
+        );
+        const audioDevices = devices.filter(
+          (device) => device.kind === "audioinput"
+        );
+        console.log("devices: ", devices);
+        // Attempt to get user media with specific constraints
         const stream = await navigator.mediaDevices.getUserMedia({
-          video: type === "video",
-          audio: true,
+          video: videoDevices.length > 0,
+          audio: audioDevices.length > 0,
         });
+
+        // const stream = await navigator.mediaDevices.getUserMedia({
+        //   // video: type === "video",
+        //   video: true,
+        //   audio: true,
+        // });
+        // console.log("stream: ", stream);
         setLocalStream(stream);
       } catch (error) {
-        console.error("Media access error:", error);
+        console.error("navigator.getUserMedia error", error);
       }
     };
 
@@ -118,7 +143,8 @@ UseWebRTCProps) => {
     return () => {
       localStream?.getTracks().forEach((track) => track.stop());
     };
-  }, [type]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   // Handle WebRTC connections
   useEffect(() => {
@@ -281,16 +307,17 @@ UseWebRTCProps) => {
     }
   }, [localStream, remoteStreams, isVideoOff]);
 
-  console.log("checking remote stream before returning: ", remoteStreams);
-  console.log("checking local stream before returning: ", localStream);
-  console.log("Remote Streams Debug:", {
-    streamCount: remoteStreams.length,
-    streams: remoteStreams.map((stream) => ({
-      id: stream.id,
-      audioTracks: stream.getAudioTracks().length,
-      videoTracks: stream.getVideoTracks().length,
-    })),
-  });
+
+  // console.log("checking remote stream before returning: ", remoteStreams);
+  // console.log("checking local stream before returning: ", localStream);
+  // console.log("Remote Streams Debug:", {
+  //   streamCount: remoteStreams.length,
+  //   streams: remoteStreams.map((stream) => ({
+  //     id: stream.id,
+  //     audioTracks: stream.getAudioTracks().length,
+  //     videoTracks: stream.getVideoTracks().length,
+  //   })),
+  // });
 
   return {
     localStream,
