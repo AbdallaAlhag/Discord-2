@@ -5,38 +5,81 @@ interface UseWebRTCProps {
   socket: Socket | null;
   channelId: string | number;
   userId: number | null;
-  type?: "audio" | "video";
 }
 
 interface StreamMetadata {
   userId: number | null;
 }
 
-export const useWebRTC = ({
-  socket,
-  channelId,
-  userId,
-}: // type = "video",
-// type,
-UseWebRTCProps) => {
+export const useWebRTC = ({ socket, channelId, userId }: UseWebRTCProps) => {
   const [localStream, setLocalStream] = useState<MediaStream | null>(null);
   const [remoteStreams, setRemoteStreams] = useState<MediaStream[]>([]);
   const [isMuted, setIsMuted] = useState(false);
   const [isVideoOff, setIsVideoOff] = useState(false);
-  const [isConnected, setIsConnected] = useState(false);
+  const [isDeafened, setIsDeafened] = useState(false);
+  const [alreadyJoined, setAlreadyJoined] = useState(false);
 
   const peerConnectionsRef = useRef<{ [key: string]: RTCPeerConnection }>({});
   const streamMetadata = useRef(new WeakMap<MediaStream, StreamMetadata>());
+  // Utility function to log detailed stream information
+  const logStreamDetails = (stream: MediaStream, streamType: string) => {
+    if (!stream || alreadyJoined) {
+      return;
+    }
+    console.log(`[DEBUG] ${streamType} Stream Details:`, {
+      id: stream.id,
+      audioTracks: stream.getAudioTracks().map((track) => ({
+        id: track.id,
+        enabled: track.enabled,
+        muted: track.muted,
+        readyState: track.readyState,
+      })),
+      videoTracks: stream.getVideoTracks().map((track) => ({
+        id: track.id,
+        enabled: track.enabled,
+        muted: track.muted,
+        readyState: track.readyState,
+      })),
+    });
+  };
 
+  // Utility function to log peer connection details
+  const logPeerConnectionDetails = () => {
+    console.log(
+      "[DEBUG] Peer Connections:",
+      Object.entries(peerConnectionsRef.current).map(
+        ([socketId, peerConnection]) => ({
+          socketId,
+          connectionState: peerConnection.connectionState,
+          iceConnectionState: peerConnection.iceConnectionState,
+          signalingState: peerConnection.signalingState,
+          receivers: peerConnection.getReceivers().map((receiver) => ({
+            track: {
+              kind: receiver.track?.kind,
+              id: receiver.track?.id,
+              enabled: receiver.track?.enabled,
+            },
+          })),
+          senders: peerConnection.getSenders().map((sender) => ({
+            track: {
+              kind: sender.track?.kind,
+              id: sender.track?.id,
+              enabled: sender.track?.enabled,
+            },
+          })),
+        })
+      )
+    );
+  };
   const createPeerConnection = useCallback(
     (socketId: string, remoteUserId: number | null) => {
-      if (!socket) return null;
+      console.log(
+        `[DEBUG] Creating peer connection for socketId: ${socketId}, remoteUserId: ${remoteUserId}`
+      );
 
-      // Close existing connection if it exists
-      if (peerConnectionsRef.current[socketId]) {
-        const existingConnection = peerConnectionsRef.current[socketId];
-        existingConnection.close();
-        delete peerConnectionsRef.current[socketId];
+      if (!socket) {
+        console.warn("[DEBUG] Cannot create peer connection: socket is null");
+        return null;
       }
 
       const configuration: RTCConfiguration = {
@@ -50,6 +93,9 @@ UseWebRTCProps) => {
 
       peerConnection.onicecandidate = (event) => {
         if (event.candidate && socket) {
+          console.log(
+            `[DEBUG] ICE Candidate generated for socketId: ${socketId}`
+          );
           socket.emit("ice_candidate", {
             to: socketId,
             candidate: event.candidate,
@@ -58,20 +104,26 @@ UseWebRTCProps) => {
       };
 
       peerConnection.ontrack = (event) => {
+        console.log(`[DEBUG] Remote track received for socketId: ${socketId}`);
         const remoteStream = event.streams[0];
-        // console.log("Ontrack triggered", {
-        //   streamId: remoteStream.id,
-        //   isLocalStream: localStream && remoteStream.id === localStream.id,
-        //   localStreamId: localStream?.id,
-        // });
+        console.log("event.streams:", event.streams);
+        logStreamDetails(remoteStream, "Remote");
+
         setRemoteStreams((prev) => {
           // Prevent adding local stream to remote streams
+
           if (localStream && remoteStream.id === localStream.id) {
+            console.log(
+              "[DEBUG] Skipping local stream addition to remote streams"
+            );
             return prev;
           }
           // Prevent duplicate streams
           const streamExists = prev.some((s) => s.id === remoteStream.id);
           if (!streamExists) {
+            console.log(
+              `[DEBUG] Adding new remote stream (ID: ${remoteStream.id})`
+            );
             // Store metadata using stream ID as key
             streamMetadata.current.set(remoteStream, {
               userId: remoteUserId,
@@ -81,6 +133,18 @@ UseWebRTCProps) => {
           return prev;
         });
       };
+      // Add connection state change logging
+      // peerConnection.onconnectionstatechange = () => {
+      //   console.log(
+      //     `[DEBUG] Peer connection state for ${socketId}: ${peerConnection.connectionState}`
+      //   );
+      // };
+
+      // peerConnection.oniceconnectionstatechange = () => {
+      //   console.log(
+      //     `[DEBUG] ICE connection state for ${socketId}: ${peerConnection.iceConnectionState}`
+      //   );
+      // };
 
       peerConnectionsRef.current[socketId] = peerConnection;
       return peerConnection;
@@ -108,167 +172,207 @@ UseWebRTCProps) => {
     []
   );
 
-  // Initialize media stream
-  useEffect(() => {
-    const initializeMedia = async () => {
-      try {
-        const devices = await navigator.mediaDevices.enumerateDevices();
-        const videoDevices = devices.filter(
-          (device) => device.kind === "videoinput"
-        );
-        const audioDevices = devices.filter(
-          (device) => device.kind === "audioinput"
-        );
-        console.log("devices: ", devices);
-        // Attempt to get user media with specific constraints
-        const stream = await navigator.mediaDevices.getUserMedia({
-          video: videoDevices.length > 0,
-          audio: audioDevices.length > 0,
-        });
+  const initializeMedia = async () => {
+    console.log(`[DEBUG] Initializing media for channelId: ${channelId}`);
+    if (localStream || alreadyJoined) {
+      console.log(
+        "[DEBUG] Local stream already exists, skipping initialization"
+      );
+      return;
+    }
+    try {
+      const devices = await navigator.mediaDevices.enumerateDevices();
+      const videoDevices = devices.filter(
+        (device) => device.kind === "videoinput"
+      );
+      const audioDevices = devices.filter(
+        (device) => device.kind === "audioinput"
+      );
+      // console.log("devices: ", devices);
+      // Attempt to get user media with specific constraints
+      console.log(
+        `[DEBUG] Available devices - Video: ${videoDevices.length}, Audio: ${audioDevices.length}`
+      );
 
-        // const stream = await navigator.mediaDevices.getUserMedia({
-        //   // video: type === "video",
-        //   video: true,
-        //   audio: true,
-        // });
-        // console.log("stream: ", stream);
-        setLocalStream(stream);
-      } catch (error) {
-        console.error("navigator.getUserMedia error", error);
-      }
-    };
+      const stream = await navigator.mediaDevices.getUserMedia({
+        video: videoDevices.length > 0,
+        audio: audioDevices.length > 0,
+      });
+      console.log(
+        `[DEBUG] Local stream initialized with tracks - Audio: ${
+          stream.getAudioTracks().length
+        }, Video: ${stream.getVideoTracks().length}`
+      );
+      logStreamDetails(stream, "New Local");
+      setLocalStream(stream);
+      setAlreadyJoined(true);
+    } catch (error) {
+      console.error("navigator.getUserMedia error", error);
+    }
+  };
 
-    initializeMedia();
-
-    return () => {
-      localStream?.getTracks().forEach((track) => track.stop());
-    };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  const disInitializeMedia = () => {
+    console.log("local stream has been stopped.");
+    if (localStream && socket) {
+      setRemoteStreams((prevRemoteStreams) =>
+        prevRemoteStreams.filter((stream) => stream.id !== localStream?.id)
+      );
+      setAlreadyJoined(false);
+      localStream.getTracks().forEach((track) => track.stop());
+      setLocalStream(null);
+      socket.emit("leave_room", channelId, socket.id);
+    }
+    // console.log("local stream has been stopped.", localStream);
+    // console.log("remote streams have been reset.", remoteStreams);
+  };
 
   // Handle WebRTC connections
   useEffect(() => {
-    if (!socket || !channelId || !localStream) return;
+    console.log(
+      `[DEBUG] WebRTC Setup: Socket Connected: ${socket?.connected}, Channel: ${channelId}`
+    );
+    if (!socket || !channelId || !localStream) {
+      console.log(
+        `[DEBUG] WebRTC Setup: Missing socket or channelId or localStream, safely returned.`
+      );
+      return;
+    }
+
+    // if (alreadyJoined) {
+    //   console.log(`[DEBUG] WebRTC Setup: Already joined, safely returned.`);
+    //   return;
+    // }
 
     if (!socket || typeof socket.on !== "function") {
       console.error("Invalid socket object:", socket);
     }
     const currentLocalStream = localStream;
-    const currentPeerConnections = peerConnectionsRef.current;
+    let currentPeerConnections = peerConnectionsRef.current;
 
-    const handleConnect = () => setIsConnected(true);
-    const handleDisconnect = () => setIsConnected(false);
+    socket?.on("disconnect", (reason) => {
+      console.log(`[DEBUG] Socket Disconnected - Reason: ${reason}`);
+    });
+    // Add connection event listeners
+    socket?.on("connect", () => {
+      console.log("[DEBUG] Socket Connected Event Triggered");
+    });
+    console.log(`[DEBUG] are we connected to join_room? ${socket.connected}`);
+    // if (socket.connected) {
 
-    socket.on("connect", handleConnect);
-    socket.on("disconnect", handleDisconnect);
-    setIsConnected(socket.connected);
+    socket.emit("join_room", channelId, localStream.id);
 
-    if (socket.connected) {
-      socket.emit("join_room", channelId);
+    socket.on("user_joined", async (data) => {
+      console.log(
+        `[DEBUG] User Joined - SocketId: ${data.socketId}, UserId: ${data.userId}`
+      );
 
-      socket.on("user_joined", async (data) => {
-        try {
-          const peerConnection = createPeerConnection(
-            data.socketId,
-            data.userId // Ensure this is always passed
-          );
-          if (peerConnection && currentLocalStream) {
-            currentLocalStream.getTracks().forEach((track) => {
-              // Explicitly add tracks
-              addTrackSafely(peerConnection, track, currentLocalStream);
-            });
+      try {
+        const peerConnection = createPeerConnection(
+          data.socketId,
+          data.userId // Ensure this is always passed
+        );
+        if (peerConnection && currentLocalStream) {
+          currentLocalStream.getTracks().forEach((track) => {
+            // Explicitly add tracks
+            addTrackSafely(peerConnection, track, currentLocalStream);
+          });
 
-            const offer = await peerConnection.createOffer();
-            await peerConnection.setLocalDescription(offer);
-            socket.emit("offer", {
-              to: data.socketId,
-              offer: offer,
-              userId: userId, // Consistently send local user ID
-              fromSocketId: socket.id, // Optional: add socket context
-            });
-          }
-        } catch (error) {
-          console.error("Error handling user joined:", error);
+          const offer = await peerConnection.createOffer();
+          await peerConnection.setLocalDescription(offer);
+          socket.emit("offer", {
+            to: data.socketId,
+            offer: offer,
+            userId: userId, // Consistently send local user ID
+            fromSocketId: socket.id, // Optional: add socket context
+          });
         }
-      });
+      } catch (error) {
+        console.error("Error handling user joined:", error);
+      }
+    });
 
-      socket.on("offer", async (data) => {
-        try {
-          const peerConnection = createPeerConnection(data.from, data.userId); // Pass remote userId
-          // console.log("soon to be our remote userid from offer: ", data.userId);
+    socket.on("offer", async (data) => {
+      try {
+        const peerConnection = createPeerConnection(data.from, data.userId); // Pass remote userId
+        // console.log("soon to be our remote userid from offer: ", data.userId);
 
-          if (peerConnection && currentLocalStream) {
-            currentLocalStream.getTracks().forEach((track) => {
-              // Explicitly add tracks
-              addTrackSafely(peerConnection, track, currentLocalStream);
-            });
+        if (peerConnection && currentLocalStream) {
+          currentLocalStream.getTracks().forEach((track) => {
+            // Explicitly add tracks
+            addTrackSafely(peerConnection, track, currentLocalStream);
+          });
 
-            await peerConnection.setRemoteDescription(
-              new RTCSessionDescription(data.offer)
-            );
-            const answer = await peerConnection.createAnswer();
-            await peerConnection.setLocalDescription(answer);
-            socket.emit("answer", {
-              to: data.from,
-              answer: answer,
-              userId: userId, // Send local userId
-            });
-          }
-        } catch (error) {
-          console.error("Error handling offer:", error);
+          const offer = new RTCSessionDescription(data.offer);
+          await peerConnection.setRemoteDescription(offer);
+
+          const answer = await peerConnection.createAnswer();
+          await peerConnection.setLocalDescription(answer);
+          socket.emit("answer", {
+            to: data.from,
+            answer: answer,
+            userId: userId, // Send local userId
+          });
         }
-      });
+      } catch (error) {
+        console.error("Error handling offer:", error);
+      }
+    });
 
-      socket.on("answer", async (data) => {
-        try {
-          const peerConnection = currentPeerConnections[data.from];
-          if (peerConnection && peerConnection.connectionState !== "closed") {
-            await peerConnection.setRemoteDescription(
-              new RTCSessionDescription(data.answer)
-            );
-          }
-        } catch (error) {
-          console.error("Error handling answer:", error);
-        }
-      });
-
-      socket.on("ice_candidate", async (data) => {
-        try {
-          const peerConnection = currentPeerConnections[data.from];
-          if (peerConnection && peerConnection.connectionState !== "closed") {
-            await peerConnection.addIceCandidate(
-              new RTCIceCandidate(data.candidate)
-            );
-          }
-        } catch (error) {
-          console.error("Error handling ICE candidate:", error);
-        }
-      });
-
-      socket.on("peer_left", (data) => {
-        const peerConnection = currentPeerConnections[data.socketId];
+    socket.on("answer", async (data) => {
+      try {
+        const peerConnection = currentPeerConnections[data.from];
         if (peerConnection) {
-          setRemoteStreams((prev) =>
-            prev.filter((stream) => stream.id !== data.socketId)
-          );
-          peerConnection.close();
-          delete currentPeerConnections[data.socketId];
+          const answer = new RTCSessionDescription(data.answer);
+          await peerConnection.setRemoteDescription(answer);
         }
-      });
-    }
+      } catch (error) {
+        console.error("Error handling answer:", error);
+      }
+    });
+    socket.on("ice_candidate", async (data) => {
+      try {
+        const peerConnection = currentPeerConnections[data.from];
+        if (peerConnection && peerConnection.connectionState !== "closed") {
+          await peerConnection.addIceCandidate(
+            new RTCIceCandidate(data.candidate)
+          );
+        }
+      } catch (error) {
+        console.error("Error handling ICE candidate:", error);
+      }
+    });
+
+    socket.on("peer_left", (data) => {
+      const peerConnection = currentPeerConnections[data.socketId];
+      // console.log("peerConnection: ", peerConnection);
+      // console.log("data.socketId: ", data.socketId);
+      if (peerConnection) {
+        setRemoteStreams((prev) =>
+          prev.filter((stream) => stream.id !== data.streamId)
+        );
+        // console.log("peer left: ", data.streamId);
+        peerConnection.close();
+        delete currentPeerConnections[data.socketId];
+      }
+    });
+    // }
 
     return () => {
+      // if (socket?.connected) {
+      //   socket.disconnect();
+      // }
       Object.values(currentPeerConnections).forEach((pc) => pc.close());
+      currentPeerConnections = {};
 
       if (socket) {
-        socket.off("connect", handleConnect);
-        socket.off("disconnect", handleDisconnect);
+        socket.off("connect");
+        socket.off("disconnect");
         socket.off("user_joined");
         socket.off("offer");
         socket.off("answer");
         socket.off("ice_candidate");
         socket.off("peer_left");
-        socket.emit("leave_room", channelId);
+        socket.emit("leave_room", channelId, socket.id);
       }
     };
   }, [
@@ -278,6 +382,7 @@ UseWebRTCProps) => {
     createPeerConnection,
     addTrackSafely,
     userId,
+    alreadyJoined,
   ]);
 
   const toggleMute = useCallback(() => {
@@ -288,6 +393,25 @@ UseWebRTCProps) => {
       setIsMuted(!isMuted);
     }
   }, [localStream, isMuted]);
+
+  // mute and deafen
+  const toggleDeafen = useCallback(() => {
+    if (remoteStreams) {
+      remoteStreams.forEach((stream) => {
+        stream.getAudioTracks().forEach((track) => {
+          track.enabled = !track.enabled; // Mute remote audio tracks
+        });
+      });
+      setIsDeafened(!isDeafened);
+    }
+
+    if (localStream) {
+      localStream.getAudioTracks().forEach((track) => {
+        track.enabled = false;
+      });
+      setIsMuted(true);
+    }
+  }, [remoteStreams, localStream, isDeafened]);
 
   const toggleVideo = useCallback(() => {
     const localStreamId = localStream?.id;
@@ -307,7 +431,37 @@ UseWebRTCProps) => {
     }
   }, [localStream, remoteStreams, isVideoOff]);
 
+  // update all connected users
+  const refreshStreams = () => {
+    // console.log("tracks: ", localStream?.getTracks().length);
+    setLocalStream((prev) => (prev ? { ...prev } : null));
+    // setLocalStream((prev) => ({ ...prev }));
 
+    setRemoteStreams((prev) => [...prev]);
+
+    console.log("Are we connected: ", alreadyJoined);
+  };
+  // Add a method to log current stream state
+  const logCurrentStreamState = useCallback(() => {
+    console.log("[DEBUG] === Current Stream State ===");
+
+    // Log local stream
+    if (localStream) {
+      console.log("[DEBUG] Local Stream:");
+      logStreamDetails(localStream, "Local");
+    } else {
+      console.log("[DEBUG] No Local Stream");
+    }
+
+    // Log remote streams
+    console.log("[DEBUG] Remote Streams:", remoteStreams.length);
+    remoteStreams.forEach((stream, index) => {
+      logStreamDetails(stream, `Remote Stream ${index + 1}`);
+    });
+
+    // Log peer connections
+    logPeerConnectionDetails();
+  }, [localStream, remoteStreams]);
   // console.log("checking remote stream before returning: ", remoteStreams);
   // console.log("checking local stream before returning: ", localStream);
   // console.log("Remote Streams Debug:", {
@@ -323,10 +477,18 @@ UseWebRTCProps) => {
     localStream,
     remoteStreams,
     isMuted,
+    setIsMuted,
     isVideoOff,
-    isConnected,
+    setIsVideoOff,
+    isDeafened,
+    setIsDeafened,
     toggleMute,
     toggleVideo,
+    toggleDeafen,
     streamMetadata: streamMetadata.current,
+    initializeMedia,
+    disInitializeMedia,
+    refreshStreams,
+    logCurrentStreamState,
   };
 };

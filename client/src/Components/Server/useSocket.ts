@@ -2,7 +2,7 @@
 import { useEffect, useMemo, useCallback } from "react";
 import { io } from "socket.io-client";
 import { useAuth } from "../../AuthContext";
-
+// im going to keep this socket seperate from the webRTC socket
 export function useSocket() {
   const { userId } = useAuth();
   const API_URL = import.meta.env.VITE_API_BASE_URL;

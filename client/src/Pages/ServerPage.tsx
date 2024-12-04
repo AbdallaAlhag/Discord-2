@@ -7,7 +7,7 @@ import VoiceChannelDisplay from "../WebRTC/VoiceChannelDisplay";
 import { useEffect, useState } from "react";
 import { io, Socket } from "socket.io-client";
 import { useAuth } from "../AuthContext";
-import WebRTCChat from "../WebRTC/WebRTCChat";
+import ChannelWebRTC from "../WebRTC/ChannelWebRTC";
 import { WebRTCProvider } from "../WebRTC/WebRTCContext";
 
 const VITE_API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
@@ -19,8 +19,6 @@ function ServerPage() {
   }>();
   const [isVoiceChannelDisplay, setIsVoiceChannelDisplay] = useState(false);
   const [socket, setSocket] = useState<Socket>({} as Socket);
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const [channelType, setChannelType] = useState<"audio" | "video">("video");
   const { userId } = useAuth();
 
   // Add this to your ServerPage component to handle the socket connection
@@ -61,7 +59,8 @@ function ServerPage() {
             serverId={serverId}
             channelId={channelId}
             setIsVoiceChannelDisplay={setIsVoiceChannelDisplay}
-            WebRTCChat={WebRTCChat}
+            ChannelWebRTC={ChannelWebRTC}
+            socket={socket}
           />
         )}
         {serverId && channelId && (

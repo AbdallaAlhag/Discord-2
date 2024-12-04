@@ -11,17 +11,22 @@ import { Link } from "react-router-dom";
 import ServerMenu from "./ServerMenu";
 import DeleteServerModal from "../PopupModals/DeleteServerModal";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faMicrophoneSlash } from "@fortawesome/free-solid-svg-icons";
 import { faMicrophone } from "@fortawesome/free-solid-svg-icons";
-import { faHeadphones } from "@fortawesome/free-solid-svg-icons";
-import { io, Socket } from "socket.io-client";
+import { Socket } from "socket.io-client";
 import {
   AudioLines,
   PhoneOff,
   Signal,
   VolumeOff,
   VideoOff,
+  Video,
   ScreenShare,
+  Headphones,
+  HeadphoneOff,
 } from "lucide-react";
+
+import { useWebRTCContext } from "../../WebRTC/useWebRTCContext";
 
 interface onlineUsers {
   id: number;
@@ -61,8 +66,15 @@ const ChannelSidebar: React.FC<{
   serverId: string;
   channelId: string;
   setIsVoiceChannelDisplay: React.Dispatch<React.SetStateAction<boolean>>;
-  WebRTCChat: React.FC;
-}> = ({ serverId, channelId, setIsVoiceChannelDisplay, WebRTCChat }) => {
+  ChannelWebRTC: React.FC;
+  socket: Socket;
+}> = ({
+  serverId,
+  channelId,
+  setIsVoiceChannelDisplay,
+  ChannelWebRTC,
+  socket,
+}) => {
   const [channelInfo, setChannelInfo] = useState<ChannelInfo>([]);
   const [serverName, setServerName] = useState("");
   const [isCreateChannelModalOpen, setIsCreateChannelModalOpen] =
@@ -74,34 +86,46 @@ const ChannelSidebar: React.FC<{
   const { userId } = useAuth();
 
   // webRtc
-  const [socket, setSocket] = useState<Socket>({} as Socket);
   const [selectedVoiceChannel, setSelectedVoiceChannel] =
     useState<SingleChannelInfo>();
   const [isVoiceModalOpen, setIsVoiceModalOpen] = useState(false);
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const [isVideoEnabled, setIsVideoEnabled] = useState(true);
+  // starting video on atm
+
   // Example invite link (customize based on your requirements)
   const inviteLink = `${VITE_API_BASE_URL}/server/${serverId}/${channelId}`;
+  const {
+    isVideoOff,
+    setIsVideoOff,
+    isMuted,
+    setIsMuted,
+    isDeafened,
+    setIsDeafened,
+    disInitializeMedia,
+    toggleMute,
+    toggleVideo,
+    toggleDeafen,
+  } = useWebRTCContext();
 
-  useEffect(() => {
-    // Ensure you have the user's authentication token
-    // Create socket connection
-    const newSocket = io(`${VITE_API_BASE_URL}`, {
-      query: { userId },
-      transports: ["websocket"],
-      autoConnect: true,
-    });
+  // const [socket, setSocket] = useState<Socket>({} as Socket);
+  // useEffect(() => {
+  //   // Ensure you have the user's authentication token
+  //   // Create socket connection
+  //   const newSocket = io(`${VITE_API_BASE_URL}`, {
+  //     query: { userId },
+  //     transports: ["websocket"],
+  //     autoConnect: true,
+  //   });
 
-    // Set up socket connection
-    setSocket(newSocket);
+  //   // Set up socket connection
+  //   setSocket(newSocket);
 
-    // Clean up socket on component unmount
-    return () => {
-      if (newSocket) {
-        newSocket.disconnect();
-      }
-    };
-  }, [userId]); // Empty dependency array means this runs once on mount
+  //   // Clean up socket on component unmount
+  //   return () => {
+  //     if (newSocket) {
+  //       newSocket.disconnect();
+  //     }
+  //   };
+  // }, [userId]); // Empty dependency array means this runs once on mount
   const handleCreateChannel = async (data: {
     name: string;
     type: "text" | "voice";
@@ -249,7 +273,7 @@ const ChannelSidebar: React.FC<{
             .map(([, channel]) => (
               <div
                 key={channel.id}
-                className="flex items-center justify-between px-2 py-1 rounded-md hover:bg-[#40444b] cursor-pointer transition-all"
+                className="flex items-center justify-between   "
                 onClick={() => {
                   // Open voice/video chat modal or navigate to voice channel
                   setSelectedVoiceChannel(channel);
@@ -259,17 +283,21 @@ const ChannelSidebar: React.FC<{
                   }
                 }}
               >
-                <div className="flex items-center space-x-2 text-[#8e9297]">
-                  <Volume2 className="w-5 h-5 mr-1.5" />
-                  <span className="text-white">{channel.name}</span>
+                <div className="flex flex-col w-full items-start ">
+                  <div className="flex items-center space-x-2 text-[#8e9297] rounded-md hover:bg-[#40444b] cursor-pointer px-2 py-1 w-full transition-all">
+                    <Volume2 className="w-5 h-5 mr-1.5" />
+                    <span className="text-white">{channel.name}</span>
+                  </div>
+                  {/* Voice Channel Modal */}
+                  {isVoiceModalOpen &&
+                    selectedVoiceChannel &&
+                    socket &&
+                    channel.name == selectedVoiceChannel.name && (
+                      <ChannelWebRTC />
+                    )}
                 </div>
               </div>
             ))}
-
-          {/* Voice Channel Modal */}
-          {isVoiceModalOpen && selectedVoiceChannel && socket && (
-            <WebRTCChat/>
-          )}
         </div>
       </div>
       {isVoiceModalOpen && selectedVoiceChannel && (
@@ -297,6 +325,7 @@ const ChannelSidebar: React.FC<{
                   // Open voice/video chat modal or navigate to voice channel
                   setIsVoiceModalOpen(false);
                   setIsVoiceChannelDisplay(false);
+                  disInitializeMedia();
                 }}
               />
             </button>
@@ -304,8 +333,29 @@ const ChannelSidebar: React.FC<{
 
           {/* Additional Controls Panel */}
           <div className=" w-full h-14 bg-[#232428] shadow-lg p-2 flex justify-center gap-1">
-            <button className="p-2 px-4 text-[white] bg-[#383a40] rounded-md transition-colors">
-              <VideoOff size={20} />
+            <button
+              className={`p-2 px-4 text-[white] rounded-md transition-colors ${
+                isVideoOff ? "bg-[#383a40]" : "bg-[#23a55a]"
+              }`}
+            >
+              {isVideoOff ? (
+                <VideoOff
+                  size={20}
+                  onClick={() => {
+                    toggleVideo();
+                    setIsVideoOff(!isVideoOff);
+                  }}
+                />
+              ) : (
+                <Video
+                  size={20}
+                  style={{ background: "#23a55a" }}
+                  onClick={() => {
+                    toggleVideo();
+                    setIsVideoOff(!isVideoOff);
+                  }}
+                />
+              )}
             </button>
             <button className="p-2 px-4 text-[white] bg-[#383a40] rounded-md transition-colors">
               <ScreenShare size={20} />
@@ -334,17 +384,42 @@ const ChannelSidebar: React.FC<{
           <div className="text-[#b9bbbe] text-xs">#{user?.id}</div>
         </div>
         <FontAwesomeIcon
-          icon={faMicrophone}
-          size="lg"
+          icon={!isMuted ? faMicrophone : faMicrophoneSlash}
+          size="md"
           className="p-2 hover:bg-[#383a40] cursor-pointer rounded-sm"
-          style={{ color: "#959ba7" }}
+          style={{ color: isMuted ? "#f23f43" : "#959ba7" }}
+          onClick={() => {
+            toggleMute();
+            setIsMuted(!isMuted);
+          }}
         />
-        <FontAwesomeIcon
+        {/* <FontAwesomeIcon
           icon={faHeadphones}
           size="lg"
           className="p-2 hover:bg-[#383a40]  cursor-pointer rounded-sm"
           style={{ color: "#959ba7" }}
-        />
+        /> */}
+        {!isDeafened ? (
+          <Headphones
+            size={25}
+            className="p-1 hover:bg-[#383a40]  cursor-pointer rounded-sm "
+            style={{ color: "#959ba7" }}
+            onClick={() => {
+              toggleDeafen();
+              setIsDeafened(!isDeafened);
+            }}
+          />
+        ) : (
+          <HeadphoneOff
+            size={25}
+            className="p-1 hover:bg-[#383a40]  cursor-pointer rounded-sm "
+            style={{ color: "#f23f43" }}
+            onClick={() => {
+              toggleDeafen();
+              setIsDeafened(!isDeafened);
+            }}
+          />
+        )}
         <LogoutButton className="p-2 hover:bg-[#383a40] rounded-sm " />
         <div className="hover:bg-[#383a40] rounded-sm">
           <SettingsButton className="hover:animate-spin  p-2 " />
@@ -372,8 +447,6 @@ const ChannelSidebar: React.FC<{
         serverId={serverId}
         serverName={serverName}
       />
-
-      {/* <VoiceChannelDisplay /> */}
     </div>
   );
 };

@@ -35,6 +35,7 @@ const activeUsers = new Map();
 let activeRooms = new Map(); // Track active room memberships
 
 io.on("connection", (socket) => {
+  // console.log(socket.id, " has connected");
   const { userId } = socket.handshake.query;
   if (!userId) {
     // console.warn("User connected without userId!");
@@ -44,6 +45,7 @@ io.on("connection", (socket) => {
   // Join user-specific room
   userId && socket.join(userId.toString());
   activeUsers.set(userId, socket.id);
+  // console.log("activeUsers: ", activeUsers);
   // console.log(`User ${userId} connected and joined room`);
 
   // Handle private message
@@ -102,7 +104,7 @@ io.on("connection", (socket) => {
   //   activeUsers.delete(userId);
   // });
   socket.on("disconnect", () => {
-    const userSession = activeRooms.get(socket.id);
+    const userSession = activeUsers.get(socket.id);
     if (userSession) {
       const { roomId, userId } = userSession;
       console.log(`User ${userId} left room voice ${roomId}`);
@@ -113,36 +115,28 @@ io.on("connection", (socket) => {
         userId: userId,
       });
 
-      activeRooms.delete(socket.id);
+      activeUsers.delete(socket.id);
     }
   });
 
   // webrtc setup
-  socket.on("join_room", (roomId) => {
+  socket.on("join_room", (roomId, streamId) => {
     const userId = socket.handshake.query.userId;
-
-    // Validate userId exists and is a number/string
+    console.log("user has joined room");
     if (!userId) {
       console.error("User tried to join room without userId");
       return;
     }
-    activeRooms.set(socket.id, {
-      roomId,
-      userId,
-    });
 
-    const rooms = io.sockets.adapter.rooms;
-    const room = rooms.get(roomId);
+    activeRooms.set(socket.id, { roomId, userId, streamId });
+    // activeRooms.set(userId, { roomId, userId, streamId });
+    console.log("activeRooms: ", activeRooms);
 
+    const room = io.sockets.adapter.rooms.get(roomId) || new Set();
     socket.join(roomId);
     console.log(`User ${userId} joined room voice ${roomId}`);
 
-    // Notify other users in the room
-    console.log("userId does in fact work?:", userId);
-    socket.to(roomId).emit("user_joined", {
-      socketId: socket.id,
-      userId: userId,
-    });
+    socket.to(roomId).emit("user_joined", { socketId: socket.id, userId });
   });
 
   // WebRTC Signaling for Peer Connection
@@ -173,18 +167,29 @@ io.on("connection", (socket) => {
   //   socket.leave(roomId);
   //   socket.to(roomId).emit("peer_left", { socketId: socket.id });
   // });
-  socket.on("leave_room", (roomId) => {
-    const userSession = activeRooms.get(socket.id);
+  socket.on("leave_room", (roomId, socketId) => {
+    const userSession = activeRooms.get(socketId);
+    console.log("are we receiving this? ", userSession);
     if (userSession) {
+      const { userId, streamId } = userSession;
       socket.leave(roomId);
-      console.log(`User ${userSession.userId} left room voice ${roomId}`);
+      console.log(`User ${userId} left room voice ${roomId}`);
 
       socket.to(roomId).emit("peer_left", {
         socketId: socket.id,
-        userId: userSession.userId,
+        userId,
+        streamId,
       });
 
-      activeRooms.delete(socket.id);
+      activeRooms.delete(socketId);
+      console.log("activeRooms after delete: ", activeRooms);
+    } else {
+      console.warn(`No session found for socket ID: ${socket.id}`);
+    }
+
+    if (activeRooms.size === 0) {
+      console.log("activeRooms is empty");
+      activeRooms.clear();
     }
   });
 });

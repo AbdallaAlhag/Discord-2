@@ -9,8 +9,10 @@ export const WebRTCProvider: React.FC<{
   userId: number | null;
   type: "video" | "audio";
   children: ReactNode;
-}> = ({ socket, channelId, userId, type, children }) => {
-  const webRTCState = useWebRTC({ socket, channelId, userId, type });
+}> = ({ socket, channelId, userId, children }) => {
+  const webRTCState = useWebRTC({ socket, channelId, userId });
+
+  // const refreshStreams = webRTCState.refreshStreams;
 
   useEffect(() => {
     // console.log("WebRTC Provider - Params changed", {
@@ -20,11 +22,12 @@ export const WebRTCProvider: React.FC<{
     //   type,
     // });
     console.log("updating all states");
+    // refreshStreams();
   }, [children]);
 
   return (
     <WebRTCContext.Provider
-      value={{ socket, channelId, userId, type, ...webRTCState }}
+      value={{ socket, channelId, userId, ...webRTCState }}
     >
       {children}
     </WebRTCContext.Provider>

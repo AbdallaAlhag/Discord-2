@@ -149,23 +149,21 @@ const VoiceChannelDisplay: React.FC = () => {
   const localVideoRef = useRef<HTMLVideoElement>(null);
   const remoteVideoRefs = useRef<(HTMLVideoElement | null)[]>([]);
   const {
-    // socket,
-    // channelId,
-    // type = "video",
     userId,
+    type,
     localStream,
     remoteStreams,
+    isMuted,
+    isVideoOff,
+    toggleMute,
+    toggleVideo,
     streamMetadata,
+    // initializeMedia,
+    // logCurrentStreamState,
   } = useWebRTCContext();
 
-  
+  // console.log("Checking remote stream in voice channel: ", remoteStreams);
 
-  // const { localStream, remoteStreams, streamMetadata } = useWebRTC({
-  //   socket,
-  //   channelId,
-  //   userId,
-  //   type,
-  // });
   // Effect to handle local stream
   useEffect(() => {
     if (localVideoRef.current && localStream) {
@@ -190,8 +188,6 @@ const VoiceChannelDisplay: React.FC = () => {
       });
     }
   }, [remoteStreams]);
-
-  // console.log("checking remote stream: ", remoteStreams);
 
   // useEffect(() => {
   //   if (localStream && localVideoRef.current) {
