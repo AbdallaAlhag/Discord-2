@@ -1,19 +1,23 @@
 import { useEffect, useRef } from "react";
+import { faMicrophoneSlash } from "@fortawesome/free-solid-svg-icons";
 import {
   Volume2,
   Users,
   Layout,
   MoreHorizontal,
-  MessageSquare,
   Mic,
+  MicOff,
   Video,
   PhoneOff,
   Maximize,
   PictureInPicture,
   ScreenShare,
+  HeadphoneOff,
+  VideoOff,
 } from "lucide-react";
 // import { useWebRTC } from "./useWebRTC";
 import { useWebRTCContext } from "./useWebRTCContext";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 
 // Types
 // interface VoiceChannelDisplayProps {
@@ -35,7 +39,7 @@ const Header = () => (
       <span className="text-white font-medium">General</span>
     </div>
     <div className="flex items-center gap-4">
-      {[Users, Layout, MessageSquare, MoreHorizontal].map((Icon, index) => (
+      {[Users, Layout, MoreHorizontal].map((Icon, index) => (
         <Icon
           key={index}
           className="text-[#949ba4] hover:text-white cursor-pointer"
@@ -60,9 +64,9 @@ const EmptyState = () => (
         <button className="bg-[#4e5058] text-white px-4 py-2 rounded-md hover:bg-[#6d6f78] transition-colors">
           Invite Friends
         </button>
-        <button className="bg-[#5865f2] text-white px-4 py-2 rounded-md hover:bg-[#4752c4] transition-colors">
+        {/* <button className="bg-[#5865f2] text-white px-4 py-2 rounded-md hover:bg-[#4752c4] transition-colors">
           Choose an Activity
-        </button>
+        </button> */}
       </div>
     </div>
   </div>
@@ -70,26 +74,57 @@ const EmptyState = () => (
 
 // Controls Component
 const Controls = () => {
+  const {
+    isVideoOff,
+    setIsVideoOff,
+    isMuted,
+    setIsMuted,
+    disInitializeMedia,
+    toggleMute,
+    toggleVideo,
+  } = useWebRTCContext();
   const controlButtons = [
-    { Icon: Video, color: "white" },
-    { Icon: ScreenShare, color: "white" },
-    { Icon: Users, color: "white" },
-    { Icon: Mic, color: "white" },
-    { Icon: PhoneOff, color: "white", special: true },
+    {
+      Icon: !isVideoOff ? Video : VideoOff,
+      BgColor: !isVideoOff ? "#ffffff" : "#36373d",
+      textColor: !isVideoOff ? "#000000" : "#ffffff",
+      onClick: () => {
+        toggleVideo();
+        setIsVideoOff(!isVideoOff);
+      },
+    },
+    { Icon: ScreenShare, BgColor: "#36373d", onClick: () => {} },
+    {
+      Icon: !isMuted ? Mic : MicOff,
+      BgColor: !isMuted ? "#ffffff" : "#36373d",
+      textColor: !isMuted ? "#000000" : "#ffffff",
+      onClick: () => {
+        toggleMute();
+        setIsMuted(!isMuted);
+      },
+    },
+    {
+      Icon: PhoneOff,
+      BgColor: "#ed4245",
+      onClick: () => {
+        disInitializeMedia();
+        window.location.reload();
+      },
+    },
   ];
 
   return (
     <div className="h-20 flex items-center justify-center gap-2 px-4 py-2 transition-colors duration-300">
       <div className="flex-1" />
-
-      {controlButtons.map(({ Icon, special }, index) => (
+      {controlButtons.map(({ Icon, onClick, BgColor, textColor }, index) => (
         <button
           key={index}
-          className={`p-3 rounded-full ${
-            special
-              ? "bg-[#ed4245] text-white hover:bg-[#c03537]"
-              : "bg-[#36373d] text-white hover:bg-[#4e5058]"
-          } transition-colors`}
+          style={{
+            backgroundColor: BgColor,
+            color: textColor || "#ffffff",
+          }}
+          className="rounded-full p-3 hover:opacity-80 transition-opacity"
+          onClick={onClick}
         >
           <Icon size={30} />
         </button>
@@ -115,7 +150,16 @@ const VideoElement: React.FC<{
   userId?: number | null;
   muted?: boolean;
   isLocal?: boolean;
-}> = ({ stream, userId, muted = false, isLocal = false }) => (
+  isDeafened?: boolean;
+  isMuted?: boolean;
+}> = ({
+  stream,
+  userId,
+  muted = false,
+  isLocal = false,
+  isDeafened,
+  isMuted,
+}) => (
   <div className="relative aspect-video bg-gray-800 rounded-lg overflow-hidden">
     <video
       ref={(el) => {
@@ -131,6 +175,17 @@ const VideoElement: React.FC<{
     <div className="absolute bottom-2 left-2 bg-black bg-opacity-50 px-2 py-1 rounded text-white text-sm">
       {isLocal ? `You: ${userId}` : `Participant: ${userId ?? "Unknown"}`}
     </div>
+
+    {isMuted && !isDeafened && (
+      <div className="absolute bottom-2 right-2 bg-black bg-opacity-50 px-2 py-1 rounded-full text-[#959ba7] text-sm">
+        <FontAwesomeIcon icon={faMicrophoneSlash} />
+      </div>
+    )}
+    {isDeafened && (
+      <div className="absolute bottom-2 right-2 bg-black bg-opacity-50 px-2 py-1 rounded-full text-[#959ba7] text-sm">
+        <HeadphoneOff size={20} />
+      </div>
+    )}
   </div>
 );
 
@@ -150,14 +205,11 @@ const VoiceChannelDisplay: React.FC = () => {
   const remoteVideoRefs = useRef<(HTMLVideoElement | null)[]>([]);
   const {
     userId,
-    type,
     localStream,
     remoteStreams,
-    isMuted,
-    isVideoOff,
-    toggleMute,
-    toggleVideo,
     streamMetadata,
+    isMuted,
+    isDeafened,
     // initializeMedia,
     // logCurrentStreamState,
   } = useWebRTCContext();
@@ -189,33 +241,6 @@ const VoiceChannelDisplay: React.FC = () => {
     }
   }, [remoteStreams]);
 
-  // useEffect(() => {
-  //   if (localStream && localVideoRef.current) {
-  //     localVideoRef.current.srcObject = localStream;
-  //   }
-  //   // remoteStreams.forEach((remoteStream, index) => {
-  //   //   if (remoteVideoRefs.current[index]) {
-  //   //     console.log("", remoteStream);
-  //   //     remoteVideoRefs.current[index]!.srcObject = remoteStream;
-  //   //   }
-  //   // });
-
-  //   // console.log("checking remote null stream: ", remoteVideoRefs.current);
-
-  //   const filteredRemoteStreams = remoteStreams.filter(
-  //     (stream) => streamMetadata.get(stream)?.userId !== userId
-  //   );
-
-  //   if (filteredRemoteStreams.length > remoteVideoRefs.current.length) {
-  //     remoteVideoRefs.current = [
-  //       ...remoteVideoRefs.current.slice(0, filteredRemoteStreams.length), // Keep refs for existing streams
-  //       ...new Array(
-  //         filteredRemoteStreams.length - remoteVideoRefs.current.length
-  //       ).fill(null), // Add placeholders for new streams
-  //     ];
-  //   }
-  // }, [localStream, remoteStreams, streamMetadata, userId]);
-
   const gridColumns = Math.ceil(
     Math.sqrt(remoteStreams.length ? remoteStreams.length + 1 : 2)
   );
@@ -240,6 +265,8 @@ const VoiceChannelDisplay: React.FC = () => {
               userId={userId}
               muted={true}
               isLocal={true}
+              isDeafened={isDeafened}
+              isMuted={isMuted}
             />
           )}
 
@@ -254,7 +281,7 @@ const VoiceChannelDisplay: React.FC = () => {
             );
           })}
 
-          {remoteVideoRefs.current.length == 0 && <EmptyState />}
+          {remoteVideoRefs.current.length == 0 && localStream && <EmptyState />}
         </div>
       </div>
 

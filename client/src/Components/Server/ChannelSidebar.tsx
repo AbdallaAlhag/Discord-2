@@ -385,7 +385,6 @@ const ChannelSidebar: React.FC<{
         </div>
         <FontAwesomeIcon
           icon={!isMuted ? faMicrophone : faMicrophoneSlash}
-          size="md"
           className="p-2 hover:bg-[#383a40] cursor-pointer rounded-sm"
           style={{ color: isMuted ? "#f23f43" : "#959ba7" }}
           onClick={() => {

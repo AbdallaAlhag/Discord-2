@@ -122,6 +122,7 @@ io.on("connection", (socket) => {
   // webrtc setup
   socket.on("join_room", (roomId, streamId) => {
     const userId = socket.handshake.query.userId;
+    if (activeRooms.has(userId)) return;
     console.log("user has joined room");
     if (!userId) {
       console.error("User tried to join room without userId");
