@@ -3,7 +3,8 @@
     7,
     
     414 lines of code 11/20/2022
-
+    
+- [ ] - [x]
 ### todo: 
         - [ ] - [x]
         do this near the end:
@@ -41,7 +42,7 @@
         - [ ] pause execution on webrtc development at the moment
             - [ ] fix not active on user screens and correct the amount of people in voice room
         - [ ] Get voiceChanneldisplay working properly
-            - [ ] get all buttons to work in serverchannelsidebar and voice display
+            - [x] get all buttons to work in serverchannelsidebar - - [ ] voice display
         - [ ] create that green border hover when voice is activated
 
 ### haven't done yet:
