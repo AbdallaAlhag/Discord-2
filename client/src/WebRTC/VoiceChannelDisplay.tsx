@@ -1,4 +1,4 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, forwardRef, LegacyRef } from "react";
 import { faMicrophoneSlash } from "@fortawesome/free-solid-svg-icons";
 import {
   Volume2,
@@ -72,8 +72,15 @@ const EmptyState = () => (
   </div>
 );
 
+interface ControlButtonProps {
+  onToggleFullScreen: () => void;
+  onPictureInPicture: () => void;
+}
 // Controls Component
-const Controls = () => {
+const Controls: React.FC<ControlButtonProps> = ({
+  onToggleFullScreen,
+  onPictureInPicture,
+}) => {
   const {
     isVideoOff,
     setIsVideoOff,
@@ -93,7 +100,11 @@ const Controls = () => {
         setIsVideoOff(!isVideoOff);
       },
     },
-    { Icon: ScreenShare, BgColor: "#36373d", onClick: () => {} },
+    {
+      Icon: ScreenShare,
+      BgColor: "#36373d",
+      onClick: () => {},
+    },
     {
       Icon: !isMuted ? Mic : MicOff,
       BgColor: !isMuted ? "#ffffff" : "#36373d",
@@ -113,6 +124,16 @@ const Controls = () => {
     },
   ];
 
+  const screenButtons = [
+    {
+      Icon: Maximize,
+      onClick: () => onToggleFullScreen(),
+    },
+    {
+      Icon: PictureInPicture,
+      onClick: () => onPictureInPicture(),
+    },
+  ];
   return (
     <div className="h-20 flex items-center justify-center gap-2 px-4 py-2 transition-colors duration-300">
       <div className="flex-1" />
@@ -131,10 +152,11 @@ const Controls = () => {
       ))}
 
       <div className="flex-1 flex justify-end">
-        {[Maximize, PictureInPicture].map((Icon, index) => (
+        {screenButtons.map(({ Icon, onClick }, index) => (
           <button
             key={index}
             className="p-3 text-[#949ba4] hover:text-white transition-colors"
+            onClick={onClick}
           >
             <Icon />
           </button>
@@ -189,18 +211,17 @@ const VideoElement: React.FC<{
   </div>
 );
 
-// interface VoiceChannelDisplayProps {
-//   socket: Socket;
-//   channelId: number;
-//   userId: number | null;
-//   type?: "video" | "audio";
-//   localStream: MediaStream | null;
-//   remoteStreams: MediaStream[];
-//   streamMetadata: WeakMap<MediaStream, { userId: number | null }>;
-// }
-
+interface VoiceChannelDisplayProps
+  extends React.HTMLAttributes<HTMLDivElement> {
+  ref: LegacyRef<HTMLDivElement> | undefined;
+  onToggleFullScreen: () => void;
+  onPictureInPicture: () => void;
+}
 // Main Component
-const VoiceChannelDisplay: React.FC = () => {
+const VoiceChannelDisplay: React.FC<VoiceChannelDisplayProps> = forwardRef<
+  HTMLDivElement,
+  VoiceChannelDisplayProps
+>(({ onToggleFullScreen, onPictureInPicture, ...props }, ref) => {
   const localVideoRef = useRef<HTMLVideoElement>(null);
   const remoteVideoRefs = useRef<(HTMLVideoElement | null)[]>([]);
   const {
@@ -246,7 +267,11 @@ const VoiceChannelDisplay: React.FC = () => {
   );
 
   return (
-    <div className="h-screen flex-1 flex-col bg-black relative group overflow-hidden">
+    <div
+      ref={ref}
+      {...props}
+      className="h-screen flex-1 flex-col bg-black relative group overflow-hidden"
+    >
       <div className="absolute top-0 left-0 right-0 transform -translate-y-full group-hover:translate-y-0 transition-transform duration-300 ease-out z-10">
         <Header />
       </div>
@@ -286,10 +311,13 @@ const VoiceChannelDisplay: React.FC = () => {
       </div>
 
       <div className="absolute bottom-0 left-0 right-0 transform translate-y-full group-hover:translate-y-0 transition-transform duration-300 ease-out">
-        <Controls />
+        <Controls
+          onToggleFullScreen={onToggleFullScreen}
+          onPictureInPicture={onPictureInPicture}
+        />
       </div>
     </div>
   );
-};
+});
 
 export default VoiceChannelDisplay;

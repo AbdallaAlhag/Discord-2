@@ -4,7 +4,7 @@ import { useParams } from "react-router-dom";
 import { ServerSidebar, ChannelSidebar, MemberList } from "../Components";
 import ServerChat from "../Components/Server/ServerChat";
 import VoiceChannelDisplay from "../WebRTC/VoiceChannelDisplay";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { io, Socket } from "socket.io-client";
 import { useAuth } from "../AuthContext";
 import ChannelWebRTC from "../WebRTC/ChannelWebRTC";
@@ -20,6 +20,32 @@ function ServerPage() {
   const [isVoiceChannelDisplay, setIsVoiceChannelDisplay] = useState(false);
   const [socket, setSocket] = useState<Socket>({} as Socket);
   const { userId } = useAuth();
+  const refVoiceChannelDisplay = useRef<HTMLDivElement>(null);
+
+  const toggleFullScreen = () => {
+    console.log("Attemping to go fullscreen");
+    if (!document.fullscreenElement && refVoiceChannelDisplay.current) {
+      refVoiceChannelDisplay.current.requestFullscreen();
+    } else {
+      document.exitFullscreen();
+    }
+  };
+  const enablePictureInPicture = async () => {
+    if (refVoiceChannelDisplay.current) {
+      const videoElement =
+        refVoiceChannelDisplay.current.querySelector("video");
+      if (videoElement && document.pictureInPictureEnabled) {
+        try {
+          await videoElement.requestPictureInPicture();
+          setIsVoiceChannelDisplay(false);
+        } catch (error) {
+          console.error("Error in PiP mode:", error);
+        }
+      }
+    }
+  };
+
+
 
   // Add this to your ServerPage component to handle the socket connection
   useEffect(() => {
@@ -72,7 +98,11 @@ function ServerPage() {
               //   type={channelType}
               //   userId={userId}
               // />
-              <VoiceChannelDisplay />
+              <VoiceChannelDisplay
+                onToggleFullScreen={toggleFullScreen}
+                onPictureInPicture={enablePictureInPicture}
+                ref={refVoiceChannelDisplay}
+              />
             ) : (
               <>
                 <ServerChat serverId={serverId} channelId={channelId} />

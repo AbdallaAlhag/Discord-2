@@ -106,6 +106,14 @@ const ChannelSidebar: React.FC<{
     toggleDeafen,
   } = useWebRTCContext();
 
+  const closePictureInPicture = () => {
+    if (document.pictureInPictureElement) {
+      document.exitPictureInPicture().catch((error) => {
+        console.error("Error exiting PiP:", error);
+      });
+    }
+  };
+
   // const [socket, setSocket] = useState<Socket>({} as Socket);
   // useEffect(() => {
   //   // Ensure you have the user's authentication token
@@ -280,6 +288,7 @@ const ChannelSidebar: React.FC<{
                   setIsVoiceModalOpen(true);
                   if (isVoiceModalOpen && selectedVoiceChannel) {
                     setIsVoiceChannelDisplay(true);
+                    closePictureInPicture();
                   }
                 }}
               >

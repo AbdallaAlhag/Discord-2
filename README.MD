@@ -6,8 +6,8 @@
 
 
 ### todo: 
-- [ ] 
-- [x] 
+- [ ] not done yet:
+- [x] done: 
 do this near the end:
 - [ ] fake data works well with front end but does not work with backend unless i update with my temp backend data
     - [ ] add fake data to backend and use that instead
@@ -44,7 +44,7 @@ to see it.
     - [ ] fix not active on user screens and correct the amount of people in voice room
 - [ ] Get voiceChanneldisplay working properly
     - [x] get all buttons to work in serverchannelsidebar 
-    - [ ] voice display
+    - [x] voice display
 - [ ] create that green border hover when voice is activated
 
 ### haven't done yet:
