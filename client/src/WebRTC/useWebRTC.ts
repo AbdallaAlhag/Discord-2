@@ -22,63 +22,64 @@ export const useWebRTC = ({ socket, channelId, userId }: UseWebRTCProps) => {
   const peerConnectionsRef = useRef<{ [key: string]: RTCPeerConnection }>({});
   const streamMetadata = useRef(new WeakMap<MediaStream, StreamMetadata>());
   // Utility function to log detailed stream information
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const logStreamDetails = (stream: MediaStream, streamType: string) => {
     if (!stream || alreadyJoined) {
       return;
     }
-    console.log(`[DEBUG] ${streamType} Stream Details:`, {
-      id: stream.id,
-      audioTracks: stream.getAudioTracks().map((track) => ({
-        id: track.id,
-        enabled: track.enabled,
-        muted: track.muted,
-        readyState: track.readyState,
-      })),
-      videoTracks: stream.getVideoTracks().map((track) => ({
-        id: track.id,
-        enabled: track.enabled,
-        muted: track.muted,
-        readyState: track.readyState,
-      })),
-    });
+    // console.log(`[DEBUG] ${streamType} Stream Details:`, {
+    //   id: stream.id,
+    //   audioTracks: stream.getAudioTracks().map((track) => ({
+    //     id: track.id,
+    //     enabled: track.enabled,
+    //     muted: track.muted,
+    //     readyState: track.readyState,
+    //   })),
+    //   videoTracks: stream.getVideoTracks().map((track) => ({
+    //     id: track.id,
+    //     enabled: track.enabled,
+    //     muted: track.muted,
+        // readyState: track.readyState,
+      // })),
+    // });
   };
 
   // Utility function to log peer connection details
   const logPeerConnectionDetails = () => {
-    console.log(
-      "[DEBUG] Peer Connections:",
-      Object.entries(peerConnectionsRef.current).map(
-        ([socketId, peerConnection]) => ({
-          socketId,
-          connectionState: peerConnection.connectionState,
-          iceConnectionState: peerConnection.iceConnectionState,
-          signalingState: peerConnection.signalingState,
-          receivers: peerConnection.getReceivers().map((receiver) => ({
-            track: {
-              kind: receiver.track?.kind,
-              id: receiver.track?.id,
-              enabled: receiver.track?.enabled,
-            },
-          })),
-          senders: peerConnection.getSenders().map((sender) => ({
-            track: {
-              kind: sender.track?.kind,
-              id: sender.track?.id,
-              enabled: sender.track?.enabled,
-            },
-          })),
-        })
-      )
-    );
+    // console.log(
+    //   "[DEBUG] Peer Connections:",
+    //   Object.entries(peerConnectionsRef.current).map(
+    //     ([socketId, peerConnection]) => ({
+    //       socketId,
+    //       connectionState: peerConnection.connectionState,
+    //       iceConnectionState: peerConnection.iceConnectionState,
+    //       signalingState: peerConnection.signalingState,
+    //       receivers: peerConnection.getReceivers().map((receiver) => ({
+    //         track: {
+    //           kind: receiver.track?.kind,
+    //           id: receiver.track?.id,
+    //           enabled: receiver.track?.enabled,
+    //         },
+    //       })),
+    //       senders: peerConnection.getSenders().map((sender) => ({
+    //         track: {
+    //           kind: sender.track?.kind,
+    //           id: sender.track?.id,
+    //           enabled: sender.track?.enabled,
+    //         },
+    //       })),
+    //     })
+    //   )
+    // );
   };
   const createPeerConnection = useCallback(
     (socketId: string, remoteUserId: number | null) => {
-      console.log(
-        `[DEBUG] Creating peer connection for socketId: ${socketId}, remoteUserId: ${remoteUserId}`
-      );
+      // console.log(
+      //   `[DEBUG] Creating peer connection for socketId: ${socketId}, remoteUserId: ${remoteUserId}`
+      // );
 
       if (!socket) {
-        console.warn("[DEBUG] Cannot create peer connection: socket is null");
+        // console.warn("[DEBUG] Cannot create peer connection: socket is null");
         return null;
       }
 
@@ -93,9 +94,9 @@ export const useWebRTC = ({ socket, channelId, userId }: UseWebRTCProps) => {
 
       peerConnection.onicecandidate = (event) => {
         if (event.candidate && socket) {
-          console.log(
-            `[DEBUG] ICE Candidate generated for socketId: ${socketId}`
-          );
+          // console.log(
+          //   `[DEBUG] ICE Candidate generated for socketId: ${socketId}`
+          // );
           socket.emit("ice_candidate", {
             to: socketId,
             candidate: event.candidate,
@@ -104,7 +105,7 @@ export const useWebRTC = ({ socket, channelId, userId }: UseWebRTCProps) => {
       };
 
       peerConnection.ontrack = (event) => {
-        console.log(`[DEBUG] Remote track received for socketId: ${socketId}`);
+        // console.log(`[DEBUG] Remote track received for socketId: ${socketId}`);
         const remoteStream = event.streams[0];
         console.log("event.streams:", event.streams);
         logStreamDetails(remoteStream, "Remote");
@@ -113,17 +114,17 @@ export const useWebRTC = ({ socket, channelId, userId }: UseWebRTCProps) => {
           // Prevent adding local stream to remote streams
 
           if (localStream && remoteStream.id === localStream.id) {
-            console.log(
-              "[DEBUG] Skipping local stream addition to remote streams"
-            );
+            // console.log(
+            //   "[DEBUG] Skipping local stream addition to remote streams"
+            // );
             return prev;
           }
           // Prevent duplicate streams
           const streamExists = prev.some((s) => s.id === remoteStream.id);
           if (!streamExists) {
-            console.log(
-              `[DEBUG] Adding new remote stream (ID: ${remoteStream.id})`
-            );
+            // console.log(
+            //   `[DEBUG] Adding new remote stream (ID: ${remoteStream.id})`
+            // );
             // Store metadata using stream ID as key
             streamMetadata.current.set(remoteStream, {
               userId: remoteUserId,
@@ -133,18 +134,7 @@ export const useWebRTC = ({ socket, channelId, userId }: UseWebRTCProps) => {
           return prev;
         });
       };
-      // Add connection state change logging
-      // peerConnection.onconnectionstatechange = () => {
-      //   console.log(
-      //     `[DEBUG] Peer connection state for ${socketId}: ${peerConnection.connectionState}`
-      //   );
-      // };
-
-      // peerConnection.oniceconnectionstatechange = () => {
-      //   console.log(
-      //     `[DEBUG] ICE connection state for ${socketId}: ${peerConnection.iceConnectionState}`
-      //   );
-      // };
+     
 
       peerConnectionsRef.current[socketId] = peerConnection;
       return peerConnection;
@@ -174,11 +164,11 @@ export const useWebRTC = ({ socket, channelId, userId }: UseWebRTCProps) => {
   );
 
   const initializeMedia = async () => {
-    console.log(`[DEBUG] Initializing media for channelId: ${channelId}`);
+    // console.log(`[DEBUG] Initializing media for channelId: ${channelId}`);
     if (localStream || alreadyJoined) {
-      console.log(
-        "[DEBUG] Local stream already exists, skipping initialization"
-      );
+      // console.log(
+      //   "[DEBUG] Local stream already exists, skipping initialization"
+      // );
       return;
     }
     try {
@@ -189,21 +179,20 @@ export const useWebRTC = ({ socket, channelId, userId }: UseWebRTCProps) => {
       const audioDevices = devices.filter(
         (device) => device.kind === "audioinput"
       );
-      // console.log("devices: ", devices);
       // Attempt to get user media with specific constraints
-      console.log(
-        `[DEBUG] Available devices - Video: ${videoDevices.length}, Audio: ${audioDevices.length}`
-      );
+      // console.log(
+      //   `[DEBUG] Available devices - Video: ${videoDevices.length}, Audio: ${audioDevices.length}`
+      // );
 
       const stream = await navigator.mediaDevices.getUserMedia({
         video: videoDevices.length > 0,
         audio: audioDevices.length > 0,
       });
-      console.log(
-        `[DEBUG] Local stream initialized with tracks - Audio: ${
-          stream.getAudioTracks().length
-        }, Video: ${stream.getVideoTracks().length}`
-      );
+      // console.log(
+      //   `[DEBUG] Local stream initialized with tracks - Audio: ${
+      //     stream.getAudioTracks().length
+      //   }, Video: ${stream.getVideoTracks().length}`
+      // );
       logStreamDetails(stream, "New Local");
       setLocalStream(stream);
       setAlreadyJoined(true);
@@ -229,13 +218,13 @@ export const useWebRTC = ({ socket, channelId, userId }: UseWebRTCProps) => {
 
   // Handle WebRTC connections
   useEffect(() => {
-    console.log(
-      `[DEBUG] WebRTC Setup: Socket Connected: ${socket?.connected}, Channel: ${channelId}`
-    );
+    // console.log(
+    //   `[DEBUG] WebRTC Setup: Socket Connected: ${socket?.connected}, Channel: ${channelId}`
+    // );
     if (!socket || !channelId || !localStream) {
-      console.log(
-        `[DEBUG] WebRTC Setup: Missing socket or channelId or localStream, safely returned.`
-      );
+      // console.log(
+      //   `[DEBUG] WebRTC Setup: Missing socket or channelId or localStream, safely returned.`
+      // );
       return;
     }
 
@@ -250,22 +239,23 @@ export const useWebRTC = ({ socket, channelId, userId }: UseWebRTCProps) => {
     const currentLocalStream = localStream;
     let currentPeerConnections = peerConnectionsRef.current;
 
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     socket?.on("disconnect", (reason) => {
-      console.log(`[DEBUG] Socket Disconnected - Reason: ${reason}`);
+      // console.log(`[DEBUG] Socket Disconnected - Reason: ${reason}`);
     });
     // Add connection event listeners
     socket?.on("connect", () => {
-      console.log("[DEBUG] Socket Connected Event Triggered");
+      // console.log("[DEBUG] Socket Connected Event Triggered");
     });
-    console.log(`[DEBUG] are we connected to join_room? ${socket.connected}`);
+    // console.log(`[DEBUG] are we connected to join_room? ${socket.connected}`);
     // if (socket.connected) {
 
     socket.emit("join_room", channelId, localStream.id);
 
     socket.on("user_joined", async (data) => {
-      console.log(
-        `[DEBUG] User Joined - SocketId: ${data.socketId}, UserId: ${data.userId}`
-      );
+      // console.log(
+      //   `[DEBUG] User Joined - SocketId: ${data.socketId}, UserId: ${data.userId}`
+      // );
 
       try {
         const peerConnection = createPeerConnection(
@@ -444,18 +434,18 @@ export const useWebRTC = ({ socket, channelId, userId }: UseWebRTCProps) => {
   };
   // Add a method to log current stream state
   const logCurrentStreamState = useCallback(() => {
-    console.log("[DEBUG] === Current Stream State ===");
+    // console.log("[DEBUG] === Current Stream State ===");
 
     // Log local stream
     if (localStream) {
-      console.log("[DEBUG] Local Stream:");
+      // console.log("[DEBUG] Local Stream:");
       logStreamDetails(localStream, "Local");
     } else {
-      console.log("[DEBUG] No Local Stream");
+      // console.log("[DEBUG] No Local Stream");
     }
 
     // Log remote streams
-    console.log("[DEBUG] Remote Streams:", remoteStreams.length);
+    // console.log("[DEBUG] Remote Streams:", remoteStreams.length);
     remoteStreams.forEach((stream, index) => {
       logStreamDetails(stream, `Remote Stream ${index + 1}`);
     });

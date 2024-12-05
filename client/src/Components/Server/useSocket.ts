@@ -49,7 +49,10 @@ export function useSocket() {
 
   useEffect(() => {
     return () => {
-      socket?.disconnect();
+      if (socket) {
+        console.log("disconnecting socket");
+        socket?.disconnect();
+      }
     };
   }, [socket]);
 

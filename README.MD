@@ -14,10 +14,13 @@ do this near the end:
 - [ ] change id in prisma from autoincrement to uuid
 
 
-- [ ] Adding friend is not real time but i think that's okay, we can fix it later, not a priority 
-- [ ] typing real time indicator works but not read receipts just yet. Both could use a tune up, do later, extra  
-- [x] create server active: got hover to work but not active
+
+
+- [ ] create server active: 
+    - [x] got hover to work 
+    - [ ] but not active
 - [x] invite sending and both are embedded but link embeds after refresh.
+- [ ] change invite if already joined
     - [ ] invite code is pretty useless, don't know how to do anything with it.
     - [ ] work on expired or deleted servers
     - [ ] fix links embeds after refresh 
@@ -27,27 +30,34 @@ do this near the end:
     - [ ] make the chat look like discord: add time hover over message to show time
     - [ ] server chat still little bugged but kinda annoying to fix 
 - [ ] register page background is pretty slow sometimes
+---
 - [x] Work on gif picker, make it a modal and work on opening and closing it. 
     - [x] make sure it works with messaging (.gifs work)
         - [ ] make sure it works with other types
     - [ ] try to get stickers working
     - [ ] Add loaders to values (already have loader but i like the square ones better)
     - [ ] stickers are not working? i guess and its okay for now.
-- [ ] Create channel is not real time, just needs a refresh
-to see it.
-- [ ] server chat is not real time?
-- [ ] change invite if already joined
-- [ ] when clicking on server, should get users in voice channels
-- [ ] voice channel is based on server channel text group not voice group
+- [x] Fix: voice channel is based on server channel text group not voice group
+---
+
+- [ ] work  on real time issues: 
+    - [ ] Adding friend is not real time but i think that's okay, we can fix it later, not a priority 
+    - [ ] Create channel is not real time, just needs a refresh
+    to see it.
+    - [ ] server chat is not real time?
+---
 
 - [ ] pause execution on webrtc development at the moment
-    - [ ] fix not active on user screens and correct the amount of people in voice room
-- [x] Get voiceChanneldisplay working properly
-    - [x] get all buttons to work in serverchannelsidebar 
-    - [x] voice display
-- [ ] create that green border hover when voice is activated
+    - [ ] Can't see other user's voice indicators like video, audio, and mic indicators
+    - [ ] fix not active on user screens and correct the amount of people in voice room, when clicking on server, should get users in voice channels
+    - [x] Get voiceChanneldisplay working properly
+        - [x] get all buttons to work in serverchannelsidebar 
+        - [x] voice display
+    - [ ] create that green border hover when voice is activated
+---
 
 ### haven't done yet:
+- [ ] typing real time indicator works but not read receipts just yet. Both could use a tune up, do later, extra  
 - [ ]  right click menu 
 - [ ]  Notifications from server or users on new message
 - [ ]  users online status
@@ -60,8 +70,9 @@ to see it.
 - [ ]  mobile mode (eh)
 - [ ]  group message for private chats
 - [ ]  discord loading page
+---
 
-
+Test accounts:
 test users:
     -   test1@test1.com
         test1
@@ -76,6 +87,7 @@ test users:
         test3
 
 
+EXTRA:
 default profile pfp from : https://better-default-discord.netlify.app/
 
 tenor docs: https://developers.google.com/tenor/guides/endpoints

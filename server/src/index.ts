@@ -74,7 +74,9 @@ io.on("connection", (socket) => {
   });
 
   socket.on("server_message", (messageData) => {
+    // console.log("server message data: ", messageData);
     if (messageData.channelId) {
+      // console.log("server message recieved");
       io.to(`channel-${messageData.channelId}`).emit(
         "server_message",
         messageData
@@ -107,7 +109,7 @@ io.on("connection", (socket) => {
     const userSession = activeUsers.get(socket.id);
     if (userSession) {
       const { roomId, userId } = userSession;
-      console.log(`User ${userId} left room voice ${roomId}`);
+      // console.log(`[DEBUG]User ${userId} left room voice ${roomId}`);
 
       // Notify others in the room
       socket.to(roomId).emit("peer_left", {
@@ -123,7 +125,7 @@ io.on("connection", (socket) => {
   socket.on("join_room", (roomId, streamId) => {
     const userId = socket.handshake.query.userId;
     if (activeRooms.has(userId)) return;
-    console.log("user has joined room");
+    // console.log("[DEBUG] user has joined room");
     if (!userId) {
       console.error("User tried to join room without userId");
       return;
@@ -131,11 +133,11 @@ io.on("connection", (socket) => {
 
     activeRooms.set(socket.id, { roomId, userId, streamId });
     // activeRooms.set(userId, { roomId, userId, streamId });
-    console.log("activeRooms: ", activeRooms);
+    // console.log("[DEBUG] activeRooms: ", activeRooms);
 
     const room = io.sockets.adapter.rooms.get(roomId) || new Set();
     socket.join(roomId);
-    console.log(`User ${userId} joined room voice ${roomId}`);
+    // console.log(`[DEBUG] User ${userId} joined room voice ${roomId}`);
 
     socket.to(roomId).emit("user_joined", { socketId: socket.id, userId });
   });
@@ -170,11 +172,11 @@ io.on("connection", (socket) => {
   // });
   socket.on("leave_room", (roomId, socketId) => {
     const userSession = activeRooms.get(socketId);
-    console.log("are we receiving this? ", userSession);
+    // console.log("[DEBUG] are we receiving this? ", userSession);
     if (userSession) {
       const { userId, streamId } = userSession;
       socket.leave(roomId);
-      console.log(`User ${userId} left room voice ${roomId}`);
+      // console.log(`[DEBUG] User ${userId} left room voice ${roomId}`);
 
       socket.to(roomId).emit("peer_left", {
         socketId: socket.id,
@@ -183,13 +185,13 @@ io.on("connection", (socket) => {
       });
 
       activeRooms.delete(socketId);
-      console.log("activeRooms after delete: ", activeRooms);
+      // console.log("[DEBUG] activeRooms after delete: ", activeRooms);
     } else {
       console.warn(`No session found for socket ID: ${socket.id}`);
     }
 
     if (activeRooms.size === 0) {
-      console.log("activeRooms is empty");
+      // console.log("[DEBUG] activeRooms is empty");
       activeRooms.clear();
     }
   });

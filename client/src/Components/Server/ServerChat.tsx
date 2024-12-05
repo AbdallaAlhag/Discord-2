@@ -6,6 +6,7 @@ import {
   ImagePlay,
   ImagePlus,
   Smile,
+  Currency,
 } from "lucide-react";
 import { useEffect, useState, useRef, useCallback } from "react";
 import { useSocket } from "./useSocket";
@@ -16,6 +17,7 @@ import { GifPicker } from "../TenorComponent/Components/GifPicker";
 import { MediaData, MediaType } from "../TenorComponent/Types/tenor";
 
 interface Message {
+  userId: number;
   user: { username: string; avatarUrl: string };
   id: number;
   content: string;
@@ -100,13 +102,29 @@ const ServerChat: React.FC<ChatProps> = ({ channelId, serverId }) => {
 
   // Handle real-time messages
   useEffect(() => {
-    if (!socket) return;
+    if (!socket) {
+      console.error("Socket not initialized");
+      return;
+    }
+
+    // Wait for the socket to connect
+    if (!socket.connected) {
+      socket.once("connect", () => {
+        console.log("Socket is now connected:", socket.connected);
+      });
+    }
+    console.log("is socket connected?", socket.connected);
+
+    // console.log('socket is live and this is working')
 
     const handleServerMessage = (msg: Message) => {
-      if (msg.senderId !== userId) {
+      if (msg.userId !== userId) {
         setMessages((prevMessages) => [...prevMessages, msg]);
-        scrollToBottom();
       }
+      setTimeout(() => {
+        // Your scrolling logic here
+        scrollToBottom();
+      }, 0);
     };
 
     const handleError = (error: string) => {
@@ -118,8 +136,8 @@ const ServerChat: React.FC<ChatProps> = ({ channelId, serverId }) => {
     socket.on("error", handleError);
 
     return () => {
-      socket.off("server_message");
-      socket.off("error");
+      socket.off("server_message", handleServerMessage);
+      socket.off("error", handleError);
     };
   }, [socket, userId]);
 
@@ -150,10 +168,10 @@ const ServerChat: React.FC<ChatProps> = ({ channelId, serverId }) => {
 
       // Emit message through socket for real-time delivery
       socket.emit("server_message", response.data);
-      console.log("response data: ", response.data);
+      // console.log("response data: ", response.data);
       // Update local state to show message immediately
       setMessages((prev) => [...prev, response.data]);
-      console.log("overall messages: ", messages);
+      // console.log("overall messages: ", messages);
       setNewMessage("");
       scrollToBottom();
     } catch (err) {
@@ -260,14 +278,17 @@ const ServerChat: React.FC<ChatProps> = ({ channelId, serverId }) => {
                 : null;
 
             const isDifferentDay =
-              !prevMsg ||
-              new Date(prevMsg.createdAt).toDateString() !==
+              !nextMsg ||
+              new Date(nextMsg.createdAt).toDateString() !==
                 new Date(msg.createdAt).toDateString();
 
+            console.log("nextmsg: ", nextMsg);
+            console.log("currentmsg: ", msg);
+            console.log("prevmsg: ", prevMsg);
             const timeInterval =
-              prevMsg &&
+            nextMsg &&
               Math.abs(
-                new Date(prevMsg.createdAt).getTime() -
+                new Date(nextMsg.createdAt).getTime() -
                   new Date(msg.createdAt).getTime()
               ) >
                 5 * 60 * 1000;
@@ -275,7 +296,7 @@ const ServerChat: React.FC<ChatProps> = ({ channelId, serverId }) => {
             const isNewGroup =
               !nextMsg ||
               nextMsg.user?.username !== msg.user?.username ||
-              timeInterval ||
+              (timeInterval && !isDifferentDay) ||
               isDifferentDay;
 
             const isLastInGroup =

@@ -440,6 +440,7 @@ const PrivateChat: React.FC<ChatProps> = ({ friendId }) => {
             const nextMsg = index < messages.length - 1 && messages[index + 1];
 
             // console.log("prevMsg: ", prevMsg);
+            // console.log("current msg: ", msg);
             const isDifferentDay =
               (prevMsg &&
                 new Date(prevMsg.createdAt).toDateString() !==
