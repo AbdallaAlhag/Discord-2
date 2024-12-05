@@ -4,7 +4,7 @@ import { useParams } from "react-router-dom";
 import { ServerSidebar, ChannelSidebar, MemberList } from "../Components";
 import ServerChat from "../Components/Server/ServerChat";
 import VoiceChannelDisplay from "../WebRTC/VoiceChannelDisplay";
-import { useEffect, useRef, useState } from "react";
+import { SetStateAction, useEffect, useRef, useState } from "react";
 import { io, Socket } from "socket.io-client";
 import { useAuth } from "../AuthContext";
 import ChannelWebRTC from "../WebRTC/ChannelWebRTC";
@@ -21,6 +21,13 @@ function ServerPage() {
   const [socket, setSocket] = useState<Socket>({} as Socket);
   const { userId } = useAuth();
   const refVoiceChannelDisplay = useRef<HTMLDivElement>(null);
+  const [voiceChannelId, setVoiceChannelId] = useState<number | null>(null);
+
+  const handleVoiceChannelSelect = (
+    channelId: SetStateAction<number | null>
+  ) => {
+    setVoiceChannelId(channelId);
+  };
 
   const toggleFullScreen = () => {
     console.log("Attemping to go fullscreen");
@@ -44,8 +51,6 @@ function ServerPage() {
       }
     }
   };
-
-
 
   // Add this to your ServerPage component to handle the socket connection
   useEffect(() => {
@@ -75,7 +80,7 @@ function ServerPage() {
     <div className="flex h-screen">
       <WebRTCProvider
         socket={socket}
-        channelId={Number(channelId)}
+        channelId={voiceChannelId}
         userId={userId}
         type="video"
       >
@@ -87,6 +92,7 @@ function ServerPage() {
             setIsVoiceChannelDisplay={setIsVoiceChannelDisplay}
             ChannelWebRTC={ChannelWebRTC}
             socket={socket}
+            handleVoiceChannelSelect={handleVoiceChannelSelect}
           />
         )}
         {serverId && channelId && (

@@ -1,7 +1,7 @@
 import { Hash, Plus, Settings, Volume2 } from "lucide-react";
 import SettingsButton from "../Profile/SettingsButton";
 import LogoutButton from "../Profile/LogoutButton";
-import { useEffect, useState } from "react";
+import { SetStateAction, useEffect, useState } from "react";
 import axios from "axios";
 import ChannelModal from "../PopupModals/CreateChannelModal";
 import InviteModal from "../InviteModal/InviteModal"; // Import InviteModal
@@ -18,7 +18,7 @@ import {
   AudioLines,
   PhoneOff,
   Signal,
-  VolumeOff,
+  // Dot,
   VideoOff,
   Video,
   ScreenShare,
@@ -68,12 +68,14 @@ const ChannelSidebar: React.FC<{
   setIsVoiceChannelDisplay: React.Dispatch<React.SetStateAction<boolean>>;
   ChannelWebRTC: React.FC;
   socket: Socket;
+  handleVoiceChannelSelect: (channelId: SetStateAction<number | null>) => void;
 }> = ({
   serverId,
   channelId,
   setIsVoiceChannelDisplay,
   ChannelWebRTC,
   socket,
+  handleVoiceChannelSelect,
 }) => {
   const [channelInfo, setChannelInfo] = useState<ChannelInfo>([]);
   const [serverName, setServerName] = useState("");
@@ -290,6 +292,8 @@ const ChannelSidebar: React.FC<{
                     setIsVoiceChannelDisplay(true);
                     closePictureInPicture();
                   }
+                  // send channelId up to server page to use as webrtc channel id
+                  handleVoiceChannelSelect(channel.id);
                 }}
               >
                 <div className="flex flex-col w-full items-start ">
@@ -341,7 +345,7 @@ const ChannelSidebar: React.FC<{
           </div>
 
           {/* Additional Controls Panel */}
-          <div className=" w-full h-14 bg-[#232428] shadow-lg p-2 flex justify-center gap-1">
+          <div className=" w-full h-14 bg-[#232428] shadow-lg p-2 flex justify-start gap-1">
             <button
               className={`p-2 px-4 text-[white] rounded-md transition-colors ${
                 isVideoOff ? "bg-[#383a40]" : "bg-[#23a55a]"
@@ -369,12 +373,12 @@ const ChannelSidebar: React.FC<{
             <button className="p-2 px-4 text-[white] bg-[#383a40] rounded-md transition-colors">
               <ScreenShare size={20} />
             </button>
-            <button className="p-2 px-4 text-[white] bg-[#383a40] rounded-md transition-colors">
-              <VolumeOff size={20} />
+            {/* <button className="p-2 px-4 text-[white] bg-[#383a40] rounded-md transition-colors">
+              <Dot size={20} />
             </button>
             <button className="p-2 px-4 text-[white] bg-[#383a40] rounded-md transition-colors">
-              <Volume2 size={20} />
-            </button>
+              <Dot size={20} />
+            </button> */}
           </div>
         </div>
       )}
@@ -409,7 +413,7 @@ const ChannelSidebar: React.FC<{
         /> */}
         {!isDeafened ? (
           <Headphones
-            size={25}
+            size={30}
             className="p-1 hover:bg-[#383a40]  cursor-pointer rounded-sm "
             style={{ color: "#959ba7" }}
             onClick={() => {
@@ -419,7 +423,7 @@ const ChannelSidebar: React.FC<{
           />
         ) : (
           <HeadphoneOff
-            size={25}
+            size={30}
             className="p-1 hover:bg-[#383a40]  cursor-pointer rounded-sm "
             style={{ color: "#f23f43" }}
             onClick={() => {

@@ -3,7 +3,7 @@ import { Socket } from "socket.io-client";
 
 interface UseWebRTCProps {
   socket: Socket | null;
-  channelId: string | number;
+  channelId: null | number;
   userId: number | null;
 }
 
@@ -149,6 +149,7 @@ export const useWebRTC = ({ socket, channelId, userId }: UseWebRTCProps) => {
       peerConnectionsRef.current[socketId] = peerConnection;
       return peerConnection;
     },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     [localStream, socket]
   );
 

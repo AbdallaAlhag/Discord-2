@@ -42,7 +42,7 @@ to see it.
 
 - [ ] pause execution on webrtc development at the moment
     - [ ] fix not active on user screens and correct the amount of people in voice room
-- [ ] Get voiceChanneldisplay working properly
+- [x] Get voiceChanneldisplay working properly
     - [x] get all buttons to work in serverchannelsidebar 
     - [x] voice display
 - [ ] create that green border hover when voice is activated
@@ -82,3 +82,10 @@ tenor docs: https://developers.google.com/tenor/guides/endpoints
 
     
 old run command based on ts-node and not ts-node-dev: // "dev": "ts-node src/index.ts ",
+
+webrtc guides: 
+https://codelabs.developers.google.com/codelabs/webrtc-web#0
+https://www.youtube.com/watch?v=GdYVTWujYD8
+https://www.youtube.com/watch?v=g42yNO_dxWQ
+https://millo-l.github.io/Implementing-WebRTC-using-ReactJS-and-Typescript-1-N-P2P/#github
+
