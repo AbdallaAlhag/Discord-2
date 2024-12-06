@@ -69,7 +69,8 @@ const handleServerChannelsInfo = async (
     // console.log("Server channels:", serverChannels);
     return res.status(201).json(serverChannels); // Ensure a response is always returned
   } catch (error) {
-    return res.status(500).json({ error: "Failed to create server" });
+    console.error("Error getting server info", error);
+    return res.status(500).json({ error: "Failed to get server info" });
   }
 };
 

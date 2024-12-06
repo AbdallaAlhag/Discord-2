@@ -116,26 +116,7 @@ const ChannelSidebar: React.FC<{
     }
   };
 
-  // const [socket, setSocket] = useState<Socket>({} as Socket);
-  // useEffect(() => {
-  //   // Ensure you have the user's authentication token
-  //   // Create socket connection
-  //   const newSocket = io(`${VITE_API_BASE_URL}`, {
-  //     query: { userId },
-  //     transports: ["websocket"],
-  //     autoConnect: true,
-  //   });
-
-  //   // Set up socket connection
-  //   setSocket(newSocket);
-
-  //   // Clean up socket on component unmount
-  //   return () => {
-  //     if (newSocket) {
-  //       newSocket.disconnect();
-  //     }
-  //   };
-  // }, [userId]); // Empty dependency array means this runs once on mount
+  
   const handleCreateChannel = async (data: {
     name: string;
     type: "text" | "voice";

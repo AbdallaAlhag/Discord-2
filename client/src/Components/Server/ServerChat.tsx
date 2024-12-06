@@ -112,7 +112,7 @@ const ServerChat: React.FC<ChatProps> = ({ channelId, serverId }) => {
         console.log("Socket is now connected:", socket.connected);
       });
     }
-    console.log("is socket connected?", socket.connected);
+    // console.log("is socket connected?", socket.connected);
 
     // console.log('socket is live and this is working')
 
@@ -281,9 +281,9 @@ const ServerChat: React.FC<ChatProps> = ({ channelId, serverId }) => {
               new Date(nextMsg.createdAt).toDateString() !==
                 new Date(msg.createdAt).toDateString();
 
-            console.log("nextmsg: ", nextMsg);
-            console.log("currentmsg: ", msg);
-            console.log("prevmsg: ", prevMsg);
+            // console.log("nextmsg: ", nextMsg);
+            // console.log("currentmsg: ", msg);
+            // console.log("prevmsg: ", prevMsg);
             const timeInterval =
               nextMsg &&
               Math.abs(

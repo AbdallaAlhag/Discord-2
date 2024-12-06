@@ -53,7 +53,9 @@ const getServerChannelsInfo = async (serverId: number) => {
           createdAt: "asc",
         },
       },
+      members: true,
     },
+
   });
 };
 

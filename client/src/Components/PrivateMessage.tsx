@@ -22,7 +22,7 @@ interface Message {
   recipientUsername?: string;
   type?: "text" | "invite";
 }
-interface MessageBubbleProps {
+interface PrivateMessageProps {
   message: Message;
   isOwn: boolean;
   prevMessage: Message | false;
@@ -30,7 +30,7 @@ interface MessageBubbleProps {
   similarNextMsg: boolean;
 }
 
-const MessageBubble: React.FC<MessageBubbleProps> = ({
+const PrivateMessage: React.FC<PrivateMessageProps> = ({
   message,
   prevMessage,
   differentDay,
@@ -181,4 +181,4 @@ const MessageBubble: React.FC<MessageBubbleProps> = ({
     </div>
   );
 };
-export default MessageBubble;
+export default PrivateMessage;

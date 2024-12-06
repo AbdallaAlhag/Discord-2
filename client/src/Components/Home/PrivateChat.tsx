@@ -12,7 +12,7 @@ import { useEffect, useState, useRef, useCallback } from "react";
 import { io, Socket } from "socket.io-client";
 import { useAuth } from "../../AuthContext";
 import axios from "axios";
-import MessageBubble from "../MessageBubble";
+import PrivateMessage from "../PrivateMessage";
 import TypingIndicator from "../TypingIndicator";
 import React from "react";
 import { GifPicker } from "../TenorComponent/Components/GifPicker";
@@ -429,7 +429,7 @@ const PrivateChat: React.FC<ChatProps> = ({ friendId }) => {
           <div className="text-center text-[#b9bbbe]">No messages yet</div>
         ) : (
           // messages.map((msg) => (
-          //   <MessageBubble
+          //   <PrivateMessage
           //     key={msg.id || msg.id}
           //     message={msg}
           //     isOwn={msg.senderId === userId}
@@ -466,7 +466,7 @@ const PrivateChat: React.FC<ChatProps> = ({ friendId }) => {
                     <hr className="w-full border-t border-[#3f4147]" />
                   </div>
                 )}
-                <MessageBubble
+                <PrivateMessage
                   message={msg}
                   isOwn={msg.senderId === userId}
                   prevMessage={prevMsg}

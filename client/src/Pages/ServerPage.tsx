@@ -112,7 +112,7 @@ function ServerPage() {
             ) : (
               <>
                 <ServerChat serverId={serverId} channelId={channelId} />
-                <MemberList />
+                <MemberList serverId={serverId} />
               </>
             )}
           </>
