@@ -17,9 +17,10 @@ do this near the end:
 
 
 
-- [ ] create server active: 
+- [x] create server active: 
     - [x] got hover to work 
-    - [ ] but not active
+    - [x] but not active
+- [ ] Don't like how server channels on sidebar reload but its okay
 - [x] invite sending and both are embedded but link embeds after refresh.
 - [ ] change invite if already joined
     - [ ] invite code is pretty useless, don't know how to do anything with it.

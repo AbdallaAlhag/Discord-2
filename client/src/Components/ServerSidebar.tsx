@@ -7,6 +7,8 @@ import { useAuth } from "../AuthContext";
 import { Link } from "react-router-dom";
 import { Tooltip } from "react-tooltip";
 import "react-tooltip/dist/react-tooltip.css"; // Import required CSS
+import { cn } from "@/lib/utils";
+import { useParams } from "react-router-dom";
 
 interface Server {
   channels: { id: number; name: string; iconUrl: string; createdAt: Date }[];
@@ -16,16 +18,24 @@ interface Server {
   createdAt: Date;
 }
 const ServerSidebar: React.FC = () => {
-  const [server, setServer] = useState([]);
+  // const [server, setServer] = useState([]);
+  const [server, setServer] = useState<Server[]>([]);
+
+  const [openServer, setOpenServer] = useState<number | null>(null);
   const { userId } = useAuth();
   const API_URL = import.meta.env.VITE_API_BASE_URL;
+  const params = useParams();
+  console.log("Route Params:", params);
 
   useEffect(() => {
     const fetchServers = async () => {
       if (userId) {
         try {
           const response = await axios.get(`${API_URL}/servers/${userId}`);
-          setServer(response.data.servers);
+          if (response.data.servers !== server) {
+            setServer(response.data.servers);
+          }
+          // setServer(response.data.servers);
           console.log("servers: ", response.data.servers);
         } catch (error) {
           console.error("Error fetching servers", error);
@@ -35,11 +45,31 @@ const ServerSidebar: React.FC = () => {
     fetchServers();
   }, [API_URL, userId]);
 
+  useEffect(() => {
+    if (Object.keys(params).length > 0) {
+      setOpenServer(Number(params.serverId));
+    } else {
+      setOpenServer(null);
+    }
+    console.log("UPdated params openServer: ", openServer);
+  }, [server, openServer, params]);
+
+  console.log("Open Server: ", openServer);
   return (
     <div className="w-[72px] bg-[#202225] flex flex-col items-center py-3 space-y-2">
       <div className="group relative">
         <div className="relative">
-          <div className="absolute -left-3 top-1/2 -translate-y-1/2 h-5 w-1 bg-white rounded-r transition-all duration-200 opacity-0 group-hover:h-10 group-hover:opacity-100 group-active:h-full" />
+          <div
+            className={cn(
+              "absolute -left-3 top-1/2 -translate-y-1/2 transition-all duration-200",
+              {
+                "opacity-100 h-10": openServer === null, // Active state styles
+                "group-hover:h-5 group-hover:opacity-100 h-5 opacity-0":
+                  openServer !== null, // Hover-only styles when not active
+              },
+              "w-1 bg-white rounded-r"
+            )}
+          />
           <Link to="/">
             <div
               className="w-12 h-12 bg-[#36393f] rounded-[24px] hover:rounded-[16px] transition-all duration-200 flex items-center justify-center cursor-pointer"
@@ -68,16 +98,27 @@ const ServerSidebar: React.FC = () => {
           <div key={serv.id}>
             <div className="group relative">
               <div className="relative">
-                <div className="absolute -left-3 top-1/2 -translate-y-1/2 group-hover:h-10 h-5 w-1 bg-white rounded-r transition-all duration-200 opacity-0 group-hover:opacity-100" />
-                <Link
-                  key={serv.id}
-                  to={`/server/${serv.id}/${serv.channels[0].id}`}
-                  className="w-12 h-12 bg-[#36393f] rounded-[24px] hover:rounded-[16px] transition-all duration-200 flex items-center justify-center cursor-pointer "
-                  data-tooltip-id={`tooltip-${serv.id}`} // Link element to tooltip
-                  data-tooltip-content={serv.name} // Tooltip content dynamically
-                >
-                  <div className="w-6 h-6 text-[#dcddde] text-center">
-                    {serv.name.charAt(0).toUpperCase()}
+                <div
+                  className={cn(
+                    "absolute -left-3 top-1/2 -translate-y-1/2 transition-all duration-200",
+                    {
+                      "opacity-100 h-10": openServer === serv.id, // Active state styles
+                      "group-hover:h-5 group-hover:opacity-100 h-5 opacity-0":
+                        openServer !== serv.id, // Hover-only styles when not active
+                    },
+                    "w-1 bg-white rounded-r"
+                  )}
+                />
+                <Link to={`/server/${serv.id}/${serv.channels[0].id}`}>
+                  <div
+                    key={serv.id}
+                    className="w-12 h-12 bg-[#36393f] rounded-[24px] hover:rounded-[16px] transition-all duration-200 flex items-center justify-center cursor-pointer "
+                    data-tooltip-id={`tooltip-${serv.id}`} // Link element to tooltip
+                    data-tooltip-content={serv.name} // Tooltip content dynamically
+                  >
+                    <div className="w-6 h-6 text-[#dcddde] text-center">
+                      {serv.name.charAt(0).toUpperCase()}
+                    </div>
                   </div>
                 </Link>
                 <Tooltip
@@ -96,7 +137,7 @@ const ServerSidebar: React.FC = () => {
         ))}
       <div className="group relative">
         <div className="relative">
-          <div className="absolute -left-3 top-1/2 -translate-y-1/2 group-hover:h-10 h-5 w-1 bg-white rounded-r transition-all duration-200 opacity-0 group-hover:opacity-100" />
+          <div className="absolute -left-3 top-1/2 -translate-y-1/2 group-hover:h-5 h-5 w-1 bg-white rounded-r transition-all duration-200 opacity-0 group-hover:opacity-100" />
           <div
             className="w-12 h-12 bg-[#36393f] rounded-[24px] hover:rounded-[16px] transition-all duration-200 flex items-center justify-center cursor-pointer"
             data-tooltip-id={`tooltip-create`} // Link element to tooltip
@@ -119,7 +160,7 @@ const ServerSidebar: React.FC = () => {
       <div className="w-12 h-[2px] bg-[#36393f] rounded-full" />
       <div className="group relative">
         <div className="relative">
-          <div className="absolute -left-3 top-1/2 -translate-y-1/2 group-hover:h-10 h-5 w-1 bg-white rounded-r transition-all duration-200 opacity-0 group-hover:opacity-100" />
+          <div className="absolute -left-3 top-1/2 -translate-y-1/2 group-hover:h-5 h-5 w-1 bg-white rounded-r transition-all duration-200 opacity-0 group-hover:opacity-100" />
           <div
             className="w-12 h-12 bg-[#36393f] rounded-[24px] hover:rounded-[16px] transition-all duration-200 flex items-center justify-center cursor-pointer"
             data-tooltip-id={`tooltip-download`} // Link element to tooltip
