@@ -127,10 +127,13 @@ const MessageBubble: React.FC<MessageBubbleProps> = ({
     }
     return null;
   };
-
+  const formattedTime = new Intl.DateTimeFormat("en-US", {
+    hour: "2-digit",
+    minute: "2-digit",
+  }).format(new Date(message.createdAt));
   return (
     <div
-      className={`flex items-center px-4 w-full hover:bg-[#42464D] ${
+      className={`group flex items-center px-4 w-full hover:bg-[#42464D] ${
         newLine && !similarNextMsg ? "mb-2" : "mb-0"
       }`}
     >
@@ -142,7 +145,10 @@ const MessageBubble: React.FC<MessageBubbleProps> = ({
           className="w-10 h-10 rounded-full mr-4"
         />
       ) : (
-        <div className="w-10 h-0 mr-4"></div>
+        // <div className="w-10 h-0 mr-4"></div>
+        <span className=" pr-2 text-xs text-[#b9bbbe] opacity-0 group-hover:opacity-100 transition-opacity">
+          {formattedTime}
+        </span>
       )}
 
       <div className="flex flex-col">

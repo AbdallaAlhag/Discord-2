@@ -26,9 +26,12 @@ do this near the end:
     - [ ] fix links embeds after refresh 
 - [ ] work on server menu
     - [ ] Complete the rest of the server menu later
+    - [ ] create delete channel 
 - [ ] work on chat:
-    - [ ] make the chat look like discord: add time hover over message to show time
-    - [ ] server chat still little bugged but kinda annoying to fix 
+    - [x] make the chat look like discord: add time hover over message to show time
+    - [x] server chat still little bugged but kinda annoying to fix 
+        - [x] message don't send twice and update chat dates correctly
+    - [x] fix chat date display if new day
 - [ ] register page background is pretty slow sometimes
 ---
 - [x] Work on gif picker, make it a modal and work on opening and closing it. 
@@ -42,9 +45,9 @@ do this near the end:
 
 - [ ] work  on real time issues: 
     - [ ] Adding friend is not real time but i think that's okay, we can fix it later, not a priority 
-    - [ ] Create channel is not real time, just needs a refresh
+    - [x] Create channel is not real time, just needs a refresh
     to see it.
-    - [ ] server chat is not real time?
+    - [x] Fix: server chat is not real time?
 ---
 
 - [ ] pause execution on webrtc development at the moment

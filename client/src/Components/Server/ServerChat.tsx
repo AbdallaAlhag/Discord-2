@@ -6,7 +6,6 @@ import {
   ImagePlay,
   ImagePlus,
   Smile,
-  Currency,
 } from "lucide-react";
 import { useEffect, useState, useRef, useCallback } from "react";
 import { useSocket } from "./useSocket";
@@ -286,7 +285,7 @@ const ServerChat: React.FC<ChatProps> = ({ channelId, serverId }) => {
             console.log("currentmsg: ", msg);
             console.log("prevmsg: ", prevMsg);
             const timeInterval =
-            nextMsg &&
+              nextMsg &&
               Math.abs(
                 new Date(nextMsg.createdAt).getTime() -
                   new Date(msg.createdAt).getTime()
@@ -302,10 +301,14 @@ const ServerChat: React.FC<ChatProps> = ({ channelId, serverId }) => {
             const isLastInGroup =
               !prevMsg || prevMsg.user?.username !== msg.user?.username;
 
+            const formattedTime = new Intl.DateTimeFormat("en-US", {
+              hour: "2-digit",
+              minute: "2-digit",
+            }).format(new Date(msg.createdAt));
             return (
               <React.Fragment key={msg.id}>
                 <div
-                  className={`flex items-center px-4 w-full hover:bg-[#42464D] ${
+                  className={`group flex items-center px-4 w-full hover:bg-[#42464D] ${
                     isLastInGroup ? "mb-4" : "mb-0.5"
                   }`}
                 >
@@ -316,7 +319,15 @@ const ServerChat: React.FC<ChatProps> = ({ channelId, serverId }) => {
                       className="w-10 h-10 rounded-full mr-4"
                     />
                   ) : (
-                    <div className="w-10 h-0 mr-4"></div>
+                    // <div
+                    //   className="w-10 h-1 mr-4 relative group-hover:visible invisible"
+                    // >
+                    //   {formattedTime}
+                    // </div>
+                    <span className=" pr-2 text-xs text-[#b9bbbe] opacity-0 group-hover:opacity-100 transition-opacity">
+                      {formattedTime}
+                    </span>
+                    // <div className="w-10 h-0 mr-4"></div>
                   )}
                   <div>
                     {isNewGroup && (
