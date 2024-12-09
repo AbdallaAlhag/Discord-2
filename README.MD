@@ -71,10 +71,11 @@ do this near the end:
     - [ ] active now -> let's keep this as is
     - [x] memberLists
 - [ ] Update tooltips for buttons 
-    - [ ] channel sidebar buttons
-    - [ ] private message sidebar buttons   
-    - [ ] channelwebrtc buttons
-    - [ ] voiceChanneldisplay buttons
+    - [x] channel sidebar buttons
+    - [x] private message sidebar buttons   
+    - [x] channelwebrtc icons
+    - [x] private server voice channel modal
+    - [x] voiceChanneldisplay buttons
 ---
 ### haven't done yet:
 - [ ] typing real time indicator works but not read receipts just yet. Both could use a tune up, do later, extra  
@@ -92,6 +93,7 @@ do this near the end:
 - [ ]  discord loading page
 - [ ] Probably work on a global online indicator later
 - [ ] accept files and images/vids/gifs ? maybe add a file uploader? lol 
+- [ ] Preview video modal when turning on camera
 ---
 
 Test accounts:

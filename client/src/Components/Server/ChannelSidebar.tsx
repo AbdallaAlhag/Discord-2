@@ -25,7 +25,8 @@ import {
   Headphones,
   HeadphoneOff,
 } from "lucide-react";
-
+import { Tooltip } from "react-tooltip";
+import "react-tooltip/dist/react-tooltip.css"; // Import required CSS
 import { useWebRTCContext } from "../../WebRTC/useWebRTCContext";
 
 interface onlineUsers {
@@ -116,7 +117,6 @@ const ChannelSidebar: React.FC<{
     }
   };
 
-  
   const handleCreateChannel = async (data: {
     name: string;
     type: "text" | "voice";
@@ -309,10 +309,29 @@ const ChannelSidebar: React.FC<{
               </div>
             </div>
             {/* Control Icons */}
-            <button className="p-2 text-[#b9bbbe] hover:bg-[#383a40] rounded-md transition-colors">
+            <button
+              className="p-2 text-[#b9bbbe] hover:bg-[#383a40] rounded-md transition-colors"
+              data-tooltip-id={`tooltip-noise-suppression`}
+              data-tooltip-content={"Noise Suppression Powered By Nothing lol"}
+            >
               <AudioLines size={20} />
+              <Tooltip
+                id="tooltip-noise-suppression"
+                place="top"
+                className="z-10 "
+                style={{
+                  backgroundColor: "black",
+                  color: "white",
+                  fontSize: "12px",
+                  fontWeight: "bold",
+                }}
+              />
             </button>
-            <button className="p-2 text-[#b9bbbe] hover:bg-[#383a40] rounded-md transition-colors">
+            <button
+              className="p-2 text-[#b9bbbe] hover:bg-[#383a40] rounded-md transition-colors"
+              data-tooltip-id={`tooltip-disconnect`}
+              data-tooltip-content={"Disconnect"}
+            >
               <PhoneOff
                 size={20}
                 onClick={() => {
@@ -320,6 +339,17 @@ const ChannelSidebar: React.FC<{
                   setIsVoiceModalOpen(false);
                   setIsVoiceChannelDisplay(false);
                   disInitializeMedia();
+                }}
+              />
+              <Tooltip
+                id="tooltip-disconnect"
+                place="top"
+                className="z-10 "
+                style={{
+                  backgroundColor: "black",
+                  color: "white",
+                  fontSize: "12px",
+                  fontWeight: "bold",
                 }}
               />
             </button>
@@ -333,26 +363,71 @@ const ChannelSidebar: React.FC<{
               }`}
             >
               {isVideoOff ? (
-                <VideoOff
-                  size={20}
-                  onClick={() => {
-                    toggleVideo();
-                    setIsVideoOff(!isVideoOff);
-                  }}
-                />
+                <>
+                  <VideoOff
+                    size={20}
+                    onClick={() => {
+                      toggleVideo();
+                      setIsVideoOff(!isVideoOff);
+                    }}
+                    data-tooltip-id={`tooltip-video-off`}
+                    data-tooltip-content={"Turn On Camera"}
+                  />
+                  <Tooltip
+                    id="tooltip-video-off"
+                    place="top"
+                    className="z-10 "
+                    style={{
+                      backgroundColor: "black",
+                      color: "white",
+                      fontSize: "12px",
+                      fontWeight: "bold",
+                    }}
+                  />
+                </>
               ) : (
-                <Video
-                  size={20}
-                  style={{ background: "#23a55a" }}
-                  onClick={() => {
-                    toggleVideo();
-                    setIsVideoOff(!isVideoOff);
-                  }}
-                />
+                <>
+                  <Video
+                    size={20}
+                    style={{ background: "#23a55a" }}
+                    onClick={() => {
+                      toggleVideo();
+                      setIsVideoOff(!isVideoOff);
+                    }}
+                    data-tooltip-id={`tooltip-video-on`}
+                    data-tooltip-content={"Turn Off Camera"}
+                  />
+                  <Tooltip
+                    id="tooltip-video-on"
+                    place="top"
+                    className="z-10 "
+                    style={{
+                      backgroundColor: "black",
+                      color: "white",
+                      fontSize: "12px",
+                      fontWeight: "bold",
+                    }}
+                  />
+                </>
               )}
             </button>
-            <button className="p-2 px-4 text-[white] bg-[#383a40] rounded-md transition-colors">
+            <button
+              className="p-2 px-4 text-[white] bg-[#383a40] rounded-md transition-colors"
+              data-tooltip-id={`tooltip-share-screen`}
+              data-tooltip-content={"Share Your Screen"}
+            >
               <ScreenShare size={20} />
+              <Tooltip
+                id="tooltip-share-screen"
+                place="top"
+                className="z-10 "
+                style={{
+                  backgroundColor: "black",
+                  color: "white",
+                  fontSize: "12px",
+                  fontWeight: "bold",
+                }}
+              />
             </button>
             {/* <button className="p-2 px-4 text-[white] bg-[#383a40] rounded-md transition-colors">
               <Dot size={20} />
@@ -385,6 +460,21 @@ const ChannelSidebar: React.FC<{
             toggleMute();
             setIsMuted(!isMuted);
           }}
+          data-tooltip-id={`tooltip-mic`}
+          data-tooltip-content={
+            isMuted ? "Turn on Microphone" : "Turn off microphone"
+          }
+        />
+        <Tooltip
+          id="tooltip-mic"
+          place="top"
+          className="z-10 "
+          style={{
+            backgroundColor: "black",
+            color: "white",
+            fontSize: "12px",
+            fontWeight: "bold",
+          }}
         />
         {/* <FontAwesomeIcon
           icon={faHeadphones}
@@ -393,29 +483,90 @@ const ChannelSidebar: React.FC<{
           style={{ color: "#959ba7" }}
         /> */}
         {!isDeafened ? (
-          <Headphones
-            size={30}
-            className="p-1 hover:bg-[#383a40]  cursor-pointer rounded-sm "
-            style={{ color: "#959ba7" }}
-            onClick={() => {
-              toggleDeafen();
-              setIsDeafened(!isDeafened);
-            }}
-          />
+          <>
+            <Headphones
+              size={30}
+              className="p-1 hover:bg-[#383a40]  cursor-pointer rounded-sm "
+              style={{ color: "#959ba7" }}
+              onClick={() => {
+                toggleDeafen();
+                setIsDeafened(!isDeafened);
+              }}
+              data-tooltip-id={`tooltip-headphones`}
+              data-tooltip-content={"Deafen"}
+            />
+            <Tooltip
+              id="tooltip-headphones"
+              place="top"
+              className="z-10 "
+              style={{
+                backgroundColor: "black",
+                color: "white",
+                fontSize: "12px",
+                fontWeight: "bold",
+              }}
+            />
+          </>
         ) : (
-          <HeadphoneOff
-            size={30}
-            className="p-1 hover:bg-[#383a40]  cursor-pointer rounded-sm "
-            style={{ color: "#f23f43" }}
-            onClick={() => {
-              toggleDeafen();
-              setIsDeafened(!isDeafened);
+          <>
+            <HeadphoneOff
+              size={30}
+              className="p-1 hover:bg-[#383a40]  cursor-pointer rounded-sm "
+              style={{ color: "#f23f43" }}
+              onClick={() => {
+                toggleDeafen();
+                setIsDeafened(!isDeafened);
+              }}
+              data-tooltip-id={`tooltip-headphones`}
+              data-tooltip-content={"Undeafen"}
+            />
+            <Tooltip
+              id="tooltip-headphones"
+              place="top"
+              className="z-10 "
+              style={{
+                backgroundColor: "black",
+                color: "white",
+                fontSize: "12px",
+                fontWeight: "bold",
+              }}
+            />
+          </>
+        )}
+        <div
+          data-tooltip-id={`tooltip-logout`}
+          data-tooltip-content={"Logout?xD"}
+        >
+          <LogoutButton className="p-2 hover:bg-[#383a40] rounded-sm " />
+        </div>
+        <Tooltip
+          id="tooltip-logout"
+          place="top"
+          className="z-10 "
+          style={{
+            backgroundColor: "black",
+            color: "white",
+            fontSize: "12px",
+            fontWeight: "bold",
+          }}
+        />
+        <div
+          className="hover:bg-[#383a40] rounded-sm"
+          data-tooltip-id={`tooltip-settings`}
+          data-tooltip-content={"User Settings"}
+        >
+          <SettingsButton className="hover:animate-spin  p-2 " />
+          <Tooltip
+            id="tooltip-settings"
+            place="top"
+            className="z-10 "
+            style={{
+              backgroundColor: "black",
+              color: "white",
+              fontSize: "12px",
+              fontWeight: "bold",
             }}
           />
-        )}
-        <LogoutButton className="p-2 hover:bg-[#383a40] rounded-sm " />
-        <div className="hover:bg-[#383a40] rounded-sm">
-          <SettingsButton className="hover:animate-spin  p-2 " />
         </div>
       </div>
       {/* Channel Creation Modal */}

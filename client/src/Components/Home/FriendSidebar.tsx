@@ -220,6 +220,7 @@ export default function FriendSidebar({
             color: "white",
             fontSize: "12px",
             fontWeight: "bold",
+            borderRadius: "4px",
           }}
         />
         <FontAwesomeIcon
@@ -239,6 +240,7 @@ export default function FriendSidebar({
             color: "white",
             fontSize: "12px",
             fontWeight: "bold",
+            borderRadius: "4px",
           }}
         />
         <div
@@ -256,6 +258,7 @@ export default function FriendSidebar({
             color: "white",
             fontSize: "12px",
             fontWeight: "bold",
+            borderRadius: "4px",
           }}
         />
         <div
@@ -273,6 +276,7 @@ export default function FriendSidebar({
               color: "white",
               fontSize: "12px",
               fontWeight: "bold",
+              borderRadius: "4px",
             }}
           />
         </div>

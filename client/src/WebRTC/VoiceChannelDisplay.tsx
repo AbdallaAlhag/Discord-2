@@ -18,7 +18,9 @@ import {
 // import { useWebRTC } from "./useWebRTC";
 import { useWebRTCContext } from "./useWebRTCContext";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-
+import { Tooltip } from "react-tooltip";
+import "react-tooltip/dist/react-tooltip.css"; // Import required CSS
+import React from "react";
 // Types
 // interface VoiceChannelDisplayProps {
 //   socket: Socket;
@@ -40,11 +42,26 @@ const Header = () => (
     </div>
     <div className="flex items-center gap-4">
       {[Users, Layout, MoreHorizontal].map((Icon, index) => (
-        <Icon
-          key={index}
-          className="text-[#949ba4] hover:text-white cursor-pointer"
-          size={20}
-        />
+        <React.Fragment key={index}>
+          <Icon
+            className="text-[#949ba4] hover:text-white cursor-pointer"
+            size={20}
+            data-tooltip-id={`tooltip-${index}`} // Unique id for each tooltip
+            data-tooltip-content={`${Icon.displayName || "Icon"}`}
+          />
+          <Tooltip
+            id={`tooltip-${index}`} // Matches the unique id
+            place="top"
+            className="z-10"
+            style={{
+              backgroundColor: "black",
+              color: "white",
+              fontSize: "12px",
+              fontWeight: "bold",
+              borderRadius: "4px",
+            }}
+          />
+        </React.Fragment>
       ))}
     </div>
   </div>
@@ -90,6 +107,9 @@ const Controls: React.FC<ControlButtonProps> = ({
     toggleMute,
     toggleVideo,
   } = useWebRTCContext();
+
+  // data-tooltip-id = ttId
+  // data-tooltip-content = ttContent
   const controlButtons = [
     {
       Icon: !isVideoOff ? Video : VideoOff,
@@ -99,11 +119,15 @@ const Controls: React.FC<ControlButtonProps> = ({
         toggleVideo();
         setIsVideoOff(!isVideoOff);
       },
+      ttId: "tooltip-video",
+      ttContent: isVideoOff ? "Turn on video" : "Turn off video",
     },
     {
       Icon: ScreenShare,
       BgColor: "#36373d",
       onClick: () => {},
+      ttId: "tooltip-screen-share",
+      ttContent: "Screen Share",
     },
     {
       Icon: !isMuted ? Mic : MicOff,
@@ -113,6 +137,8 @@ const Controls: React.FC<ControlButtonProps> = ({
         toggleMute();
         setIsMuted(!isMuted);
       },
+      ttId: "tooltip-mic",
+      ttContent: isMuted ? "Turn on Microphone" : "Turn off Microphone",
     },
     {
       Icon: PhoneOff,
@@ -121,44 +147,80 @@ const Controls: React.FC<ControlButtonProps> = ({
         disInitializeMedia();
         window.location.reload();
       },
+      ttId: "tooltip-disconnect",
+      ttContent: "Disconnect",
     },
   ];
 
   const screenButtons = [
     {
-      Icon: Maximize,
-      onClick: () => onToggleFullScreen(),
-    },
-    {
       Icon: PictureInPicture,
       onClick: () => onPictureInPicture(),
+      ttId: "tooltip-pip",
+      ttContent: "Pop Out",
+    },
+    {
+      Icon: Maximize,
+      onClick: () => onToggleFullScreen(),
+      ttId: "tooltip-fullscreen",
+      ttContent: "Fullscreen",
     },
   ];
   return (
     <div className="h-20 flex items-center justify-center gap-2 px-4 py-2 transition-colors duration-300">
       <div className="flex-1" />
-      {controlButtons.map(({ Icon, onClick, BgColor, textColor }, index) => (
-        <button
-          key={index}
-          style={{
-            backgroundColor: BgColor,
-            color: textColor || "#ffffff",
-          }}
-          className="rounded-full p-3 hover:opacity-80 transition-opacity"
-          onClick={onClick}
-        >
-          <Icon size={30} />
-        </button>
-      ))}
+      {controlButtons.map(
+        ({ Icon, onClick, BgColor, textColor, ttId, ttContent }, index) => (
+          <button
+            key={index}
+            style={{
+              backgroundColor: BgColor,
+              color: textColor || "#ffffff",
+            }}
+            className="rounded-full p-3 hover:opacity-80 transition-opacity"
+            onClick={onClick}
+            data-tooltip-id={ttId}
+            data-tooltip-content={ttContent}
+          >
+            <Icon size={30} />
+            <Tooltip
+              id={ttId}
+              place="top"
+              className="z-10"
+              style={{
+                backgroundColor: "black",
+                color: "white",
+                fontSize: "15px",
+                fontWeight: "bold",
+                borderRadius: "4px",
+              }}
+            />
+          </button>
+        )
+      )}
 
       <div className="flex-1 flex justify-end">
-        {screenButtons.map(({ Icon, onClick }, index) => (
+        {screenButtons.map(({ Icon, onClick, ttId, ttContent }, index) => (
           <button
             key={index}
             className="p-3 text-[#949ba4] hover:text-white transition-colors"
             onClick={onClick}
+            data-tooltip-id={ttId}
+            data-tooltip-content={ttContent}
           >
             <Icon />
+            <Tooltip
+              id={ttId}
+              place="top"
+              className="z-10"
+              style={{
+                backgroundColor: "black",
+                color: "white",
+                fontSize: "16px",
+                fontWeight: "bold",
+                borderRadius: "4px",
+              }}
+            />
           </button>
         ))}
       </div>

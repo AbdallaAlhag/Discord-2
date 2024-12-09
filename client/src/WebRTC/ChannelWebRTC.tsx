@@ -3,6 +3,9 @@ import { useWebRTCContext } from "./useWebRTCContext";
 import { faMicrophoneSlash } from "@fortawesome/free-solid-svg-icons";
 import { Video, HeadphoneOff } from "lucide-react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { Tooltip } from "react-tooltip";
+import "react-tooltip/dist/react-tooltip.css"; // Import required CSS
+
 const ChannelWebRTC: React.FC = () => {
   const {
     userId,
@@ -81,15 +84,69 @@ const ChannelWebRTC: React.FC = () => {
             </span>
             <div className="flex items-center gap-2">
               {isMuted && (
-                <FontAwesomeIcon
-                  icon={faMicrophoneSlash}
-                  className="w-4 h-4 text-[#8e9297]"
-                />
+                <>
+                  <FontAwesomeIcon
+                    icon={faMicrophoneSlash}
+                    className="w-4 h-4 text-[#8e9297]"
+                    data-tooltip-id={`tooltip-muted`}
+                    data-tooltip-content={"Muted"}
+                  />
+                  <Tooltip
+                    id="tooltip-muted"
+                    place="top"
+                    className="z-10 "
+                    style={{
+                      backgroundColor: "black",
+                      color: "white",
+                      fontSize: "12px",
+                      fontWeight: "bold",
+                      borderRadius: "4px",
+                    }}
+                  />
+                </>
               )}
               {isDeafened && (
-                <HeadphoneOff className="w-4 h-4 text-[#8e9297]" />
+                <>
+                  <HeadphoneOff
+                    className="w-4 h-4 text-[#8e9297]"
+                    data-tooltip-id={`tooltip-deafened`}
+                    data-tooltip-content={"Deafened"}
+                  />
+                  <Tooltip
+                    id="tooltip-deafened"
+                    place="top"
+                    className="z-10 "
+                    style={{
+                      backgroundColor: "black",
+                      color: "white",
+                      fontSize: "12px",
+                      fontWeight: "bold",
+                      borderRadius: "4px",
+                    }}
+                  />
+                </>
               )}
-              {!isVideoOff && <Video className="w-5 h-5 text-[#8e9297]" />}
+              {!isVideoOff && (
+                <>
+                  <Video
+                    className="w-5 h-5 text-[#8e9297]"
+                    data-tooltip-id={`tooltip-camera`}
+                    data-tooltip-content={"Camera"}
+                  />
+                  <Tooltip
+                    id="tooltip-camera"
+                    place="top"
+                    className="z-10 "
+                    style={{
+                      backgroundColor: "black",
+                      color: "white",
+                      fontSize: "12px",
+                      fontWeight: "bold",
+                      borderRadius: "4px",
+                    }}
+                  />
+                </>
+              )}
             </div>
           </div>
         </div>
