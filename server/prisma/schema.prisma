@@ -25,6 +25,8 @@ model User {
   memberships      ServerMember[]
   createdInvites   ServerInvite[]  @relation("InviteCreator")
   usedInvites      ServerInvite[]  @relation("InviteUser")
+
+  onlineStatus Boolean @default(false)
 }
 
 model Server {
@@ -50,14 +52,18 @@ model Channel {
 }
 
 model ServerMember {
-  id       Int      @id @default(autoincrement())
-  userId   Int
-  serverId Int
-  joinedAt DateTime @default(now())
-  roleId   Int?
-  role     Role?    @relation(fields: [roleId], references: [id])
-  server   Server   @relation(fields: [serverId], references: [id])
-  user     User     @relation(fields: [userId], references: [id])
+  id           Int      @id @default(autoincrement())
+  userId       Int
+  serverId     Int
+  joinedAt     DateTime @default(now())
+  roleId       Int?
+  role         Role?    @relation(fields: [roleId], references: [id])
+  server       Server   @relation(fields: [serverId], references: [id])
+  user         User     @relation(fields: [userId], references: [id])
+  // Add computed fields for username and onlineStatus
+  username     String?  @map("user.username")
+  onlineStatus Boolean? @map("user.onlineStatus")
+  avatarUrl    String?  @map("user.avatarUrl")
 
   @@unique([userId, serverId])
 }

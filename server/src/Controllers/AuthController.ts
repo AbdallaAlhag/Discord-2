@@ -58,6 +58,13 @@ export const login = async (
       return res.status(401).json({ message: "Invalid credentials" });
     }
     const token = jwt.sign({ id: user.id }, JWT_SECRET, { expiresIn: "12h" });
+
+    await prisma.user.update({
+      where: { email },
+      data: { onlineStatus: true },
+    });
+    
+
     res.status(200).json({ message: "Successfully Logged in", token, user });
   } catch (err) {
     next(err);
@@ -127,6 +134,25 @@ export const setDefaultPfp = async (
       },
     });
     res.status(200).json({ success: true, user });
+  } catch (err) {
+    if (!res.headersSent) {
+      next(err); // Passes the error to the error handler only if headers aren't sent
+    }
+  }
+};
+
+export const markOffline = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const userId = Number(req.params.userId);
+    await prisma.user.update({
+      where: { id: userId },
+      data: { onlineStatus: false },
+    });
+    res.status(200).json({ success: true });
   } catch (err) {
     if (!res.headersSent) {
       next(err); // Passes the error to the error handler only if headers aren't sent

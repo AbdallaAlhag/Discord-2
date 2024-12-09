@@ -8,9 +8,9 @@ import { Link } from "react-router-dom";
 interface Friend {
   id: number;
   username: string;
-  status: string;
   activity: string;
   avatarUrl?: string;
+  onlineStatus?: boolean;
 }
 
 interface FriendRequest {
@@ -41,43 +41,46 @@ export function FriendsList({ filter }: FriendsListProps) {
       {
         id: 1,
         username: "viperndgrass",
-        status: "Online",
+        onlineStatus: true,
         activity: "Playing Valorant",
       },
       {
         id: 2,
         username: "Admiral Audacious",
-        status: "Online",
+        onlineStatus: true,
         activity: "In Voice Channel",
       },
       {
         id: 3,
         username: "Ethanqg",
-        status: "Online",
+        onlineStatus: true,
         activity: "Visual Studio Code",
       },
       {
         id: 4,
         username: "Abwbkr Alhag",
-        status: "Online",
+        onlineStatus: true,
         activity: "Spotify",
       },
       {
         id: 5,
         username: "aotmika",
-        status: "Online",
+        onlineStatus: true,
         activity: "League of Legends",
       },
       {
         id: 6,
         username: "qwertea",
-        status: "Online",
+        onlineStatus: true,
         activity: "In Voice Channel",
       },
     ],
     []
   );
 
+  const onlineStatusDependency = friends
+    .map((user) => user.onlineStatus)
+    .join(",");
   // Move fetchFriendData outside of useEffect so it can be reused
   const fetchFriendData = useCallback(async () => {
     if (!userId) return;
@@ -87,7 +90,7 @@ export function FriendsList({ filter }: FriendsListProps) {
         axios.get(`${API_URL}/friends/pending/${userId}`),
         axios.get(`${API_URL}/friends/blocked/${userId}`),
       ]);
-      // console.log("friends: ", friendsRes.data.friends);
+      console.log("friends: ", friendsRes.data.friends);
       // console.log('pending: ', pendingRes.data);
       setFriends(
         friendsRes.data.friends.length > 0
@@ -105,7 +108,7 @@ export function FriendsList({ filter }: FriendsListProps) {
 
   useEffect(() => {
     fetchFriendData();
-  }, [fetchFriendData]);
+  }, [fetchFriendData, onlineStatusDependency]);
 
   const handleFriendRequest = async (
     requestId: number,
@@ -129,11 +132,25 @@ export function FriendsList({ filter }: FriendsListProps) {
         <div key={index} className="friend-item">
           <div className="w-full h-[1.5px] bg-[#3f4147] rounded-full" />
           <div className="flex items-center p-2 hover:bg-[#42464D] rounded cursor-pointer group">
-            <img
+            {/* <img
               src={friend.avatarUrl || defaultAvatar}
               alt={"user avatar"}
               className="w-8 h-8 rounded-full"
-            />
+            /> */}
+            <div className="relative w-8 h-8">
+              {/* <!-- Avatar --> */}
+              <img
+                src={friend.avatarUrl || defaultAvatar}
+                alt="user avatar"
+                className="w-full h-full rounded-full"
+              />
+              {/* <!-- Status Indicator --> */}
+              <div
+                className={`absolute bottom-0 right-0 w-3 h-3 rounded-full border-2 border-[#2f3136] ${
+                  friend.onlineStatus ? "bg-[#23a55a]" : "bg-[#7d818b]"
+                }`}
+              ></div>
+            </div>
             <div className="ml-3 flex-1">
               <div className="text-white text-sm font-medium">
                 {friend.username}
@@ -213,9 +230,9 @@ export function FriendsList({ filter }: FriendsListProps) {
         return (
           <>
             <h2 className="text-[#B9BBBE] text-xs font-semibold uppercase mb-4">
-              Online — {friends.filter((f) => f.status === "Online").length}
+              Online — {friends.filter((f) => f.onlineStatus === true).length}
             </h2>
-            {renderFriendList(friends.filter((f) => f.status === "Online"))}
+            {renderFriendList(friends.filter((f) => f.onlineStatus === true))}
           </>
         );
       case "blocked":

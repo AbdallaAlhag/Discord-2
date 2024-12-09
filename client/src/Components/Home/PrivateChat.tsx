@@ -46,6 +46,7 @@ interface Friend {
   email: string;
   id: number;
   username: string;
+  onlineStatus: boolean;
 }
 const VITE_API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
@@ -395,6 +396,18 @@ const PrivateChat: React.FC<ChatProps> = ({ friendId }) => {
     }
   };
 
+  // Client-side code example, ping server to update online status
+  useEffect(() => {
+    if (socketRef.current) {
+      socketRef.current.emit("ping_presence", { userId });
+    }
+    if (socketRef.current) {
+      const intervalId = setInterval(() => {
+        socketRef.current?.emit("ping_presence", { userId });
+      }, 30000); // Send every 30 seconds
+      return () => clearInterval(intervalId);
+    }
+  }, [socketRef, userId]);
   // console.log("Message: ", messages);
   return (
     <div className="flex-1 bg-[#36393f] flex flex-col">
@@ -402,11 +415,25 @@ const PrivateChat: React.FC<ChatProps> = ({ friendId }) => {
       <div className="h-12 px-4 flex items-center shadow-md">
         {/* <Hash className="w-6 h-6 text-[#8e9297] mr-2" /> */}
         {friendInfo?.avatarUrl ? (
-          <img
-            src={friendInfo.avatarUrl}
-            alt="user avatar"
-            className="w-8 h-8 rounded-full mr-2"
-          />
+          // <img
+          //   src={friendInfo.avatarUrl}
+          //   alt="user avatar"
+          //   className="w-8 h-8 rounded-full mr-2"
+          // />
+          <div className="relative w-8 h-8  mr-2">
+            {/* <!-- Avatar --> */}
+            <img
+              src={friendInfo?.avatarUrl}
+              alt="user avatar"
+              className="w-full h-full rounded-full"
+            />
+            {/* <!-- Status Indicator --> */}
+            <div
+              className={`absolute bottom-0 right-0 w-3 h-3 rounded-full border-2 border-[#2f3136] ${
+                friendInfo?.onlineStatus ? "bg-[#23a55a]" : "bg-[#7d818b]"
+              }`}
+            ></div>
+          </div>
         ) : (
           <div className="w-8 h-8 rounded-full bg-[#2f3136] mr-4"></div>
         )}

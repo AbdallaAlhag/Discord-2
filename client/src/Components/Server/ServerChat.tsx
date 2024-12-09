@@ -245,6 +245,19 @@ const ServerChat: React.FC<ChatProps> = ({ channelId, serverId }) => {
     }
   };
 
+  // Client-side code example, ping server to update online status
+  useEffect(() => {
+    if (socket) {
+      socket.emit("ping_presence", { userId: userId });
+    }
+    if (socket) {
+      const intervalId = setInterval(() => {
+        socket.emit("ping_presence", { userId: userId });
+      }, 30000); // Send every 30 seconds
+      return () => clearInterval(intervalId);
+    }
+  }, [socket, userId]);
+
   return (
     <div className="flex-1 bg-[#36393f] flex flex-col">
       {/* Header */}

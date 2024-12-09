@@ -42,6 +42,13 @@ io.on("connection", (socket) => {
     return;
   }
 
+  // Mark user as online in the database
+  prisma.user.update({
+    where: { id: Number(userId) },
+    data: { onlineStatus: true },
+  }).catch((err) => console.error("Error updating user status:", err));
+
+
   // Join user-specific room
   userId && socket.join(userId.toString());
   activeUsers.set(userId, socket.id);
@@ -100,6 +107,12 @@ io.on("connection", (socket) => {
     }
   });
 
+  socket.on("ping_presence", ({ userId }) => {
+    prisma.user.update({
+      where: { id: userId },
+      data: { onlineStatus: true },
+    }).catch((err) => console.error("Error updating ping presence:", err));
+  });
   // Handle disconnect
   // socket.on("disconnect", () => {
   //   // console.log(`User ${userId} disconnected`);
@@ -107,6 +120,13 @@ io.on("connection", (socket) => {
   // });
   socket.on("disconnect", () => {
     const userSession = activeUsers.get(socket.id);
+    prisma.user.update({
+      where: { id: Number(userId) },
+      data: {
+        onlineStatus: false,
+      },
+    }).catch((err) => console.error("Error updating user status on disconnect:", err));
+
     if (userSession) {
       const { roomId, userId } = userSession;
       // console.log(`[DEBUG]User ${userId} left room voice ${roomId}`);

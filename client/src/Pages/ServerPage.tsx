@@ -75,6 +75,7 @@ function ServerPage() {
     return <div>Loading...</div>;
   }
 
+
   // console.log(serverId, channelId);
   return (
     <div className="flex h-screen">

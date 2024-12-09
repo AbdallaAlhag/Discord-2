@@ -4,6 +4,7 @@ import {
   login,
   loginAsGuest,
   setDefaultPfp,
+  markOffline,
 } from "../Controllers/AuthController";
 // import {
 //   signupValidationRules,
@@ -25,8 +26,12 @@ router.post("/login", (req: Request, res: Response, next: NextFunction) => {
 
 router.post("/login/guest", loginAsGuest);
 
+router.post("/logoutStatus:userId", markOffline);
 // router.get('/logout', logOut);
-router.post("/pfp/:email", (req: Request, res: Response, next: NextFunction) => {
-  setDefaultPfp(req, res, next);
-});
+router.post(
+  "/pfp/:email",
+  (req: Request, res: Response, next: NextFunction) => {
+    setDefaultPfp(req, res, next);
+  }
+);
 export default router;

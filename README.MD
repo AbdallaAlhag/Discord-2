@@ -65,7 +65,16 @@ do this near the end:
 ---
 
 - [x] work on server channel online indicator, just showcase users in server
-    - [ ] haven't set online indicator up yet, but it should be simple
+    - [x] haven't set online indicator up yet, but it should be simple
+    - [x] friends nav
+    - [x] direct messages 
+    - [ ] active now -> let's keep this as is
+    - [x] memberLists
+- [ ] Update tooltips for buttons 
+    - [ ] channel sidebar buttons
+    - [ ] private message sidebar buttons   
+    - [ ] channelwebrtc buttons
+    - [ ] voiceChanneldisplay buttons
 ---
 ### haven't done yet:
 - [ ] typing real time indicator works but not read receipts just yet. Both could use a tune up, do later, extra  
@@ -81,6 +90,8 @@ do this near the end:
 - [ ]  mobile mode (eh)
 - [ ]  group message for private chats
 - [ ]  discord loading page
+- [ ] Probably work on a global online indicator later
+- [ ] accept files and images/vids/gifs ? maybe add a file uploader? lol 
 ---
 
 Test accounts:
@@ -112,3 +123,10 @@ https://www.youtube.com/watch?v=GdYVTWujYD8
 https://www.youtube.com/watch?v=g42yNO_dxWQ
 https://millo-l.github.io/Implementing-WebRTC-using-ReactJS-and-Typescript-1-N-P2P/#github
 
+Common Prisma Commands Summary:
+Command	Purpose
+npx prisma validate	Validate the schema for errors.
+npx prisma migrate dev --name	Create and apply a migration in development.
+npx prisma generate	Regenerate the Prisma Client.
+npx prisma studio	Open Prisma Studio to view and edit the data.
+npx prisma migrate deploy	Apply migrations to production databases.

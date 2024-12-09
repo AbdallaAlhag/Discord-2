@@ -25,7 +25,7 @@ const ServerSidebar: React.FC = () => {
   const { userId } = useAuth();
   const API_URL = import.meta.env.VITE_API_BASE_URL;
   const params = useParams();
-  console.log("Route Params:", params);
+  // console.log("Route Params:", params);
 
   useEffect(() => {
     const fetchServers = async () => {
@@ -36,13 +36,14 @@ const ServerSidebar: React.FC = () => {
             setServer(response.data.servers);
           }
           // setServer(response.data.servers);
-          console.log("servers: ", response.data.servers);
+          // console.log("servers: ", response.data.servers);
         } catch (error) {
           console.error("Error fetching servers", error);
         }
       }
     };
     fetchServers();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [API_URL, userId]);
 
   useEffect(() => {
@@ -51,10 +52,10 @@ const ServerSidebar: React.FC = () => {
     } else {
       setOpenServer(null);
     }
-    console.log("UPdated params openServer: ", openServer);
+    // console.log("UPdated params openServer: ", openServer);
   }, [server, openServer, params]);
 
-  console.log("Open Server: ", openServer);
+  // console.log("Open Server: ", openServer);
   return (
     <div className="w-[72px] bg-[#202225] flex flex-col items-center py-3 space-y-2">
       <div className="group relative">

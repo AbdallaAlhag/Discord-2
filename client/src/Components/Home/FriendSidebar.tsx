@@ -9,12 +9,14 @@ import { Link } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faMicrophone } from "@fortawesome/free-solid-svg-icons";
 import { faHeadphones } from "@fortawesome/free-solid-svg-icons";
-
+import { Tooltip } from "react-tooltip";
+import "react-tooltip/dist/react-tooltip.css"; // Import required CSS
 interface onlineUsers {
   id: number;
   username: string;
   avatarUrl: null | string;
-  status: "online" | "offline" | "idle" | "dnd";
+  // status: "online" | "offline" | "idle" | "dnd";
+  onlineStatus: boolean;
   isGroup?: boolean;
   memberCount?: number;
 }
@@ -24,22 +26,22 @@ interface FriendSidebarProps {
 }
 
 const directMessages: onlineUsers[] = [
-  { id: 1, username: "viperndgrass", avatarUrl: null, status: "online" },
-  { id: 2, username: "Admiral Audacious", avatarUrl: null, status: "online" },
-  { id: 3, username: "Ethanqg", avatarUrl: null, status: "offline" },
-  { id: 4, username: "Abwbkr Alhag", avatarUrl: null, status: "idle" },
+  { id: 1, username: "viperndgrass", avatarUrl: null, onlineStatus: true },
+  { id: 2, username: "Admiral Audacious", avatarUrl: null, onlineStatus: true },
+  { id: 3, username: "Ethanqg", avatarUrl: null, onlineStatus: false },
+  { id: 4, username: "Abwbkr Alhag", avatarUrl: null, onlineStatus: false },
   {
     id: 5,
     username: "LeetCode",
     avatarUrl: null,
-    status: "online",
+    onlineStatus: true,
     isGroup: true,
     memberCount: 5,
   },
-  { id: 6, username: "aj", avatarUrl: null, status: "dnd" },
-  { id: 7, username: "aotmika", avatarUrl: null, status: "online" },
-  { id: 8, username: "SamFieri", avatarUrl: null, status: "offline" },
-  { id: 9, username: "qwertea", avatarUrl: null, status: "online" },
+  { id: 6, username: "aj", avatarUrl: null, onlineStatus: false },
+  { id: 7, username: "aotmika", avatarUrl: null, onlineStatus: true },
+  { id: 8, username: "SamFieri", avatarUrl: null, onlineStatus: false },
+  { id: 9, username: "qwertea", avatarUrl: null, onlineStatus: true },
 ];
 
 // function StatusIndicator({ status }: { status: onlineUsers["status"] }) {
@@ -65,6 +67,9 @@ export default function FriendSidebar({
   const { userId } = useAuth();
   const API_URL = import.meta.env.VITE_API_BASE_URL;
 
+  const onlineStatusDependency = friends
+    .map((user) => user.onlineStatus)
+    .join(",");
   useEffect(() => {
     const fetchFriends = async () => {
       if (!userId) return;
@@ -94,7 +99,7 @@ export default function FriendSidebar({
     };
     fetchFriends();
     fetchUser();
-  }, [API_URL, userId]);
+  }, [API_URL, userId, onlineStatusDependency]);
 
   return (
     <div className="w-60 bg-[#2f3136] flex flex-col">
@@ -152,11 +157,25 @@ export default function FriendSidebar({
                   <span>{dm.avatar}</span>
                   <StatusIndicator status={dm.status} />
                 </div> */}
-                <img
+                {/* <img
                   src={dm.avatarUrl || defaultAvatar}
                   alt="user avatar"
                   className="w-8 h-8 rounded-full mr-3"
-                />
+                /> */}
+                <div className="relative w-8 h-8 mr-3">
+                  {/* <!-- Avatar --> */}
+                  <img
+                    src={dm.avatarUrl || defaultAvatar}
+                    alt="user avatar"
+                    className="w-full h-full rounded-full"
+                  />
+                  {/* <!-- Status Indicator --> */}
+                  <div
+                    className={`absolute bottom-0 right-0 w-3 h-3 rounded-full border-2 border-[#2f3136] ${
+                      dm.onlineStatus ? "bg-[#23a55a]" : "bg-[#7d818b]"
+                    }`}
+                  ></div>
+                </div>
                 <span className="text-sm flex-1 text-left truncate">
                   {dm.username}
                   {dm.isGroup && (
@@ -189,16 +208,73 @@ export default function FriendSidebar({
           size="lg"
           className="p-2 hover:bg-[#383a40] cursor-pointer rounded-sm"
           style={{ color: "#959ba7" }}
+          data-tooltip-id={`tooltip-mic`}
+          data-tooltip-content={"Turn on Microphone"}
+        />
+        <Tooltip
+          id="tooltip-mic"
+          place="top"
+          className="z-10 "
+          style={{
+            backgroundColor: "black",
+            color: "white",
+            fontSize: "12px",
+            fontWeight: "bold",
+          }}
         />
         <FontAwesomeIcon
           icon={faHeadphones}
           size="lg"
           className="p-2 hover:bg-[#383a40]  cursor-pointer rounded-sm"
           style={{ color: "#959ba7" }}
+          data-tooltip-id={`tooltip-headphones`}
+          data-tooltip-content={"Deafen"}
         />
-        <LogoutButton className="p-2 hover:bg-[#383a40] rounded-sm " />
-        <div className="hover:bg-[#383a40] rounded-sm">
+        <Tooltip
+          id="tooltip-headphones"
+          place="top"
+          className="z-10 "
+          style={{
+            backgroundColor: "black",
+            color: "white",
+            fontSize: "12px",
+            fontWeight: "bold",
+          }}
+        />
+        <div
+          data-tooltip-id={`tooltip-logout`}
+          data-tooltip-content={"Logout?xD"}
+        >
+          <LogoutButton className="p-2 hover:bg-[#383a40] rounded-sm " />
+        </div>
+        <Tooltip
+          id="tooltip-logout"
+          place="top"
+          className="z-10 "
+          style={{
+            backgroundColor: "black",
+            color: "white",
+            fontSize: "12px",
+            fontWeight: "bold",
+          }}
+        />
+        <div
+          className="hover:bg-[#383a40] rounded-sm"
+          data-tooltip-id={`tooltip-settings`}
+          data-tooltip-content={"User Settings"}
+        >
           <SettingsButton className="hover:animate-spin  p-2 " />
+          <Tooltip
+            id="tooltip-settings"
+            place="top"
+            className="z-10 "
+            style={{
+              backgroundColor: "black",
+              color: "white",
+              fontSize: "12px",
+              fontWeight: "bold",
+            }}
+          />
         </div>
       </div>
     </div>
