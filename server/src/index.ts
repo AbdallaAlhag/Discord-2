@@ -43,11 +43,12 @@ io.on("connection", (socket) => {
   }
 
   // Mark user as online in the database
-  prisma.user.update({
-    where: { id: Number(userId) },
-    data: { onlineStatus: true },
-  }).catch((err) => console.error("Error updating user status:", err));
-
+  prisma.user
+    .update({
+      where: { id: Number(userId) },
+      data: { onlineStatus: true },
+    })
+    .catch((err) => console.error("Error updating user status:", err));
 
   // Join user-specific room
   userId && socket.join(userId.toString());
@@ -99,6 +100,23 @@ io.on("connection", (socket) => {
     }
   });
 
+  // server typing indicator
+  socket.on("group_typing", ({ groupId, userId }) => {
+    // Broadcast typing event to other group members
+    socket.to(`channel-${groupId}`).emit("user_group_typing", {
+      groupId,
+      userId,
+    });
+  });
+
+  socket.on("stop_group_typing", ({ groupId, userId }) => {
+    // Broadcast stop typing event to other group members
+    socket.to(`channel-${groupId}`).emit("user_stop_group_typing", {
+      groupId,
+      userId,
+    });
+  });
+
   // Handle read receipt
   socket.on("read_receipt", ({ messageId, senderId }) => {
     const senderSocketId = activeUsers.get(senderId.toString());
@@ -108,10 +126,12 @@ io.on("connection", (socket) => {
   });
 
   socket.on("ping_presence", ({ userId }) => {
-    prisma.user.update({
-      where: { id: userId },
-      data: { onlineStatus: true },
-    }).catch((err) => console.error("Error updating ping presence:", err));
+    prisma.user
+      .update({
+        where: { id: userId },
+        data: { onlineStatus: true },
+      })
+      .catch((err) => console.error("Error updating ping presence:", err));
   });
   // Handle disconnect
   // socket.on("disconnect", () => {
@@ -120,12 +140,16 @@ io.on("connection", (socket) => {
   // });
   socket.on("disconnect", () => {
     const userSession = activeUsers.get(socket.id);
-    prisma.user.update({
-      where: { id: Number(userId) },
-      data: {
-        onlineStatus: false,
-      },
-    }).catch((err) => console.error("Error updating user status on disconnect:", err));
+    prisma.user
+      .update({
+        where: { id: Number(userId) },
+        data: {
+          onlineStatus: false,
+        },
+      })
+      .catch((err) =>
+        console.error("Error updating user status on disconnect:", err)
+      );
 
     if (userSession) {
       const { roomId, userId } = userSession;
@@ -242,16 +266,36 @@ app.use("/server", serverRouter);
 app.use(errorHandler);
 
 // Handle graceful shutdowns for Prisma
-process.on("SIGINT", async () => {
-  console.log("Received SIGINT, disconnecting from database");
+// process.on("SIGINT", async () => {
+//   console.log("Received SIGINT, disconnecting from database");
+//   await prisma.$disconnect();
+//   process.exit(0);
+// });
+
+// process.on("SIGTERM", async () => {
+//   console.log("Received SIGTERM, disconnecting from database");
+//   await prisma.$disconnect();
+//   process.exit(0);
+// });
+
+// Add graceful shutdown handlers
+process.on("SIGTERM", async () => {
+  console.log("SIGTERM signal received: closing HTTP server");
   await prisma.$disconnect();
-  process.exit(0);
+  server.close(() => {
+    console.log("HTTP server closed");
+
+    process.exit(0);
+  });
 });
 
-process.on("SIGTERM", async () => {
-  console.log("Received SIGTERM, disconnecting from database");
+process.on("SIGINT", async () => {
+  console.log("SIGINT signal received: closing HTTP server");
   await prisma.$disconnect();
-  process.exit(0);
+  server.close(() => {
+    console.log("HTTP server closed");
+    process.exit(0);
+  });
 });
 
 // Start the combined HTTP and WebSocket server

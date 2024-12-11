@@ -1,4 +1,4 @@
-import React, { useRef, useEffect } from "react";
+import React, {  useEffect } from "react";
 import { useWebRTCContext } from "./useWebRTCContext";
 import { faMicrophoneSlash } from "@fortawesome/free-solid-svg-icons";
 import { Video, HeadphoneOff } from "lucide-react";
@@ -8,8 +8,8 @@ import "react-tooltip/dist/react-tooltip.css"; // Import required CSS
 
 const ChannelWebRTC: React.FC = () => {
   const {
-    userId,
-    localStream,
+    // userId,
+    // localStream,
     remoteStreams,
     isMuted,
     isVideoOff,
@@ -19,58 +19,67 @@ const ChannelWebRTC: React.FC = () => {
     logCurrentStreamState,
   } = useWebRTCContext();
 
-  const localVideoRef = useRef<HTMLVideoElement>(null);
-  const remoteVideoRefs = useRef<(HTMLVideoElement | null)[]>([]);
+  // const remoteVideoRefs = useRef<(HTMLVideoElement | null)[]>([]);
 
-  // Debug: log initial states
   useEffect(() => {
-    console.log("Initializing media and logging stream state...");
     initializeMedia();
     logCurrentStreamState();
+  });
+  // // Debug: log initial states
+  // useEffect(() => {
+  //   console.log("Initializing media and logging stream state...");
+  //   initializeMedia();
+  //   logCurrentStreamState();
 
-    if (localStream && localVideoRef.current) {
-      console.log("Setting local stream to video element");
-      localVideoRef.current.srcObject = localStream;
-    } else {
-      console.warn("Local stream or video element not found");
-    }
-  }, [initializeMedia, localStream, logCurrentStreamState]);
+  //   console.log(
+  //     "Setting local stream to video element",
+  //     localStream,
+  //     localVideoRef.current
+  //   );
 
-  useEffect(() => {
-    // Debug: log incoming remote streams and metadata
-    console.log("Updating remote streams...");
-    console.log("Current remote streams:", remoteStreams);
-    console.log("Stream metadata:", streamMetadata);
+  //   if (localStream && localVideoRef.current) {
+  //     console.log("Local stream and video element found");
+  //     localVideoRef.current.srcObject = localStream;
+  //   } else {
+  //     console.warn("Local stream or video element not found");
+  //   }
+  // }, [initializeMedia, localStream, logCurrentStreamState]);
 
-    const filteredRemoteStreams = remoteStreams.filter(
-      (stream) => streamMetadata.get(stream)?.userId !== userId
-    );
+  // useEffect(() => {
+  //   // Debug: log incoming remote streams and metadata
+  //   // console.log("Updating remote streams...");
+  //   // console.log("Current remote streams:", remoteStreams);
+  //   // console.log("Stream metadata:", streamMetadata);
 
-    // Debug: log the number of filtered remote streams
-    console.log("Filtered remote streams:", filteredRemoteStreams.length);
+  //   const filteredRemoteStreams = remoteStreams.filter(
+  //     (stream) => streamMetadata.get(stream)?.userId !== userId
+  //   );
 
-    if (filteredRemoteStreams.length > remoteVideoRefs.current.length) {
-      console.log(
-        `Expanding remote video refs: ${filteredRemoteStreams.length} streams`
-      );
-      remoteVideoRefs.current = [
-        ...remoteVideoRefs.current.slice(0, filteredRemoteStreams.length), // Keep refs for existing streams
-        ...new Array(
-          filteredRemoteStreams.length - remoteVideoRefs.current.length
-        ).fill(null), // Add placeholders for new streams
-      ];
-    }
+  //   // Debug: log the number of filtered remote streams
+  //   // console.log("Filtered remote streams:", filteredRemoteStreams.length);
 
-    // Debug: log the state of remoteVideoRefs after update
-    console.log("Remote video refs updated:", remoteVideoRefs.current);
+  //   if (filteredRemoteStreams.length > remoteVideoRefs.current.length) {
+  //     console.log(
+  //       `Expanding remote video refs: ${filteredRemoteStreams.length} streams`
+  //     );
+  //     remoteVideoRefs.current = [
+  //       ...remoteVideoRefs.current.slice(0, filteredRemoteStreams.length), // Keep refs for existing streams
+  //       ...new Array(
+  //         filteredRemoteStreams.length - remoteVideoRefs.current.length
+  //       ).fill(null), // Add placeholders for new streams
+  //     ];
+  //   }
 
-    filteredRemoteStreams.forEach((stream, index) => {
-      if (remoteVideoRefs.current[index]) {
-        console.log(`Assigning stream to video element at index ${index}`);
-        remoteVideoRefs.current[index].srcObject = stream;
-      }
-    });
-  }, [localStream, remoteStreams, userId, streamMetadata]);
+  //   // Debug: log the state of remoteVideoRefs after update
+  //   console.log("Remote video refs updated:", remoteVideoRefs.current);
+
+  //   filteredRemoteStreams.forEach((stream, index) => {
+  //     if (remoteVideoRefs.current[index]) {
+  //       console.log(`Assigning stream to video element at index ${index}`);
+  //       remoteVideoRefs.current[index].srcObject = stream;
+  //     }
+  //   });
+  // }, [localStream, remoteStreams, userId, streamMetadata]);
 
   return (
     <div className="flex flex-col h-full w-full pl-10">

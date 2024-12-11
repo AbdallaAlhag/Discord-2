@@ -9,7 +9,7 @@ export default function LogoutButton({ className }: { className: string }) {
   const logout = () => {
     localStorage.removeItem("token");
     localStorage.removeItem("userId");
-
+    localStorage.removeItem("username");
     try {
       axios.post(
         `${VITE_API_BASE_URL}/auth/logoutStatus/${userId}`,

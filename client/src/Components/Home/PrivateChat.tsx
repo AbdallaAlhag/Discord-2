@@ -331,7 +331,7 @@ const PrivateChat: React.FC<ChatProps> = ({ friendId }) => {
         socketRef.current.emit("private_message", response.data);
         // Update local state to show message immediately
         setMessages((prev) => [...prev, response.data]);
-        console.log("messages: ", messages);
+        // console.log("messages: ", messages);
         setNewMessage("");
         scrollToBottom();
       }
@@ -359,12 +359,12 @@ const PrivateChat: React.FC<ChatProps> = ({ friendId }) => {
           `${VITE_API_BASE_URL}/chat/private/messages`,
           messageData
         );
-        console.log("Message saved to database:", response.data); // Debug
+        // console.log("Message saved to database:", response.data); // Debug
         // Emit message through socket for real-time delivery
         socketRef.current.emit("private_message", response.data);
         // Update local state to show message immediately
         setMessages((prev) => [...prev, response.data]);
-        console.log("messages: ", messages);
+        // console.log("messages: ", messages);
         setNewMessage("");
         scrollToBottom();
       } catch (err) {
@@ -372,7 +372,7 @@ const PrivateChat: React.FC<ChatProps> = ({ friendId }) => {
         setError("Failed to send message");
       }
     },
-    [friendId, messages, userId]
+    [friendId, userId]
   );
 
   // send selected media through gifpicker
@@ -505,7 +505,7 @@ const PrivateChat: React.FC<ChatProps> = ({ friendId }) => {
           })
         )}
 
-        {friendTyping && <TypingIndicator />}
+        {friendTyping && <TypingIndicator friendInfo={friendInfo}/>}
 
         <div ref={messagesEndRef} />
       </div>

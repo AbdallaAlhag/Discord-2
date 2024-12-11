@@ -91,7 +91,7 @@ export default function InviteModal({
     if (!userId) return;
     try {
       const friendsRes = await axios.get(`${API_URL}/friends/${userId}`);
-      console.log("friendsRes: ", friendsRes.data.friends);
+      // console.log("friendsRes: ", friendsRes.data.friends);
       const fetchedFriends: Friend[] =
         friendsRes.data.friends.length > 0
           ? friendsRes.data.friends

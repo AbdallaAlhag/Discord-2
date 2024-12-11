@@ -14,6 +14,7 @@ import axios from "axios";
 import React from "react";
 import { GifPicker } from "../TenorComponent/Components/GifPicker";
 import { MediaData, MediaType } from "../TenorComponent/Types/tenor";
+import { TypingIndicator } from "./ServerTypingIndicator";
 
 interface Message {
   userId: number;
@@ -43,14 +44,23 @@ const ServerChat: React.FC<ChatProps> = ({ channelId, serverId }) => {
   const [newMessage, setNewMessage] = useState("");
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const { userId } = useAuth();
+  const { userId, userName } = useAuth();
   const messagesEndRef = useRef<HTMLDivElement>(null);
-  const { socket, joinServer, joinChannel, leaveChannel } = useSocket();
+  const { socket, joinServer, joinChannel, leaveChannel, isSocketConnected } =
+    useSocket();
 
   const [isMediaPickerOpen, setIsMediaPickerOpen] = useState(false);
   const [SelectedMedia, setSelectedMedia] = useState<MediaData | null>(null);
   const [activeTab, setActiveTab] = useState<MediaType>("GIFs");
   const gifPickerRef = useRef<HTMLDivElement | null>(null);
+
+  // typing bubbles
+  const [isTyping, setIsTyping] = useState<boolean>(false);
+  const [groupTypingUsers, setGroupTypingUsers] = useState(() => new Map());
+
+  const typingTimeoutRefs = useRef<Map<number | null, NodeJS.Timeout>>(
+    new Map()
+  );
 
   const handleMediaSelect = (media: MediaData) => {
     setSelectedMedia(media);
@@ -61,6 +71,7 @@ const ServerChat: React.FC<ChatProps> = ({ channelId, serverId }) => {
     let isActive = true;
 
     if (socket && isActive) {
+      console.log("socket is connected in the server chat");
       joinServer(serverId);
       joinChannel(channelId);
     }
@@ -76,6 +87,18 @@ const ServerChat: React.FC<ChatProps> = ({ channelId, serverId }) => {
   useEffect(() => {
     scrollToBottom();
   }, [messages]);
+
+  // reconnect socket
+  useEffect(() => {
+    if (socket) {
+      socket.on("reconnect", (attemptNumber) => {
+        console.log(`Reconnected to socket after ${attemptNumber} attempts`);
+        // Rejoin server/channel if needed
+        joinServer(serverId);
+        joinChannel(channelId);
+      });
+    }
+  }, [socket, serverId, channelId, joinServer, joinChannel]);
 
   // Fetch message history
   useEffect(() => {
@@ -258,6 +281,109 @@ const ServerChat: React.FC<ChatProps> = ({ channelId, serverId }) => {
     }
   }, [socket, userId]);
 
+  // Handle typing for group messages
+  const handleGroupTyping = () => {
+    // if (!socket) return;
+    if (!isSocketConnected()) {
+      console.warn("Socket not connected, cannot emit typing event");
+      return;
+    }
+
+    if (!isTyping) {
+      setIsTyping(true);
+      console.log("sending typing event");
+      socket?.emit("group_typing", {
+        groupId: channelId,
+        userId: userId,
+      });
+    }
+
+    // Clear previous timeout for this user
+    const existingTimeout = typingTimeoutRefs.current.get(userId);
+    if (existingTimeout) {
+      clearTimeout(existingTimeout);
+    }
+
+    // Set new timeout
+    const newTimeout = setTimeout(() => {
+      setIsTyping(false);
+      socket?.emit("stop_group_typing", {
+        groupId: channelId,
+        userId: userId,
+      });
+    }, 2000);
+
+    typingTimeoutRefs.current.set(userId, newTimeout);
+  };
+
+  useEffect(() => {
+    if (!socket) {
+      console.warn(
+        "Socket not connected, cannot set up typing event listeners"
+      );
+      return;
+    }
+
+    const handleConnect = () => {
+      console.log("Socket connected, setting up typing event listeners");
+
+      socket.on("user_group_typing", ({ groupId, userId }) => {
+        if (groupId == channelId) {
+          setGroupTypingUsers((prev) => {
+            const newMap = new Map(prev); // Create a new Map from the current state
+            const name = userName; // Replace this with actual username lookup
+            newMap.set(userId, name); // Add or update the userId with the name
+            return newMap;
+          });
+          // console.log("group typing users: ", groupTypingUsers);
+        }
+      });
+
+      socket.on("user_stop_group_typing", ({ groupId, userId }) => {
+        if (groupId == channelId) {
+          setGroupTypingUsers(
+            (prev) => new Map([...prev].filter(([id]) => id !== userId))
+          );
+        }
+      });
+    };
+
+    // Add connection listener if not already connected
+    if (!socket.connected) {
+      socket.on("connect", handleConnect);
+    } else {
+      // If already connected, immediately set up listeners
+      handleConnect();
+    }
+
+    return () => {
+      socket.off("connect", handleConnect);
+      socket.off("user_group_typing");
+      socket.off("user_stop_group_typing");
+    };
+  }, [channelId, groupTypingUsers, socket, userName]);
+
+  // useEffect(() => {
+  //   console.log("Updated group typing users: ", groupTypingUsers);
+  // }, [groupTypingUsers]);
+
+  const renderTypingIndicators = () => {
+    if (groupTypingUsers.size === 0) return null;
+
+    // In a real app, you'd map user IDs to usernames
+    const typingUsernames = Array.from(groupTypingUsers)
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      .map(([_, userName]) => userName) // Replace with actual username lookup
+      .join(", ");
+
+    return (
+      <TypingIndicator
+        typingUsernames={typingUsernames}
+        groupTypingUsers={groupTypingUsers}
+      />
+    );
+  };
+
   return (
     <div className="flex-1 bg-[#36393f] flex flex-col">
       {/* Header */}
@@ -273,6 +399,7 @@ const ServerChat: React.FC<ChatProps> = ({ channelId, serverId }) => {
       {/* Messages Area */}
       {/* Maybe make this an independent component */}
       <div className="flex-1 overflow-y-auto flex flex-col-reverse mb-2">
+        {renderTypingIndicators()}
         <div ref={messagesEndRef} style={{ height: 0 }} />
         {isLoading ? (
           <div className="text-center text-[#b9bbbe]">Loading messages...</div>
@@ -404,7 +531,10 @@ const ServerChat: React.FC<ChatProps> = ({ channelId, serverId }) => {
           className="flex-1 bg-[#202225] text-white  px-3 py-2 focus:outline-none"
           placeholder="Type your message here..."
           value={newMessage}
-          onChange={handleInputChange}
+          onChange={(e) => {
+            handleInputChange(e);
+            handleGroupTyping();
+          }}
           onKeyDown={handleKeyPress}
         />
         <div className="flex items-center space-x-2 bg-[#202225] rounded-r-md py-2 pr-3 mr-2">

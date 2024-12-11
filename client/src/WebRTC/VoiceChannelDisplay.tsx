@@ -1,4 +1,4 @@
-import { useEffect, useRef, forwardRef, LegacyRef } from "react";
+import { useEffect, useRef, forwardRef, LegacyRef, useState } from "react";
 import { faMicrophoneSlash } from "@fortawesome/free-solid-svg-icons";
 import {
   Volume2,
@@ -286,6 +286,8 @@ const VoiceChannelDisplay: React.FC<VoiceChannelDisplayProps> = forwardRef<
 >(({ onToggleFullScreen, onPictureInPicture, ...props }, ref) => {
   const localVideoRef = useRef<HTMLVideoElement>(null);
   const remoteVideoRefs = useRef<(HTMLVideoElement | null)[]>([]);
+  const [EmptyRoom, setEmptyRoom] = useState(false);
+
   const {
     userId,
     localStream,
@@ -297,6 +299,11 @@ const VoiceChannelDisplay: React.FC<VoiceChannelDisplayProps> = forwardRef<
     // logCurrentStreamState,
   } = useWebRTCContext();
 
+  // useEffect(() => {
+  //   if (remoteVideoRefs.current.length == 0) {
+  //     remoteVideoRefs.current = new Array(remoteStreams.length).fill(null);
+  //   }
+  // });
   // console.log("Checking remote stream in voice channel: ", remoteStreams);
 
   // Effect to handle local stream
@@ -309,20 +316,27 @@ const VoiceChannelDisplay: React.FC<VoiceChannelDisplayProps> = forwardRef<
   // Effect to handle remote streams
   useEffect(() => {
     if (remoteStreams.length > 0) {
+      const uniqueStreams = Array.from(
+        new Map(remoteStreams.map((stream) => [stream.id, stream])).values()
+      );
+
       // Update remote video refs
-      remoteVideoRefs.current = remoteStreams.map(
+      remoteVideoRefs.current = uniqueStreams.map(
         (_, index) => remoteVideoRefs.current[index] || null
       );
 
-      // Set source objects for remote streams
-      remoteStreams.forEach((stream, index) => {
+      // Set source objects for unique remote streams
+      uniqueStreams.forEach((stream, index) => {
         const videoElement = remoteVideoRefs.current[index];
         if (videoElement && stream) {
           videoElement.srcObject = stream;
         }
       });
     }
-  }, [remoteStreams]);
+    setEmptyRoom(
+      remoteStreams.length == 0 && remoteVideoRefs.current.length == 0
+    );
+  }, [remoteStreams, EmptyRoom]);
 
   const gridColumns = Math.ceil(
     Math.sqrt(remoteStreams.length ? remoteStreams.length + 1 : 2)
@@ -368,7 +382,7 @@ const VoiceChannelDisplay: React.FC<VoiceChannelDisplayProps> = forwardRef<
             );
           })}
 
-          {remoteVideoRefs.current.length == 0 && localStream && <EmptyState />}
+          {EmptyRoom && localStream && <EmptyState />}
         </div>
       </div>
 

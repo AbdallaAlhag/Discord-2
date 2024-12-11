@@ -34,6 +34,7 @@ export function LoginPage() {
         const token = res.data.token;
         localStorage.setItem("token", token);
         localStorage.setItem("userId", res.data.user.id);
+        localStorage.setItem("username", res.data.user.username);
         setUserId(res.data.user.id);
 
         navigate("/", { replace: true });

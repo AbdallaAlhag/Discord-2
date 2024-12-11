@@ -10,6 +10,8 @@ import {
 interface AuthContextProps {
   userId: number | null;
   setUserId: (id: number | null) => void;
+  userName: string | null;
+  setUserName: (name: string | null) => void;
 }
 
 const AuthContext = createContext<AuthContextProps | null>(null);
@@ -24,6 +26,11 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     const storedUserId = localStorage.getItem("userId");
     return storedUserId ? Number(storedUserId) : null; // Convert to number if exists
   });
+  const [userName, setUserName] = useState<string | null>(() => {
+    // Get initial userName from localStorage
+    const storedUserName = localStorage.getItem("username");
+    return storedUserName || null;
+  });
 
   // Update localStorage whenever userId changes
   useEffect(() => {
@@ -32,10 +39,15 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     } else {
       localStorage.removeItem("userId"); // Clear if userId is null
     }
-  }, [userId]);
+    if (userName !== null) {
+      localStorage.setItem("username", userName); // Store as string
+    } else {
+      localStorage.removeItem("userName"); // Clear if userName is null
+    }
+  }, [userId, userName]);
 
   return (
-    <AuthContext.Provider value={{ userId, setUserId }}>
+    <AuthContext.Provider value={{ userId, setUserId, userName, setUserName }}>
       {children}
     </AuthContext.Provider>
   );

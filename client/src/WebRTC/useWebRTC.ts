@@ -21,27 +21,28 @@ export const useWebRTC = ({ socket, channelId, userId }: UseWebRTCProps) => {
 
   const peerConnectionsRef = useRef<{ [key: string]: RTCPeerConnection }>({});
   const streamMetadata = useRef(new WeakMap<MediaStream, StreamMetadata>());
+
   // Utility function to log detailed stream information
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const logStreamDetails = (stream: MediaStream, streamType: string) => {
     if (!stream || alreadyJoined) {
       return;
     }
-    // console.log(`[DEBUG] ${streamType} Stream Details:`, {
-    //   id: stream.id,
-    //   audioTracks: stream.getAudioTracks().map((track) => ({
-    //     id: track.id,
-    //     enabled: track.enabled,
-    //     muted: track.muted,
-    //     readyState: track.readyState,
-    //   })),
-    //   videoTracks: stream.getVideoTracks().map((track) => ({
-    //     id: track.id,
-    //     enabled: track.enabled,
-    //     muted: track.muted,
-        // readyState: track.readyState,
-      // })),
-    // });
+    console.log(`[DEBUG] ${streamType} Stream Details:`, {
+      id: stream.id,
+      audioTracks: stream.getAudioTracks().map((track) => ({
+        id: track.id,
+        enabled: track.enabled,
+        muted: track.muted,
+        readyState: track.readyState,
+      })),
+      videoTracks: stream.getVideoTracks().map((track) => ({
+        id: track.id,
+        enabled: track.enabled,
+        muted: track.muted,
+        readyState: track.readyState,
+      })),
+    });
   };
 
   // Utility function to log peer connection details
@@ -107,6 +108,7 @@ export const useWebRTC = ({ socket, channelId, userId }: UseWebRTCProps) => {
       peerConnection.ontrack = (event) => {
         // console.log(`[DEBUG] Remote track received for socketId: ${socketId}`);
         const remoteStream = event.streams[0];
+        console.log("remoteStream:", remoteStream);
         console.log("event.streams:", event.streams);
         logStreamDetails(remoteStream, "Remote");
 
@@ -120,21 +122,25 @@ export const useWebRTC = ({ socket, channelId, userId }: UseWebRTCProps) => {
             return prev;
           }
           // Prevent duplicate streams
+          // const streamExists = prev.some(
+          //   (s) => s.id === remoteStream.id && streamMetadata.current.get(s)?.userId === streamMetadata.current.get(remoteStream)?.userId
+          // );
           const streamExists = prev.some((s) => s.id === remoteStream.id);
           if (!streamExists) {
             // console.log(
             //   `[DEBUG] Adding new remote stream (ID: ${remoteStream.id})`
             // );
             // Store metadata using stream ID as key
+            console.log("streamMetadata.current:", streamMetadata.current);
             streamMetadata.current.set(remoteStream, {
               userId: remoteUserId,
             });
+            console.log("remoteStreams:", remoteStreams);
             return [...prev, remoteStream];
           }
           return prev;
         });
       };
-     
 
       peerConnectionsRef.current[socketId] = peerConnection;
       return peerConnection;
@@ -207,6 +213,10 @@ export const useWebRTC = ({ socket, channelId, userId }: UseWebRTCProps) => {
       setRemoteStreams((prevRemoteStreams) =>
         prevRemoteStreams.filter((stream) => stream.id !== localStream?.id)
       );
+      const metadata = streamMetadata.current.get(localStream);
+      if (metadata) {
+        streamMetadata.current.delete(localStream);
+      }
       setAlreadyJoined(false);
       localStream.getTracks().forEach((track) => track.stop());
       setLocalStream(null);
@@ -264,6 +274,12 @@ export const useWebRTC = ({ socket, channelId, userId }: UseWebRTCProps) => {
         );
         if (peerConnection && currentLocalStream) {
           currentLocalStream.getTracks().forEach((track) => {
+            console.log(
+              "Adding track:",
+              track.id,
+              track.readyState,
+              track.kind
+            );
             // Explicitly add tracks
             addTrackSafely(peerConnection, track, currentLocalStream);
           });
@@ -290,6 +306,7 @@ export const useWebRTC = ({ socket, channelId, userId }: UseWebRTCProps) => {
         if (peerConnection && currentLocalStream) {
           currentLocalStream.getTracks().forEach((track) => {
             // Explicitly add tracks
+            console.log('Adding track":', track, track.readyState, track.kind);
             addTrackSafely(peerConnection, track, currentLocalStream);
           });
 
@@ -337,13 +354,18 @@ export const useWebRTC = ({ socket, channelId, userId }: UseWebRTCProps) => {
       const peerConnection = currentPeerConnections[data.socketId];
       // console.log("peerConnection: ", peerConnection);
       // console.log("data.socketId: ", data.socketId);
+      const metadata = streamMetadata.current.get(data.streamId);
+      if (metadata) {
+        streamMetadata.current.delete(data.streamId);
+      }
+
       if (peerConnection) {
+        peerConnection.close();
+        delete currentPeerConnections[data.socketId];
         setRemoteStreams((prev) =>
           prev.filter((stream) => stream.id !== data.streamId)
         );
         // console.log("peer left: ", data.streamId);
-        peerConnection.close();
-        delete currentPeerConnections[data.socketId];
       }
     });
     // }
@@ -434,18 +456,18 @@ export const useWebRTC = ({ socket, channelId, userId }: UseWebRTCProps) => {
   };
   // Add a method to log current stream state
   const logCurrentStreamState = useCallback(() => {
-    // console.log("[DEBUG] === Current Stream State ===");
+    console.log("[DEBUG] === Current Stream State ===");
 
     // Log local stream
     if (localStream) {
-      // console.log("[DEBUG] Local Stream:");
+      console.log("[DEBUG] Local Stream active");
       logStreamDetails(localStream, "Local");
     } else {
-      // console.log("[DEBUG] No Local Stream");
+      console.log("[DEBUG] No Local Stream");
     }
 
     // Log remote streams
-    // console.log("[DEBUG] Remote Streams:", remoteStreams.length);
+    console.log("[DEBUG] Remote Streams:", remoteStreams.length);
     remoteStreams.forEach((stream, index) => {
       logStreamDetails(stream, `Remote Stream ${index + 1}`);
     });
@@ -464,6 +486,7 @@ export const useWebRTC = ({ socket, channelId, userId }: UseWebRTCProps) => {
   //   })),
   // });
 
+  console.log("returning remote streams: ", remoteStreams);
   return {
     localStream,
     remoteStreams,

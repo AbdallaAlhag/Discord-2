@@ -1,6 +1,5 @@
 # Discord-2
     npx kill-port 3000 to kill server if already in use
-    7,
 
     4140 lines of code 11/20/2022
 
@@ -44,7 +43,6 @@ do this near the end:
 ---
 
 - [ ] work on server menu
-    - [ ] Complete the rest of the server menu later
     - [ ] create delete channel 
 ---
 
@@ -56,12 +54,14 @@ do this near the end:
 ---
 
 - [ ] pause execution on webrtc development at the moment!!!
-    - [ ] Can't see other user's voice indicators like video, audio, and mic indicators
-    - [ ] fix not active on user screens and correct the amount of people in voice room, when clicking on server, should get users in voice channels
+    - [ ] fix slight bug in voice, user count is off and remote video doesn't work on first join. Prob needs a refresh?
+    - [ ] Can't see other user's voice indicators like video, audio, and mic indicators -> add this to metadata?
+    - [ ] fix not active on user screens and correct the amount of people in voice room, when clicking on server, should get users in voice channels -> idk lol 
+    - [ ] create that green border hover when voice is activated
+    - [ ] clicking other voice channels should make you leave the current one
     - [x] Get voiceChanneldisplay working properly
         - [x] get all buttons to work in serverchannelsidebar 
         - [x] voice display
-    - [ ] create that green border hover when voice is activated
 ---
 
 - [x] work on server channel online indicator, just showcase users in server
@@ -70,7 +70,7 @@ do this near the end:
     - [x] direct messages 
     - [ ] active now -> let's keep this as is
     - [x] memberLists
-- [ ] Update tooltips for buttons 
+- [x] Update tooltips for buttons 
     - [x] channel sidebar buttons
     - [x] private message sidebar buttons   
     - [x] channelwebrtc icons
@@ -78,22 +78,23 @@ do this near the end:
     - [x] voiceChanneldisplay buttons
 ---
 ### haven't done yet:
+- [ ]  mobile mode (eh)
 - [ ] typing real time indicator works but not read receipts just yet. Both could use a tune up, do later, extra  
-- [ ]  right click menu 
 - [ ]  Notifications from server or users on new message
-- [ ]  users online status
-- [ ]  reactions
 - [ ]  permissions and roles
+- [ ]  right click menu 
+- [x]  users online status
+- [ ]  reactions
 - [ ]  voice chat / video chat / screen share
 - [ ]  discover tab in server side -> maybe make all servers public or something like that
 - [ ]  profile settings and settings in general
 - [ ]  dark mode (never done this before)
-- [ ]  mobile mode (eh)
 - [ ]  group message for private chats
 - [ ]  discord loading page
 - [ ] Probably work on a global online indicator later
 - [ ] accept files and images/vids/gifs ? maybe add a file uploader? lol 
 - [ ] Preview video modal when turning on camera
+- [ ] Create active on direct message tabs 
 ---
 
 Test accounts:

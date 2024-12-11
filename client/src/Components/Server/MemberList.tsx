@@ -35,7 +35,7 @@ const MemberList: React.FC<MemberListProps> = function ({ serverId }) {
         // console.log("server response: ", response);
         // console.log("servername: ", response.data.name);
         setServerUserInfo(response.data.members);
-        console.log("members: ", response.data.members);
+        // console.log("members: ", response.data.members);
         // console.log("channels: ", response.data);
       } catch (error) {
         console.error("Error fetching channels", error);
@@ -69,7 +69,7 @@ const MemberList: React.FC<MemberListProps> = function ({ serverId }) {
         .map((user) => (
           <div
             key={user.userId}
-            className="flex items-center mb-3 cursor-pointer hover:bg-[#36393f] p-2 rounded"
+            className="flex items-center mb-1 cursor-pointer hover:bg-[#36393f] p-2 rounded"
           >
             <div className="relative w-8 h-8">
               {/* <!-- Avatar --> */}
