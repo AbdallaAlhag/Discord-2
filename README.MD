@@ -79,7 +79,8 @@ do this near the end:
 ---
 ### haven't done yet:
 - [ ]  mobile mode (eh)
-- [ ] typing real time indicator works but not read receipts just yet. Both could use a tune up, do later, extra  
+- [x]  typing real time indicator works
+- [ ]  real time read receipts -> private chat only tbh
 - [ ]  Notifications from server or users on new message
 - [ ]  permissions and roles
 - [ ]  right click menu 
@@ -96,6 +97,8 @@ do this near the end:
 - [ ] Preview video modal when turning on camera
 - [ ] Create active on direct message tabs 
 ---
+
+--> Finish project by end of December!
 
 Test accounts:
 test users:

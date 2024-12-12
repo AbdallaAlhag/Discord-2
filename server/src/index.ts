@@ -118,10 +118,16 @@ io.on("connection", (socket) => {
   });
 
   // Handle read receipt
-  socket.on("read_receipt", ({ messageId, senderId }) => {
+  socket.on("read_receipt", ({ messageId, senderId, readBy, readAt }) => {
+    console.log("read receipt: ", messageId, readBy.toString());
     const senderSocketId = activeUsers.get(senderId.toString());
     if (senderSocketId) {
-      io.to(senderSocketId).emit("message_read", { messageId, readBy: userId });
+      io.to(senderSocketId).emit("message_read", {
+        messageId,
+        senderId,
+        readBy,
+        readAt,
+      });
     }
   });
 

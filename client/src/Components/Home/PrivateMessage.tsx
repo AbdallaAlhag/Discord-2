@@ -1,5 +1,5 @@
 import React from "react";
-import InviteEmbed from "./Home/InviteEmbed";
+import InviteEmbed from "./InviteEmbed";
 
 // invite by button
 interface InviteContent {
@@ -13,7 +13,7 @@ interface InviteContent {
 interface Message {
   user?: { username: string; avatarUrl: string };
   username?: string;
-  id?: number;
+  id: number;
   content: string | InviteContent;
   senderId: number;
   createdAt: string;
@@ -21,6 +21,12 @@ interface Message {
   senderUsername?: string;
   recipientUsername?: string;
   type?: "text" | "invite";
+  readReceipts: {
+    id: number;
+    messageId: number;
+    userId: number;
+    readAt: Date;
+  }[];
 }
 interface PrivateMessageProps {
   message: Message;
@@ -28,6 +34,7 @@ interface PrivateMessageProps {
   prevMessage: Message | false;
   differentDay: boolean;
   similarNextMsg: boolean;
+  messageRefs: React.MutableRefObject<Map<number, HTMLDivElement>>;
 }
 
 const PrivateMessage: React.FC<PrivateMessageProps> = ({
@@ -35,8 +42,9 @@ const PrivateMessage: React.FC<PrivateMessageProps> = ({
   prevMessage,
   differentDay,
   similarNextMsg,
+  messageRefs,
 }) => {
-  // console.log("intial message: ", message.content);
+  // console.log("intial message: ", message);
 
   const isGifUrl = (url: string): boolean => {
     // Check if the string ends with .gif
@@ -121,7 +129,36 @@ const PrivateMessage: React.FC<PrivateMessageProps> = ({
           </div>
         );
       }
-      return <span className="text-white break-words">{message.content}</span>;
+      // console.log("read receipts: ", message.readReceipts);
+      // console.log("time read at: ", message.readReceipts[0].readAt);
+      return (
+        <div
+          ref={(el) => {
+            if (el) {
+              messageRefs.current.set(message.id, el);
+            }
+          }}
+          data-message-id={message.id}
+          data-sender-id={message.senderId}
+          key={message.id}
+          className="flex flex-col"
+        >
+          <span className="text-white break-words">
+            {message.content}
+            {message.readReceipts &&
+              message.readReceipts.length > 0 &&
+              message.readReceipts[0]?.readAt && (
+                <span className="text-xs text-muted-foreground ml-1 group-hover:inline hidden">
+                  Read @{" "}
+                  {new Intl.DateTimeFormat("en-US", {
+                    hour: "2-digit",
+                    minute: "2-digit",
+                  }).format(new Date(message.readReceipts[0]?.readAt))}
+                </span>
+              )}
+          </span>
+        </div>
+      );
     } else if (isInviteContent(message.content)) {
       return <InviteEmbed inviteData={message.content} />;
     }

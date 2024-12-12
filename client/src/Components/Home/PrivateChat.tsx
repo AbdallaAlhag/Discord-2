@@ -12,7 +12,7 @@ import { useEffect, useState, useRef, useCallback } from "react";
 import { io, Socket } from "socket.io-client";
 import { useAuth } from "../../AuthContext";
 import axios from "axios";
-import PrivateMessage from "../PrivateMessage";
+import PrivateMessage from "./PrivateMessage";
 import TypingIndicator from "../TypingIndicator";
 import React from "react";
 import { GifPicker } from "../TenorComponent/Components/GifPicker";
@@ -29,7 +29,8 @@ interface InviteContent {
 interface Message {
   user?: { username: string; avatarUrl: string };
   username?: string;
-  id?: number;
+  id: number;
+  userId: number;
   content: string | InviteContent;
   senderId: number;
   createdAt: string;
@@ -38,6 +39,12 @@ interface Message {
   // senderAvatarUrl?: string;
   recipientUsername?: string;
   type?: "text" | "invite";
+  readReceipts: {
+    id: number;
+    messageId: number;
+    userId: number;
+    readAt: Date;
+  }[];
 }
 
 interface Friend {
@@ -72,6 +79,10 @@ const PrivateChat: React.FC<ChatProps> = ({ friendId }) => {
   const typingTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const [friendTyping, setFriendTyping] = useState(false);
   const [friendInfo, setFriendInfo] = useState<Friend | null>(null);
+
+  // read receipts
+  const [unreadMessages, setUnreadMessages] = useState<Message[]>([]);
+  const messageRefs = useRef<Map<number, HTMLDivElement>>(new Map());
 
   const [isMediaPickerOpen, setIsMediaPickerOpen] = useState(false);
   const [SelectedMedia, setSelectedMedia] = useState<MediaData | null>(null);
@@ -197,33 +208,86 @@ const PrivateChat: React.FC<ChatProps> = ({ friendId }) => {
     fetchMessages();
     fetchFriendInfo();
   }, [userId, friendId]);
-  // Mark message as read
-  // Handle real-time messages
-  useEffect(() => {
-    if (!socketRef.current) return;
 
-    const markAsRead = async (messageId: string) => {
+  const markAsRead = useCallback(
+    async (messageId: string, senderId: number) => {
       if (!socketRef.current) return;
 
       try {
-        await axios.post(`${VITE_API_BASE_URL}/messages/${messageId}/read`);
+        await axios.post(
+          `${VITE_API_BASE_URL}/chat/private/messages/${messageId}/${userId}/read`
+        );
         socketRef.current.emit("read_receipt", {
           messageId,
+          senderId,
           readBy: userId,
           readAt: new Date().toISOString(),
         });
       } catch (err) {
         console.error("Error sending read receipt:", err);
       }
-    };
+    },
+    [userId]
+  );
+
+  // Mark message as read
+  // Handle real-time messages
+  useEffect(() => {
+    if (!socketRef.current) return;
+
+    // const markAsRead = async (messageId: string, senderId: number) => {
+    //   if (!socketRef.current) return;
+
+    //   try {
+    //     await axios.post(
+    //       `${VITE_API_BASE_URL}/chat/channel/messages/${messageId}/${userId}/read`
+    //     );
+    //     socketRef.current.emit("read_receipt", {
+    //       messageId,
+    //       senderId,
+    //       readBy: userId,
+    //       readAt: new Date().toISOString(),
+    //     });
+    //   } catch (err) {
+    //     console.error("Error sending read receipt:", err);
+    //   }
+    // };
 
     // Handle incoming messages
     socketRef.current.on("private_message", (msg: Message) => {
+      console.log("got private message");
       setMessages((prevMessages) => [...prevMessages, msg]);
       // Send read receipt
-      if (document.hasFocus()) {
-        markAsRead(String(msg.id));
-      }
+      // console.log('do we have focus??: ', document.hasFocus());
+      // if (document.hasFocus()) {
+      //   console.log('starting read function');
+      //   markAsRead(String(msg.id));
+      // }
+      // Duration to check focus (e.g., 5 seconds)
+
+      // const checkDuration = 5000; // 5 seconds
+      // const checkInterval = 500; // Check every 500ms
+      // let focusTime = 0;
+
+      // const interval = setInterval(() => {
+      //   if (document.hasFocus()) {
+      //     focusTime += checkInterval;
+      //     console.log(`Focus retained for ${focusTime / 1000}s`);
+      //   } else {
+      //     focusTime = 0; // Reset if focus is lost
+      //     console.log("Focus lost, resetting...");
+      //   }
+
+      //   if (focusTime) {
+      //     markAsRead(String(msg.id), msg.senderId);
+      //     clearInterval(interval);
+      //   }
+      // }, checkInterval);
+
+      // // Optional: Ensure interval clears after the max check duration
+      // setTimeout(() => clearInterval(interval), checkDuration);
+      setUnreadMessages((prev) => [...prev, msg]);
+
       scrollToBottom();
     });
 
@@ -234,15 +298,50 @@ const PrivateChat: React.FC<ChatProps> = ({ friendId }) => {
       }
     });
 
-    socketRef.current.on("message_read", (messageId: string) => {
-      setMessages((prevMessages) =>
-        prevMessages.map((msg) =>
-          msg.id === Number(messageId)
-            ? { ...msg, status: "read", readAt: new Date().toISOString() }
-            : msg
-        )
-      );
-    });
+    socketRef.current.on(
+      "message_read",
+      (data: {
+        messageId: string;
+        readBy: number;
+        readAt: string;
+        senderId: number;
+      }) => {
+        setMessages(
+          messages.map((msg) => {
+            // if (msg.readReceipts.length === 0) return msg;
+            console.log("Current message:", msg);
+            console.log("current data: ", data);
+            console.log(
+              "Condition:",
+              msg.id === Number(data.messageId),
+              "and",
+              msg.userId == Number(data.senderId)
+            );
+            if (
+              msg.id === Number(data.messageId) &&
+              msg.senderId === Number(data.senderId)
+            ) {
+              const updatedMessage = {
+                ...msg,
+                readReceipt: {
+                  id: msg.id,
+                  messageId: Number(data.messageId),
+                  userId: data.readBy,
+                  readAt: new Date(data.readAt),
+                },
+              };
+              console.log("Updated message:", updatedMessage);
+              return updatedMessage;
+            }
+            console.log("Message not updated:", msg);
+            return msg;
+          })
+        );
+
+        // console.log("data: ", data);
+        // console.log("message read: ", messages);
+      }
+    );
 
     // Handle error events
     socketRef.current.on("error", (error: string) => {
@@ -258,7 +357,55 @@ const PrivateChat: React.FC<ChatProps> = ({ friendId }) => {
         socketRef.current.off("error");
       }
     };
-  }, [friendId, userId]);
+  }, [friendId, markAsRead, userId]);
+
+  useEffect(() => {
+    // Create an Intersection Observer
+    console.log("Creating observer");
+    const observer = new IntersectionObserver(
+      (entries) => {
+        console.log("entries: ", entries);
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            const messageId = Number(
+              entry.target.getAttribute("data-message-id")
+            );
+            const message = unreadMessages.find((msg) => msg.id === messageId);
+
+            console.log("here we are");
+            if (message) {
+              console.log("we got inside which i don't think willl work");
+              // Mark the message as read
+              markAsRead(String(messageId), message.senderId);
+
+              // Remove from unread messages
+              setUnreadMessages((prev) =>
+                prev.filter((msg) => msg.id !== messageId)
+              );
+
+              // Disconnect this specific observation
+              observer.unobserve(entry.target);
+            }
+          }
+        });
+      },
+      {
+        threshold: 0.5, // Trigger when at least 50% of the message is visible
+      }
+    );
+
+    // Observe all unread message elements
+    messageRefs.current.forEach((el, messageId) => {
+      if (unreadMessages.some((msg) => msg.id === messageId)) {
+        observer.observe(el);
+      }
+    });
+
+    // Cleanup
+    return () => {
+      observer.disconnect();
+    };
+  }, [markAsRead, unreadMessages]);
 
   // Handle typing indication
   const handleTyping = () => {
@@ -499,13 +646,14 @@ const PrivateChat: React.FC<ChatProps> = ({ friendId }) => {
                   prevMessage={prevMsg}
                   differentDay={isDifferentDay}
                   similarNextMsg={similarNextMsg}
+                  messageRefs={messageRefs}
                 />
               </React.Fragment>
             );
           })
         )}
 
-        {friendTyping && <TypingIndicator friendInfo={friendInfo}/>}
+        {friendTyping && <TypingIndicator friendInfo={friendInfo} />}
 
         <div ref={messagesEndRef} />
       </div>

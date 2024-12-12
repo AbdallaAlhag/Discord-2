@@ -26,7 +26,8 @@ model User {
   createdInvites   ServerInvite[]  @relation("InviteCreator")
   usedInvites      ServerInvite[]  @relation("InviteUser")
 
-  onlineStatus Boolean @default(false)
+  onlineStatus       Boolean              @default(false)
+  messageReadReceipts MessageReadReceipt[]
 }
 
 model Server {
@@ -69,17 +70,32 @@ model ServerMember {
 }
 
 model Message {
-  id          Int         @id @default(autoincrement())
-  content     String
-  createdAt   DateTime    @default(now())
-  channelId   Int?
-  userId      Int
-  messageType MessageType
-  recipientId Int?
-  channel     Channel?    @relation(fields: [channelId], references: [id])
-  recipient   User?       @relation("MessageRecipient", fields: [recipientId], references: [id])
-  user        User        @relation("MessageSender", fields: [userId], references: [id])
-  reactions   Reaction[]
+  id                 Int                  @id @default(autoincrement())
+  content            String
+  createdAt          DateTime             @default(now())
+  channelId          Int?
+  userId             Int
+  messageType        MessageType
+  recipientId        Int?
+  channel            Channel?             @relation(fields: [channelId], references: [id])
+  recipient          User?                @relation("MessageRecipient", fields: [recipientId], references: [id])
+  user               User                 @relation("MessageSender", fields: [userId], references: [id])
+  reactions          Reaction[]
+
+   // New relation to track read receipts
+  readReceipts MessageReadReceipt[]
+}
+
+model MessageReadReceipt {
+  id        Int      @id @default(autoincrement())
+  messageId Int
+  userId    Int
+  readAt    DateTime @default(now())
+
+  message Message @relation(fields: [messageId], references: [id])
+  user    User    @relation(fields: [userId], references: [id])
+
+  @@unique([messageId, userId])
 }
 
 enum MessageType {

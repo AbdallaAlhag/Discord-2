@@ -4,6 +4,7 @@ import {
   getChannelMessages,
   createPrivateMessage,
   getPrivateMessages,
+  updateReadReceipts,
 } from "../db/messageQueries";
 import { Request, Response } from "express";
 
@@ -70,9 +71,23 @@ const handleGetPrivateMessages = async (req: Request, res: Response) => {
   }
 };
 
+const handleReadReceipt = async (req: Request, res: Response) => {
+  const { messageId, userId } = req.params;
+
+  try {
+    await updateReadReceipts(messageId, Number(userId));
+
+    res.status(200).json({ success: true });
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to mark message as read' });
+  }
+};
+
+
 export {
   handleCreateChannelMessage,
   handleGetChannelMessages,
   handleCreatePrivateMessage,
   handleGetPrivateMessages,
+  handleReadReceipt,
 };

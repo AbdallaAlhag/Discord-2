@@ -104,6 +104,7 @@ async function createPrivateMessage(
       createdAt: createdMessage.createdAt,
       recipientId: createdMessage.recipientId,
       recipientUsername: recipient?.username,
+      
     };
   } catch (err) {
     console.error("Bug is here creating message:", err);
@@ -124,14 +125,38 @@ async function getPrivateMessages(userId: number, friendId: number) {
       user: {
         select: { username: true, avatarUrl: true },
       },
+      readReceipts: true,
     },
     orderBy: { createdAt: "asc" },
   });
 }
+
+const updateReadReceipts = async (messageId: string, userId: number) => {
+  try {
+    await prisma.messageReadReceipt.upsert({
+      where: {
+        messageId_userId: {
+          messageId: parseInt(messageId),
+          userId: userId,
+        },
+      },
+      update: {
+        readAt: new Date(),
+      },
+      create: {
+        messageId: parseInt(messageId),
+        userId: userId,
+      },
+    });
+  } catch (error) {
+    console.error("Error updating read receipts:", error);
+  }
+};
 
 export {
   createChannelMessage,
   getChannelMessages,
   createPrivateMessage,
   getPrivateMessages,
+  updateReadReceipts,
 };

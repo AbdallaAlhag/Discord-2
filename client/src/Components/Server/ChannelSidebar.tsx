@@ -1,4 +1,4 @@
-import { Hash, Plus, Settings, Volume2 } from "lucide-react";
+import { Hash, Plus, Volume2 } from "lucide-react";
 import SettingsButton from "../Profile/SettingsButton";
 import LogoutButton from "../Profile/LogoutButton";
 import { SetStateAction, useEffect, useState } from "react";
@@ -222,11 +222,11 @@ const ChannelSidebar: React.FC<{
                   <Hash className="w-5 h-5 mr-1.5" />
                   <span className=" text-white">{channel.name}</span>
                 </div>
-                <div className="flex items-center space-x-2">
+                {/* <div className="flex items-center space-x-2">
                   <button className="text-[#b9bbbe] hover:text-white">
                     <Settings className="w-4 h-4" />
                   </button>
-                </div>
+                </div> */}
               </Link>
             ))}
           <div className="flex items-center justify-between my-2">
