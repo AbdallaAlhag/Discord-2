@@ -9,6 +9,7 @@ import { Tooltip } from "react-tooltip";
 import "react-tooltip/dist/react-tooltip.css"; // Import required CSS
 import { cn } from "@/lib/utils";
 import { useParams } from "react-router-dom";
+import { NotificationSidebar } from "./NotificationSidebar";
 
 interface Server {
   channels: { id: number; name: string; iconUrl: string; createdAt: Date }[];
@@ -92,6 +93,8 @@ const ServerSidebar: React.FC = () => {
           </Link>
         </div>
       </div>
+
+      <NotificationSidebar />
 
       <div className="w-12 h-[2px] bg-[#36393f] rounded-full" />
       {server?.length > 0 &&

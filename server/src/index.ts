@@ -57,14 +57,35 @@ io.on("connection", (socket) => {
   // console.log(`User ${userId} connected and joined room`);
 
   // Handle private message
-  socket.on("private_message", (messageData) => {
+  socket.on("private_message", async (messageData) => {
+    console.log("messageData: ", messageData);
     if (messageData.recipientId) {
       io.to(messageData.recipientId.toString()).emit(
         "private_message",
         messageData
       );
     }
+
+    // Count unread messages for recipient
+    const unreadCount = await prisma.message.count({
+      where: {
+        recipientId: messageData.recipientId,
+        readReceipts: {
+          none: {}, // Messages with no read receipts
+        },
+      },
+    });
+
+    // Emit to specific user
+    io.to(messageData.recipientId.toString()).emit(
+      "private-message-notification",
+      {
+        message: messageData,
+        unreadCount: unreadCount,
+      }
+    );
   });
+
   // Handle server and channel messages
   socket.on("join_server", (serverId) => {
     socket.join(`server-${serverId}`);

@@ -214,15 +214,24 @@ const PrivateChat: React.FC<ChatProps> = ({ friendId }) => {
       if (!socketRef.current) return;
 
       try {
-        await axios.post(
-          `${VITE_API_BASE_URL}/chat/private/messages/${messageId}/${userId}/read`
-        );
-        socketRef.current.emit("read_receipt", {
-          messageId,
-          senderId,
-          readBy: userId,
-          readAt: new Date().toISOString(),
-        });
+        await axios
+          .post(
+            `${VITE_API_BASE_URL}/chat/private/messages/${messageId}/${userId}/read`
+          )
+          .then(() => {
+            socketRef.current?.emit("read_receipt", {
+              messageId,
+              senderId,
+              readBy: userId,
+              readAt: new Date().toISOString(),
+            });
+          });
+        // socketRef.current.emit("read_receipt", {
+        //   messageId,
+        //   senderId,
+        //   readBy: userId,
+        //   readAt: new Date().toISOString(),
+        // });
       } catch (err) {
         console.error("Error sending read receipt:", err);
       }
@@ -298,6 +307,7 @@ const PrivateChat: React.FC<ChatProps> = ({ friendId }) => {
       }
     });
 
+    // FIX THIS!!!!!!!!!!!!!!!!
     socketRef.current.on(
       "message_read",
       (data: {
@@ -308,18 +318,21 @@ const PrivateChat: React.FC<ChatProps> = ({ friendId }) => {
       }) => {
         setMessages(
           messages.map((msg) => {
+            if (messages[messages.length - 1].id === msg.id)
+              console.log("Last message: ", msg, "data: ", data);
+            if (msg.readReceipts) return msg;
             // if (msg.readReceipts.length === 0) return msg;
-            console.log("Current message:", msg);
-            console.log("current data: ", data);
-            console.log(
-              "Condition:",
-              msg.id === Number(data.messageId),
-              "and",
-              msg.userId == Number(data.senderId)
+            console.debug(
+              "msg id:",
+              msg.id + 1 === Number(data.messageId),
+              "sender id: ",
+              msg.userId === Number(data.senderId),
+              "Message details:",
+              { message: msg, data }
             );
             if (
               msg.id === Number(data.messageId) &&
-              msg.senderId === Number(data.senderId)
+              msg.userId === Number(data.senderId)
             ) {
               const updatedMessage = {
                 ...msg,
@@ -339,7 +352,7 @@ const PrivateChat: React.FC<ChatProps> = ({ friendId }) => {
         );
 
         // console.log("data: ", data);
-        // console.log("message read: ", messages);
+        console.log("message read: ", messages);
       }
     );
 
@@ -506,7 +519,7 @@ const PrivateChat: React.FC<ChatProps> = ({ friendId }) => {
           `${VITE_API_BASE_URL}/chat/private/messages`,
           messageData
         );
-        // console.log("Message saved to database:", response.data); // Debug
+        console.log("Message saved to database:", response.data); // Debug
         // Emit message through socket for real-time delivery
         socketRef.current.emit("private_message", response.data);
         // Update local state to show message immediately
