@@ -1,8 +1,11 @@
 # Discord-2
     npx kill-port 3000 to kill server if already in use
 
-    4140 lines of code 11/20/2022
+    4140 lines of code 11/20/2024
 
+--> Start project on 10/28/2022
+--> 12/13/24, end of week 7
+--> Finish project by end of December!
 
 ### todo: 
 ---
@@ -98,7 +101,6 @@ do this near the end:
 - [ ] Create active on direct message tabs 
 ---
 
---> Finish project by end of December!
 
 Test accounts:
 test users:

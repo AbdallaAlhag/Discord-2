@@ -214,18 +214,36 @@ const PrivateChat: React.FC<ChatProps> = ({ friendId }) => {
       if (!socketRef.current) return;
 
       try {
-        await axios
+        // Emit socket event immediately
+        socketRef.current.emit("read_receipt", {
+          messageId,
+          senderId,
+          readBy: userId,
+          readAt: new Date().toISOString(),
+        });
+
+        // Optionally send API request (can be done async)
+        axios
           .post(
             `${VITE_API_BASE_URL}/chat/private/messages/${messageId}/${userId}/read`
           )
-          .then(() => {
-            socketRef.current?.emit("read_receipt", {
-              messageId,
-              senderId,
-              readBy: userId,
-              readAt: new Date().toISOString(),
-            });
+          .catch((err) => {
+            console.error("Error sending read receipt to API:", err);
           });
+
+        // await axios
+        //   .post(
+        //     `${VITE_API_BASE_URL}/chat/private/messages/${messageId}/${userId}/read`
+        //   )
+        //   .then(() => {
+        //     socketRef.current?.emit("read_receipt", {
+        //       messageId,
+        //       senderId,
+        //       readBy: userId,
+        //       readAt: new Date().toISOString(),
+        //     });
+        //   });
+
         // socketRef.current.emit("read_receipt", {
         //   messageId,
         //   senderId,
@@ -308,6 +326,46 @@ const PrivateChat: React.FC<ChatProps> = ({ friendId }) => {
     });
 
     // FIX THIS!!!!!!!!!!!!!!!!
+    // socketRef.current.on(
+    //   "message_read",
+    //   (data: {
+    //     messageId: string;
+    //     readBy: number;
+    //     readAt: string;
+    //     senderId: number;
+    //   }) => {
+    //     console.log("previous messages: ", messages);
+    //     console.log("data we recieved: ", data);
+    //     setMessages((prevMessages) =>
+    //       prevMessages.map((msg) => {
+    //         // Convert messageId and data.senderId to numbers for comparison
+    //         const messageIdNum = Number(data.messageId);
+    //         const senderIdNum = Number(data.senderId);
+
+    //         // Check if this is the correct message to update
+    //         if (msg.id === messageIdNum && msg.userId === senderIdNum) {
+    //           console.log("message read: ", msg);
+    //           return {
+    //             ...msg,
+    //             readReceipts: [
+    //               ...(msg.readReceipts || []),
+    //               {
+    //                 id: msg.id,
+    //                 messageId: messageIdNum,
+    //                 userId: data.readBy,
+    //                 readAt: new Date(data.readAt),
+    //               },
+    //             ],
+    //           };
+    //         }
+
+    //         // Return the message unchanged if it doesn't match
+    //         return msg;
+    //       })
+    //     );
+    //   }
+    // );
+    // Socket event listener
     socketRef.current.on(
       "message_read",
       (data: {
@@ -316,43 +374,38 @@ const PrivateChat: React.FC<ChatProps> = ({ friendId }) => {
         readAt: string;
         senderId: number;
       }) => {
-        setMessages(
-          messages.map((msg) => {
-            if (messages[messages.length - 1].id === msg.id)
-              console.log("Last message: ", msg, "data: ", data);
-            if (msg.readReceipts) return msg;
-            // if (msg.readReceipts.length === 0) return msg;
-            console.debug(
-              "msg id:",
-              msg.id + 1 === Number(data.messageId),
-              "sender id: ",
-              msg.userId === Number(data.senderId),
-              "Message details:",
-              { message: msg, data }
-            );
-            if (
+        console.log("Received message read event:", data);
+
+        setMessages((prevMessages) => {
+          // Create a new array to avoid direct mutation
+          const updatedMessages = [...prevMessages];
+
+          const messageIndex = updatedMessages.findIndex(
+            (msg) =>
               msg.id === Number(data.messageId) &&
-              msg.userId === Number(data.senderId)
-            ) {
-              const updatedMessage = {
-                ...msg,
-                readReceipt: {
-                  id: msg.id,
+              msg.senderId === Number(data.senderId)
+          );
+          console.log("updatedMessages: ", updatedMessages);
+          console.log("message: ", data);
+          console.log("messageIndex: ", messageIndex);
+          if (messageIndex !== -1) {
+            // Create a new message object with updated read receipts
+            updatedMessages[messageIndex] = {
+              ...updatedMessages[messageIndex],
+              readReceipts: [
+                ...(updatedMessages[messageIndex].readReceipts || []),
+                {
+                  id: updatedMessages[messageIndex].id,
                   messageId: Number(data.messageId),
                   userId: data.readBy,
                   readAt: new Date(data.readAt),
                 },
-              };
-              console.log("Updated message:", updatedMessage);
-              return updatedMessage;
-            }
-            console.log("Message not updated:", msg);
-            return msg;
-          })
-        );
+              ],
+            };
+          }
 
-        // console.log("data: ", data);
-        console.log("message read: ", messages);
+          return updatedMessages;
+        });
       }
     );
 
@@ -388,6 +441,7 @@ const PrivateChat: React.FC<ChatProps> = ({ friendId }) => {
             console.log("here we are");
             if (message) {
               console.log("we got inside which i don't think willl work");
+              console.log("message: ", message);
               // Mark the message as read
               markAsRead(String(messageId), message.senderId);
 

@@ -60,6 +60,7 @@ io.on("connection", (socket) => {
   socket.on("private_message", async (messageData) => {
     console.log("messageData: ", messageData);
     if (messageData.recipientId) {
+      //       io.to(`${messageData.recipientId}`).to(`${messageData.senderId}`).emit(
       io.to(messageData.recipientId.toString()).emit(
         "private_message",
         messageData
@@ -70,6 +71,7 @@ io.on("connection", (socket) => {
     const unreadCount = await prisma.message.count({
       where: {
         recipientId: messageData.recipientId,
+        userId: messageData.senderId,
         readReceipts: {
           none: {}, // Messages with no read receipts
         },

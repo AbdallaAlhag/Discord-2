@@ -28,9 +28,9 @@ export const NotificationSidebar: React.FC = () => {
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const { userId } = useAuth();
   const navigate = useNavigate();
-  useEffect(() => {
-    console.log("notifications: ", notifications);
-  });
+  //   useEffect(() => {
+  //     console.log("notifications: ", notifications);
+  //   });
   useEffect(() => {
     const socket = io(VITE_API_BASE_URL, {
       query: { userId },
