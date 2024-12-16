@@ -22,6 +22,7 @@ const server = http.createServer(app); // Create HTTP server with Express app
 app.use(
   cors({
     origin: [
+      '*',
       "http://localhost:5173",
       "https://discord-2.netlify.app",
       "https://discord-2-production.up.railway.app",
