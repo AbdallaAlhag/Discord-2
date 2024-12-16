@@ -92,7 +92,8 @@ do this near the end:
 - [x]  users online status
 - [x]  voice chat / video chat / screen share
     - [ ] rough draft working, come back later
-- [ ]  deploy to production
+- [x]  deploy to production
+ 
 - [ ]  permissions and roles
 - [ ]  right click menu 
 - [ ]  reactions
