@@ -25,7 +25,7 @@ const io = new Server(server, {
     origin: [
       "http://localhost:5173",
       "https://discord-2.netlify.app",
-      "discord-2-production.up.railway.app",
+      "https://discord-2-production.up.railway.app",
     ], // Client origin for CORS policy
     methods: ["GET", "POST"],
     credentials: true,
@@ -281,7 +281,7 @@ app.use(
     origin: [
       "http://localhost:5173",
       "https://discord-2.netlify.app",
-      "discord-2-production.up.railway.app",
+      "https://discord-2-production.up.railway.app",
     ], // Client origin for CORS policy
   })
 );
