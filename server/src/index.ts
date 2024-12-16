@@ -31,21 +31,26 @@ app.use(
     credentials: true,
   })
 );
-
+app.use((req, res, next) => {
+  console.log("Incoming request:", {
+    origin: req.get("origin"),
+    method: req.method,
+    path: req.path,
+  });
+  next();
+});
 const io = new Server(server, {
   cors: {
     origin: [
-      "http://localhost:5173", 
-      "https://discord-2.netlify.app", 
-      "https://discord-2-production.up.railway.app"
+      "http://localhost:5173",
+      "https://discord-2.netlify.app",
+      "https://discord-2-production.up.railway.app",
     ],
     methods: ["GET", "POST"],
     allowedHeaders: ["Content-Type", "Authorization"],
     credentials: true,
   },
 });
-
-
 
 console.log("Backend server has started..."); // This should log when the server starts
 
