@@ -1,5 +1,5 @@
+"use strict";
 // import prisma from './prisma';
-
 // async function main() {
 //   // Create users
 //   const user1 = await prisma.user.create({
@@ -9,7 +9,6 @@
 //       password: 'password1',
 //     },
 //   });
-
 //   const user2 = await prisma.user.create({
 //     data: {
 //       username: 'user_two',
@@ -17,7 +16,6 @@
 //       password: 'password2',
 //     },
 //   });
-
 //   const user3 = await prisma.user.create({
 //     data: {
 //       username: 'user_three',
@@ -25,7 +23,6 @@
 //       password: 'password3',
 //     },
 //   });
-
 //   // Create servers
 //   const server1 = await prisma.server.create({
 //     data: {
@@ -40,7 +37,6 @@
 //       },
 //     },
 //   });
-
 //   const server2 = await prisma.server.create({
 //     data: {
 //       name: 'Gaming Hub',
@@ -50,7 +46,6 @@
 //       },
 //     },
 //   });
-
 //   // Create channels
 //   const generalChannel = await prisma.channel.create({
 //     data: {
@@ -59,7 +54,6 @@
 //       serverId: server1.id,
 //     },
 //   });
-
 //   const techNewsChannel = await prisma.channel.create({
 //     data: {
 //       name: 'tech-news',
@@ -67,7 +61,6 @@
 //       serverId: server1.id,
 //     },
 //   });
-
 //   const gamingChannel = await prisma.channel.create({
 //     data: {
 //       name: 'gaming-talk',
@@ -75,7 +68,6 @@
 //       serverId: server2.id,
 //     },
 //   });
-
 //   // Create messages
 //   await prisma.message.createMany({
 //     data: [
@@ -101,7 +93,6 @@
 //       },
 //     ],
 //   });
-
 // // Create roles
 // const adminRole = await prisma.role.create({
 //     data: {
@@ -112,7 +103,6 @@
 //       },
 //     },
 //   });
-  
 //   const memberRole = await prisma.role.create({
 //     data: {
 //       name: 'Member',
@@ -122,8 +112,6 @@
 //       },
 //     },
 //   });
-  
-
 //   // Create friendships
 //   await prisma.friend.createMany({
 //     data: [
@@ -132,10 +120,8 @@
 //       { userId: user1.id, friendId: user3.id },
 //     ],
 //   });
-
 //   console.log('Database has been seeded successfully!');
 // }
-
 // main()
 //   .catch((e) => {
 //     console.error(e);
