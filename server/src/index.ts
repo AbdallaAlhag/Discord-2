@@ -22,7 +22,7 @@ const server = http.createServer(app); // Create HTTP server with Express app
 
 const io = new Server(server, {
   cors: {
-    origin: "http://localhost:5173", // Client origin for CORS policy
+    origin: ["http://localhost:5173", "discord-2-production.up.railway.app"], // Client origin for CORS policy
     methods: ["GET", "POST"],
     credentials: true,
   },
@@ -274,7 +274,7 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(
   cors({
-    origin: "http://localhost:5173", // Client origin for CORS policy
+    origin: ["http://localhost:5173", "discord-2-production.up.railway.app"], // Client origin for CORS policy
   })
 );
 app.use(passport.initialize());
