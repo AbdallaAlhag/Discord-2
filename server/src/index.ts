@@ -19,6 +19,17 @@ const PORT = process.env.PORT || 3000;
 // socket.io setup
 const server = http.createServer(app); // Create HTTP server with Express app
 // Socket.IO cors Configuration: Added CORS settings specifically for the Socket.IO instance, targeting http://localhost:5173 (the default for Vite) to avoid connection issues.
+app.use(
+  cors({
+    origin: [
+      "http://localhost:5173",
+      "https://discord-2.netlify.app",
+      "https://discord-2-production.up.railway.app",
+    ], // Client origin for CORS policy
+    methods: ["GET", "POST", "PUT", "DELETE"],
+    credentials: true, // If you are using cookies or sessions
+  })
+);
 
 const io = new Server(server, {
   cors: {
@@ -276,15 +287,7 @@ io.on("connection", (socket) => {
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
-app.use(
-  cors({
-    origin: [
-      "http://localhost:5173",
-      "https://discord-2.netlify.app",
-      "https://discord-2-production.up.railway.app",
-    ], // Client origin for CORS policy
-  })
-);
+
 app.use(passport.initialize());
 
 app.use((req, res, next) => {
