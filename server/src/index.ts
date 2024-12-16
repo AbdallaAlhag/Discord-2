@@ -22,27 +22,30 @@ const server = http.createServer(app); // Create HTTP server with Express app
 app.use(
   cors({
     origin: [
-      '*',
       "http://localhost:5173",
       "https://discord-2.netlify.app",
       "https://discord-2-production.up.railway.app",
-    ], // Client origin for CORS policy
+    ],
     methods: ["GET", "POST", "PUT", "DELETE"],
-    credentials: true, // If you are using cookies or sessions
+    allowedHeaders: ["Content-Type", "Authorization"],
+    credentials: true,
   })
 );
 
 const io = new Server(server, {
   cors: {
     origin: [
-      "http://localhost:5173",
-      "https://discord-2.netlify.app",
-      "https://discord-2-production.up.railway.app",
-    ], // Client origin for CORS policy
+      "http://localhost:5173", 
+      "https://discord-2.netlify.app", 
+      "https://discord-2-production.up.railway.app"
+    ],
     methods: ["GET", "POST"],
+    allowedHeaders: ["Content-Type", "Authorization"],
     credentials: true,
   },
 });
+
+
 
 console.log("Backend server has started..."); // This should log when the server starts
 
@@ -291,12 +294,12 @@ app.use(express.urlencoded({ extended: false }));
 
 app.use(passport.initialize());
 
-app.use((req, res, next) => {
-  res.setHeader("Access-Control-Allow-Origin", "*");
-  res.setHeader("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE");
-  res.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization");
-  next();
-});
+// app.use((req, res, next) => {
+//   res.setHeader("Access-Control-Allow-Origin", "*");
+//   res.setHeader("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE");
+//   res.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization");
+//   next();
+// });
 
 // Set up routing and middleware
 app.use("/", appRouter);
