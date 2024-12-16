@@ -249,9 +249,8 @@ export const useWebRTC = ({ socket, channelId, userId }: UseWebRTCProps) => {
     const currentLocalStream = localStream;
     let currentPeerConnections = peerConnectionsRef.current;
 
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     socket?.on("disconnect", (reason) => {
-      // console.log(`[DEBUG] Socket Disconnected - Reason: ${reason}`);
+      console.log(`[DEBUG] Socket Disconnected - Reason: ${reason}`);
     });
     // Add connection event listeners
     socket?.on("connect", () => {

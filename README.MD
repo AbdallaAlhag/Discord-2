@@ -6,6 +6,7 @@
 --> Start project on 10/28/2022
 --> 12/13/24, end of week 7
 --> Finish project by end of December!
+--> deploy this bad boy 12/16/2024
 
 ### todo: 
 ---
@@ -84,12 +85,17 @@ do this near the end:
 - [ ]  mobile mode (eh)
 - [x]  typing real time indicator works
 - [ ]  real time read receipts -> private chat only tbh
-- [ ]  Notifications from server or users on new message
+    - [ ] Add a ding on real time receipt to showcase, low priority
+- [x]  Notifications from server or users on new message
+    - [ ] fix notification count, should reset but some messages are never read
+    - [ ] no notification if we are on message page
+- [x]  users online status
+- [x]  voice chat / video chat / screen share
+    - [ ] rough draft working, come back later
+- [ ]  deploy to production
 - [ ]  permissions and roles
 - [ ]  right click menu 
-- [x]  users online status
 - [ ]  reactions
-- [ ]  voice chat / video chat / screen share
 - [ ]  discover tab in server side -> maybe make all servers public or something like that
 - [ ]  profile settings and settings in general
 - [ ]  dark mode (never done this before)

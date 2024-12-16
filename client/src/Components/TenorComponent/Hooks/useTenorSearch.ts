@@ -5,7 +5,7 @@ import { emojis } from "../Data/emojis";
 
 const TENOR_API_KEY = import.meta.env.VITE_TENOR_API_KEY;
 // const TENOR_API_URL = "https://tenor.googleapis.com/v2";
-const CLIENT_KEY = import.meta.env.VITE_TENOR_CLIENT_KEY;
+const VITE_CLIENT_KEY = import.meta.env.VITE_TENOR_CLIENT_KEY;
 
 export function useMediaSearch(type: MediaType, searchQuery: string) {
   const [media, setMedia] = useState<MediaData[]>([]);
@@ -30,7 +30,7 @@ export function useMediaSearch(type: MediaType, searchQuery: string) {
         const { data } = await axios.get(endpoint, {
           params: {
             key: TENOR_API_KEY,
-            client_key: CLIENT_KEY,
+            client_key: VITE_CLIENT_KEY,
             q: searchQuery,
             limit: 5,
           },
@@ -82,7 +82,7 @@ export function useMediaSearch(type: MediaType, searchQuery: string) {
 
         const params = {
           key: TENOR_API_KEY,
-          client_key: CLIENT_KEY,
+          client_key: VITE_CLIENT_KEY,
           q: searchQuery,
           limit: 20,
           searchFilter: type === "Stickers" ? "sticker,-static" : "",
