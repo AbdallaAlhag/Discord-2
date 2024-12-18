@@ -93,14 +93,14 @@ do this near the end:
 - [x]  voice chat / video chat / screen share
     - [ ] rough draft working, come back later
 - [x]  deploy to production
- 
-- [ ]  permissions and roles
-- [ ]  right click menu 
-- [ ]  reactions
+- [ ] work on front end private routes
 - [ ]  discover tab in server side -> maybe make all servers public or something like that
+- [ ]  right click menu 
+- [ ]  permissions and roles
+- [ ]  reactions
 - [ ]  profile settings and settings in general
 - [ ]  dark mode (never done this before)
-- [ ]  group message for private chats
+- [ ]  group message for private chats?
 - [ ]  discord loading page
 - [ ] Probably work on a global online indicator later
 - [ ] accept files and images/vids/gifs ? maybe add a file uploader? lol 

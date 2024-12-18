@@ -15,7 +15,7 @@ import { Server } from "socket.io";
 
 const app = express();
 const PORT = process.env.PORT || 3000;
-
+const BASE_URL = process.env.BASE_URL || "http://localhost:5713";
 // socket.io setup
 const server = http.createServer(app); // Create HTTP server with Express app
 // Socket.IO cors Configuration: Added CORS settings specifically for the Socket.IO instance, targeting http://localhost:5173 (the default for Vite) to avoid connection issues.
@@ -31,14 +31,22 @@ app.use(
     credentials: true,
   })
 );
-app.use((req, res, next) => {
-  console.log("Incoming request:", {
-    origin: req.get("origin"),
-    method: req.method,
-    path: req.path,
-  });
-  next();
-});
+
+console.log("Backend server has started..."); // This should log when the server starts
+
+app.use(express.json());
+app.use(express.urlencoded({ extended: false }));
+
+app.use(passport.initialize());
+
+// Set up routing and middleware
+app.use("/", appRouter);
+app.use("/auth", authRouter);
+app.use("/chat", chatRouter);
+app.use("/friends", friendRouter);
+app.use("/server", serverRouter);
+app.use(errorHandler);
+
 const io = new Server(server, {
   cors: {
     origin: [
@@ -52,27 +60,42 @@ const io = new Server(server, {
   },
 });
 
-console.log("Backend server has started..."); // This should log when the server starts
-
 // Track active users
 const activeUsers = new Map();
 let activeRooms = new Map(); // Track active room memberships
 
-io.on("connection", (socket) => {
+io.on("connection", async (socket) => {
   // console.log(socket.id, " has connected");
   const { userId } = socket.handshake.query;
-  if (!userId) {
-    // console.warn("User connected without userId!");
+  if (!userId || userId === null) {
+    console.log("User connected without userId!");
     return;
   }
 
-  // Mark user as online in the database
-  prisma.user
-    .update({
-      where: { id: Number(userId) },
+  const numericUserId = Number(userId);
+  if (isNaN(numericUserId)) {
+    console.error("Invalid userId:", userId);
+    return;
+  }
+
+  try {
+    const userExists = await prisma.user.findUnique({
+      where: { id: numericUserId },
+    });
+
+    if (!userExists) {
+      console.error("User not found with ID:", numericUserId);
+      return;
+    }
+
+    await prisma.user.update({
+      where: { id: numericUserId },
       data: { onlineStatus: true },
-    })
-    .catch((err) => console.error("Error updating user status:", err));
+    });
+    console.log(`User ${numericUserId} marked as online.`);
+  } catch (err) {
+    console.error("Error updating user status:", err);
+  }
 
   // Join user-specific room
   userId && socket.join(userId.toString());
@@ -293,26 +316,6 @@ io.on("connection", (socket) => {
     }
   });
 });
-
-app.use(express.json());
-app.use(express.urlencoded({ extended: false }));
-
-app.use(passport.initialize());
-
-// app.use((req, res, next) => {
-//   res.setHeader("Access-Control-Allow-Origin", "*");
-//   res.setHeader("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE");
-//   res.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization");
-//   next();
-// });
-
-// Set up routing and middleware
-app.use("/", appRouter);
-app.use("/auth", authRouter);
-app.use("/chat", chatRouter);
-app.use("/friends", friendRouter);
-app.use("/server", serverRouter);
-app.use(errorHandler);
 
 // Handle graceful shutdowns for Prisma
 // process.on("SIGINT", async () => {
