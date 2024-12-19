@@ -22,6 +22,7 @@ function ServerPage() {
   const { userId } = useAuth();
   const refVoiceChannelDisplay = useRef<HTMLDivElement>(null);
   const [voiceChannelId, setVoiceChannelId] = useState<number | null>(null);
+  const [openMemberList, setOpenMemberList] = useState(true);
 
   const handleVoiceChannelSelect = (
     channelId: SetStateAction<number | null>
@@ -30,7 +31,6 @@ function ServerPage() {
   };
 
   const toggleFullScreen = () => {
-    console.log("Attemping to go fullscreen");
     if (!document.fullscreenElement && refVoiceChannelDisplay.current) {
       refVoiceChannelDisplay.current.requestFullscreen();
     } else {
@@ -75,7 +75,6 @@ function ServerPage() {
     return <div>Loading...</div>;
   }
 
-
   // console.log(serverId, channelId);
   return (
     <div className="flex h-screen">
@@ -112,8 +111,12 @@ function ServerPage() {
               />
             ) : (
               <>
-                <ServerChat serverId={serverId} channelId={channelId} />
-                <MemberList serverId={serverId} />
+                <ServerChat
+                  serverId={serverId}
+                  channelId={channelId}
+                  setOpenMemberList={setOpenMemberList}
+                />
+                {openMemberList && <MemberList serverId={serverId} />}
               </>
             )}
           </>

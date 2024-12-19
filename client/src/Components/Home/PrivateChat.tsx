@@ -1,7 +1,6 @@
 import {
   PhoneCall,
   Video,
-  Users,
   Search,
   Plus,
   ImagePlay,
@@ -655,7 +654,6 @@ const PrivateChat: React.FC<ChatProps> = ({ friendId }) => {
         <div className="ml-auto flex items-center space-x-4 text-[#b9bbbe]">
           <PhoneCall className="w-7 h-7 cursor-pointer" />
           <Video className="w-7 h-7 cursor-pointer" />
-          <Users className="w-7 h-7 cursor-pointer" />
           <Search className="w-7 h-7 cursor-pointer" />
         </div>
       </div>

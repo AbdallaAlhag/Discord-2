@@ -15,7 +15,9 @@ import React from "react";
 import { GifPicker } from "../TenorComponent/Components/GifPicker";
 import { MediaData, MediaType } from "../TenorComponent/Types/tenor";
 import { TypingIndicator } from "./ServerTypingIndicator";
-
+import { Tooltip } from "react-tooltip";
+import "react-tooltip/dist/react-tooltip.css"; // Import required CSS
+import { channel } from "diagnostics_channel";
 interface Message {
   userId: number;
   user: { username: string; avatarUrl: string };
@@ -33,13 +35,25 @@ const VITE_API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 interface ChatProps {
   channelId: string;
   serverId: string;
+  setOpenMemberList: React.Dispatch<React.SetStateAction<boolean>>;
 }
-
 interface MediaItem {
   url: string;
 }
 
-const ServerChat: React.FC<ChatProps> = ({ channelId, serverId }) => {
+interface serverChannel {
+  createdAt: string;
+  id: number;
+  isVoice: boolean;
+  name: string;
+  serverId: number;
+}
+
+const ServerChat: React.FC<ChatProps> = ({
+  channelId,
+  serverId,
+  setOpenMemberList,
+}) => {
   const [messages, setMessages] = useState<Message[]>([]);
   const [newMessage, setNewMessage] = useState("");
   const [isLoading, setIsLoading] = useState(true);
@@ -61,6 +75,23 @@ const ServerChat: React.FC<ChatProps> = ({ channelId, serverId }) => {
   const typingTimeoutRefs = useRef<Map<number | null, NodeJS.Timeout>>(
     new Map()
   );
+  const [channelInfo, setChannelInfo] = useState<serverChannel>();
+
+  // return alls the channel, we could make it return a specific channel but ill just filter it here
+  useEffect(() => {
+    axios
+      .get(`${VITE_API_BASE_URL}/server/channels/${serverId}`)
+      .then((response) => {
+        // Correctly filter by channelId or serverId as needed
+        const filteredChannels = response.data.channels.filter(
+          (channel: serverChannel) => channel.id === Number(channelId)
+        );
+        setChannelInfo(filteredChannels[0]);
+      })
+      .catch((error) => {
+        console.error(error);
+      });
+  }, [channelId, serverId]);
 
   const handleMediaSelect = (media: MediaData) => {
     setSelectedMedia(media);
@@ -389,9 +420,28 @@ const ServerChat: React.FC<ChatProps> = ({ channelId, serverId }) => {
       {/* Header */}
       <div className="h-12 px-4 flex items-center shadow-md">
         <Hash className="w-6 h-6 text-[#8e9297] mr-2" />
-        <span className="text-white font-bold">Channel ID: {channelId}</span>
+        <span className="text-white font-bold">
+          {channelInfo ? channelInfo.name : `Channel id: '${channelId}'`}
+        </span>
         <div className="ml-auto flex items-center space-x-4 text-[#b9bbbe]">
-          <Users className="w-5 h-5 cursor-pointer" />
+          <button
+            className="w-5 h-5 cursor-pointer "
+            onClick={() => setOpenMemberList((prev) => !prev)}
+            data-tooltip-id={`tooltip-members`} // Link element to tooltip
+            data-tooltip-content={"Show Member List"}
+          >
+            <Users className="w-5 h-5 cursor-pointer border-none" />
+          </button>
+          <Tooltip
+            id={`tooltip-members`}
+            place="bottom"
+            className="z-10 "
+            style={{
+              backgroundColor: "black",
+              color: "white",
+              fontWeight: "bold",
+            }}
+          />
           <Search className="w-5 h-5 cursor-pointer" />
         </div>
       </div>
