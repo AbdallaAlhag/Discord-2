@@ -10,6 +10,10 @@ interface Friend {
   id: string;
   username: string;
   avatarUrl: string | null;
+  memberships: {
+    serverId: string;
+    role: string;
+  }[];
 }
 
 interface InviteModalProps {
@@ -69,10 +73,15 @@ export default function InviteModal({
   // Mock friends data
   const testFriends: Friend[] = useMemo(
     () => [
-      { id: "1", username: "SamFieri", avatarUrl: null },
-      { id: "2", username: "Admiral Audacious", avatarUrl: null },
-      { id: "3", username: "viperndgrass", avatarUrl: null },
-      { id: "4", username: "Ethanqg", avatarUrl: null },
+      { id: "1", username: "SamFieri", avatarUrl: null, memberships: [] },
+      {
+        id: "2",
+        username: "Admiral Audacious",
+        avatarUrl: null,
+        memberships: [],
+      },
+      { id: "3", username: "viperndgrass", avatarUrl: null, memberships: [] },
+      { id: "4", username: "Ethanqg", avatarUrl: null, memberships: [] },
     ],
     []
   );
@@ -91,7 +100,7 @@ export default function InviteModal({
     if (!userId) return;
     try {
       const friendsRes = await axios.get(`${API_URL}/friends/${userId}`);
-      // console.log("friendsRes: ", friendsRes.data.friends);
+      console.log("friendsRes: ", friendsRes.data.friends);
       const fetchedFriends: Friend[] =
         friendsRes.data.friends.length > 0
           ? friendsRes.data.friends
@@ -168,6 +177,11 @@ export default function InviteModal({
     navigator.clipboard.writeText(inviteLink);
   };
 
+  const friendsNotInServer = filteredFriends.filter(
+    (friend) =>
+      !friend.memberships.some((membership) => membership.serverId == serverId)
+  );
+
   return (
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center">
       <div className="bg-[#313338] rounded-md w-full max-w-md text-gray-200">
@@ -196,7 +210,7 @@ export default function InviteModal({
           />
 
           <div className="mt-4 space-y-2 max-h-60 overflow-y-auto">
-            {filteredFriends.map((friend) => (
+            {friendsNotInServer.map((friend) => (
               <FriendItem
                 key={friend.id}
                 name={friend.username}

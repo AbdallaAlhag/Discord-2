@@ -16,6 +16,7 @@ do this near the end:
 - [ ] fake data works well with front end but does not work with backend unless i update with my temp backend data
     - [ ] add fake data to backend and use that instead
 - [ ] change id in prisma from autoincrement to uuid
+- [ ] update and remove mock users, try to make it more intuitive for people
 ---
 
 

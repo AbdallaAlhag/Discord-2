@@ -48,7 +48,7 @@ const ServerSidebar: React.FC = () => {
   }, [API_URL, userId]);
 
   useEffect(() => {
-    console.log(params);
+    // console.log(params);
     if (Object.keys(params).length > 0) {
       setOpenServer(Number(params.serverId));
     } else {

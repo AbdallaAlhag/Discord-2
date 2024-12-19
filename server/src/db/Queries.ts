@@ -50,6 +50,12 @@ export const getFriends = async (userId: number) => {
                 username: true,
                 avatarUrl: true,
                 onlineStatus: true,
+                memberships: {
+                  select: {
+                    serverId: true,
+                    role: true,
+                  },
+                },
               },
             },
           },
@@ -62,6 +68,12 @@ export const getFriends = async (userId: number) => {
                 username: true,
                 avatarUrl: true,
                 onlineStatus: true,
+                memberships: {
+                  select: {
+                    serverId: true,
+                    role: true,
+                  },
+                },
               },
             },
           },
