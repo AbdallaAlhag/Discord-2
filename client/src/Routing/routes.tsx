@@ -1,4 +1,10 @@
-import { HomePage, ServerPage, LoginPage, RegisterPage } from "../Pages";
+import {
+  HomePage,
+  ServerPage,
+  LoginPage,
+  RegisterPage,
+  DiscoverPage,
+} from "../Pages";
 import PrivateRoute from "./PrivateRoute";
 
 export const routes = [
@@ -36,6 +42,14 @@ export const routes = [
     element: (
       <PrivateRoute>
         <HomePage />
+      </PrivateRoute>
+    ),
+  },
+  {
+    path: "/discover",
+    element: (
+      <PrivateRoute>
+        <DiscoverPage />
       </PrivateRoute>
     ),
   },

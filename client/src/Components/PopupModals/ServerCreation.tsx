@@ -217,7 +217,7 @@ export function ServerCreation() {
     <>
       <button onClick={() => setIsOpen(true)} className="px-3 py-3 ">
         {/* Create a Server */}
-        <Plus className="w-6 h-6 text-[#3ba55d]" />
+        <Plus className="w-6 h-6 text-[#3b9c5b] group-hover:text-white transition-colors duration-200" />
       </button>
 
       <Modal isOpen={isOpen} onClose={handleClose}>

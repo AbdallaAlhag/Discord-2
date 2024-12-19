@@ -92,8 +92,8 @@ do this near the end:
 - [x]  users online status
 - [x]  voice chat / video chat / screen share
     - [ ] rough draft working, come back later
-- [x]  deploy to production
-- [ ] work on front end private routes
+- [x] deploy to production
+- [x] work on front end private routes
 - [ ]  discover tab in server side -> maybe make all servers public or something like that
 - [ ]  right click menu 
 - [ ]  permissions and roles
@@ -145,3 +145,5 @@ npx prisma migrate dev --name	Create and apply a migration in development.
 npx prisma generate	Regenerate the Prisma Client.
 npx prisma studio	Open Prisma Studio to view and edit the data.
 npx prisma migrate deploy	Apply migrations to production databases.
+
+picsum photos: https://picsum.photos/

@@ -6,8 +6,13 @@ import {
   handleServerInvite,
   handleAddToServer,
   handleDeleteServer,
+  handleGetAllServers,
 } from "../Controllers/ServerController";
 const router = express.Router();
+
+router.get("/servers", (req: Request, res: Response, next: NextFunction) => {
+  handleGetAllServers(req, res, next);
+});
 
 router.post("/create", (req: Request, res: Response, next: NextFunction) => {
   handleCreateServer(req, res, next);

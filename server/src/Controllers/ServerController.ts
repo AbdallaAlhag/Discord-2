@@ -9,6 +9,21 @@ import {
 } from "../db/serverQueries";
 import prisma from "../db/prisma";
 
+const handleGetAllServers = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const servers = await prisma.server.findMany({
+      include: { members: { select: { user: { select: { onlineStatus: true } } } } },
+    });
+    return res.status(201).json(servers); // Ensure a response is always returned
+  } catch (error) {
+    return res.status(500).json({ error: "Failed to get servers" });
+  }
+};
+
 const handleCreateServer = async (
   req: Request,
   res: Response,
@@ -190,4 +205,5 @@ export {
   handleServerInvite,
   handleAddToServer,
   handleDeleteServer,
+  handleGetAllServers,
 };

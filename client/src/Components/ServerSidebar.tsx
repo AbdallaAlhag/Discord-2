@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 // import { MessageSquare, Plus } from "lucide-react";
-import { MessageSquare, ArrowDownToLine } from "lucide-react";
+import { MessageSquare, ArrowDownToLine, Compass } from "lucide-react";
 import { ServerCreation } from "./PopupModals/ServerCreation";
 import axios from "axios";
 import { useAuth } from "../AuthContext";
@@ -44,7 +44,7 @@ const ServerSidebar: React.FC = () => {
       }
     };
     fetchServers();
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [API_URL, userId]);
 
   useEffect(() => {
@@ -141,9 +141,9 @@ const ServerSidebar: React.FC = () => {
         ))}
       <div className="group relative">
         <div className="relative">
-          <div className="absolute -left-3 top-1/2 -translate-y-1/2 group-hover:h-5 h-5 w-1 bg-white rounded-r transition-all duration-200 opacity-0 group-hover:opacity-100" />
+          <div className="absolute -left-3 top-1/2 -translate-y-1/2 group-hover:h-5 h-5 w-1 bg-white rounded-r transition-all duration-200 opacity-0 group-hover:opacity-100 " />
           <div
-            className="w-12 h-12 bg-[#36393f] rounded-[24px] hover:rounded-[16px] transition-all duration-200 flex items-center justify-center cursor-pointer"
+            className="w-12 h-12 bg-[#36393f] rounded-[24px] hover:rounded-[16px] transition-all duration-200 flex items-center justify-center cursor-pointer group-hover:bg-[#3b9c5b]"
             data-tooltip-id={`tooltip-create`} // Link element to tooltip
             data-tooltip-content={"Add a Server"}
           >
@@ -164,13 +164,13 @@ const ServerSidebar: React.FC = () => {
       <div className="w-12 h-[2px] bg-[#36393f] rounded-full" />
       <div className="group relative">
         <div className="relative">
-          <div className="absolute -left-3 top-1/2 -translate-y-1/2 group-hover:h-5 h-5 w-1 bg-white rounded-r transition-all duration-200 opacity-0 group-hover:opacity-100" />
+          <div className="absolute -left-3 top-1/2 -translate-y-1/2 group-hover:h-5 h-5 w-1 bg-white rounded-r transition-all duration-200 opacity-0 group-hover:opacity-100 " />
           <div
-            className="w-12 h-12 bg-[#36393f] rounded-[24px] hover:rounded-[16px] transition-all duration-200 flex items-center justify-center cursor-pointer"
+            className="w-12 h-12 bg-[#36393f] rounded-[24px] hover:rounded-[16px] transition-all duration-200 flex items-center justify-center cursor-pointer group-hover:bg-[#3b9c5b]"
             data-tooltip-id={`tooltip-download`} // Link element to tooltip
             data-tooltip-content={"Download Apps"}
           >
-            <ArrowDownToLine color="#3b9c5b" />
+            <ArrowDownToLine className="text-[#3b9c5b] group-hover:text-white transition-colors duration-200" />
             <Tooltip
               id={`tooltip-download`}
               place="right"
@@ -182,6 +182,33 @@ const ServerSidebar: React.FC = () => {
               }}
             />
           </div>
+        </div>
+      </div>
+      <div className="group relative">
+        <div className="relative">
+          <div className="absolute -left-3 top-1/2 -translate-y-1/2 group-hover:h-5 h-5 w-1 bg-white rounded-r transition-all duration-200 opacity-0 group-hover:opacity-100" />
+          <Link to={`/discover`}>
+            <div
+              className="w-12 h-12 bg-[#36393f] rounded-[24px] hover:rounded-[16px] transition-all duration-200 flex items-center justify-center cursor-pointer group-hover:bg-[#3b9c5b]"
+              data-tooltip-id={`tooltip-discover`} // Link element to tooltip
+              data-tooltip-content={"Discover"}
+            >
+              <Compass
+                color="#dbdee1"
+                className="group-hover:text-white transition-colors duration-200"
+              />
+              <Tooltip
+                id={`tooltip-discover`}
+                place="right"
+                className="z-10  ml-2.5"
+                style={{
+                  backgroundColor: "black",
+                  color: "white",
+                  fontWeight: "bold",
+                }}
+              />
+            </div>
+          </Link>
         </div>
       </div>
     </div>
