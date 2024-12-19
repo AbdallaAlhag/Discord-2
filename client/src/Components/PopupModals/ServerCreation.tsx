@@ -1,14 +1,6 @@
 import { useState } from "react";
 import { Modal } from "./CreateServerModal";
-import {
-  Users,
-  Gamepad2,
-  GraduationCap,
-  BookOpen,
-  Upload,
-  ChevronRight,
-  Plus,
-} from "lucide-react";
+import { Users, Upload, ChevronRight, Plus } from "lucide-react";
 import axios from "axios";
 import { useAuth } from "../../AuthContext";
 
@@ -61,47 +53,6 @@ export function ServerCreation() {
                 </div>
                 <ChevronRight className="w-5 h-5 text-gray-400 group-hover:text-white transition-colors" />
               </button>
-
-              <div className="pt-2">
-                <p className="text-gray-400 text-sm font-medium mb-2">
-                  START FROM A TEMPLATE
-                </p>
-                {[
-                  { icon: Gamepad2, text: "Gaming", color: "bg-[#5865F2]" },
-                  {
-                    icon: GraduationCap,
-                    text: "School Club",
-                    color: "bg-[#FF73FA]",
-                  },
-                  {
-                    icon: BookOpen,
-                    text: "Study Group",
-                    color: "bg-[#5865F2]",
-                  },
-                ].map((item) => (
-                  <button
-                    key={item.text}
-                    className="w-full flex items-center justify-between p-4 bg-[#2B2D31] hover:bg-[#404249] rounded-md transition-colors group mb-2"
-                  >
-                    <div className="flex items-center gap-3">
-                      <div className={`${item.color} p-2 rounded-full`}>
-                        <item.icon className="w-6 h-6 text-white" />
-                      </div>
-                      <span className="text-white font-medium">
-                        {item.text}
-                      </span>
-                    </div>
-                    <ChevronRight className="w-5 h-5 text-gray-400 group-hover:text-white transition-colors" />
-                  </button>
-                ))}
-              </div>
-
-              <div className="pt-4 text-center">
-                <p className="text-gray-400 mb-2">Have an invite already?</p>
-                <button className="w-full bg-[#4E505C] hover:bg-[#5D5F6C] text-white py-3 rounded-md transition-colors">
-                  Join a Server
-                </button>
-              </div>
             </div>
           </div>
         );
@@ -136,14 +87,6 @@ export function ServerCreation() {
                   <ChevronRight className="w-5 h-5 text-gray-400 group-hover:text-white transition-colors" />
                 </button>
               ))}
-
-              <p className="text-sm text-center pt-4 text-gray-400">
-                Not sure? You can{" "}
-                <button className="text-[#00A8FC] hover:underline">
-                  skip this question
-                </button>{" "}
-                for now.
-              </p>
             </div>
 
             <button
@@ -191,7 +134,7 @@ export function ServerCreation() {
             </div>
 
             <p className="text-xs text-gray-400 mb-6">
-              By creating a server, you agree to Discord's Community Guidelines.
+              By creating a server, you agree to Discord-2's Community Guidelines.
             </p>
 
             <div className="flex justify-between">

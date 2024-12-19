@@ -86,20 +86,20 @@ do this near the end:
 ### haven't done yet:
 - [ ]  mobile mode (eh)
 - [x]  typing real time indicator works
-- [ ]  real time read receipts -> private chat only tbh
-    - [ ] Add a ding on real time receipt to showcase, low priority
+- [x]  real time read receipts -> private chat only tbh
+    - [x] Add a ding on real time receipt to showcase, low priority
 - [x]  Notifications from server or users on new message
     - [ ] fix notification count, should reset but some messages are never read
-    - [ ] no notification if we are on message page
+    - [ ] no notification if we are on message page -> have to turn private chat into a param page to detect, some are not real time
 - [x]  users online status
 - [x]  voice chat / video chat / screen share
     - [ ] rough draft working, come back later
 - [x] deploy to production
 - [x] work on front end private routes
-- [ ]  discover tab in server side -> maybe make all servers public or something like that
+- [x]  discover tab in server side -> maybe make all servers public or something like that
 - [x] leave server 
-- [ ]  leave server is not real time? low priority
-- [ ]  right click menu 
+    - [ ]  leave server is not real time? low priority
+- [ ]  right click menu (might be part of a version 2 feature)
 - [ ]  permissions and roles
 - [ ]  reactions
 - [ ]  profile settings and settings in general
@@ -118,6 +118,10 @@ do this near the end:
 
 Test accounts:
 test users:
+    -   test@test.com
+        test
+        test
+        
     -   test1@test1.com
         test1
         test1

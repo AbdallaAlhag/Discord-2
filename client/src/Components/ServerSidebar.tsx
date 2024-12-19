@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 // import { MessageSquare, Plus } from "lucide-react";
 import { MessageSquare, ArrowDownToLine, Compass } from "lucide-react";
 import { ServerCreation } from "./PopupModals/ServerCreation";
@@ -26,26 +26,31 @@ const ServerSidebar: React.FC = () => {
   const { userId } = useAuth();
   const API_URL = import.meta.env.VITE_API_BASE_URL;
   const params = useParams();
+  const serverCache = useRef<Server[]>([]);
+  const [isDataLoaded, setIsDataLoaded] = useState(false);
+
   // console.log("Route Params:", params);
 
   useEffect(() => {
     const fetchServers = async () => {
-      if (userId) {
+      if (userId && !isDataLoaded) {
         try {
           const response = await axios.get(`${API_URL}/servers/${userId}`);
-          if (response.data.servers !== server) {
-            setServer(response.data.servers);
-          }
+          setServer(response.data.servers);
+          serverCache.current = response.data.servers; // Cache the data
+          setIsDataLoaded(true);
+
           // setServer(response.data.servers);
           // console.log("servers: ", response.data.servers);
         } catch (error) {
           console.error("Error fetching servers", error);
         }
+      } else {
+        setServer(serverCache.current); // Use cached data
       }
     };
     fetchServers();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [API_URL, userId]);
+  }, [API_URL, isDataLoaded, userId]);
 
   useEffect(() => {
     // console.log(params);
@@ -187,18 +192,17 @@ const ServerSidebar: React.FC = () => {
       </div>
       <div className="group relative">
         <div className="relative">
-          <div 
-          // className="absolute -left-3 top-1/2 -translate-y-1/2 group-hover:h-5 h-5 w-1 bg-white rounded-r transition-all duration-200 opacity-0 group-hover:opacity-100" 
-          className=
-          {cn(
-            "absolute -left-3 top-1/2 -translate-y-1/2 transition-all duration-200",
-            {
-              "opacity-100 h-10": openServer === 0, // Active state styles
-              "group-hover:h-5 group-hover:opacity-100 h-5 opacity-0":
-              openServer !== 0, // Hover-only styles when not active
-            },
-            "w-1 bg-white rounded-r"
-          )}
+          <div
+            // className="absolute -left-3 top-1/2 -translate-y-1/2 group-hover:h-5 h-5 w-1 bg-white rounded-r transition-all duration-200 opacity-0 group-hover:opacity-100"
+            className={cn(
+              "absolute -left-3 top-1/2 -translate-y-1/2 transition-all duration-200",
+              {
+                "opacity-100 h-10": openServer === 0, // Active state styles
+                "group-hover:h-5 group-hover:opacity-100 h-5 opacity-0":
+                  openServer !== 0, // Hover-only styles when not active
+              },
+              "w-1 bg-white rounded-r"
+            )}
           />
           <Link to={`/discover/0`}>
             <div
