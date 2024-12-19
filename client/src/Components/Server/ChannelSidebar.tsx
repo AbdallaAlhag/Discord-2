@@ -1,19 +1,25 @@
-import { Hash, Plus, Volume2 } from "lucide-react";
-import SettingsButton from "../Profile/SettingsButton";
-import LogoutButton from "../Profile/LogoutButton";
 import { SetStateAction, useEffect, useState } from "react";
 import axios from "axios";
-import ChannelModal from "../PopupModals/CreateChannelModal";
-import InviteModal from "../InviteModal/InviteModal"; // Import InviteModal
-import { useAuth } from "@/AuthContext";
-import defaultAvatar from "../../assets/default-avatar.svg";
-import { Link } from "react-router-dom";
-import ServerMenu from "./ServerMenu";
-import DeleteServerModal from "../PopupModals/DeleteServerModal";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faMicrophoneSlash } from "@fortawesome/free-solid-svg-icons";
-import { faMicrophone } from "@fortawesome/free-solid-svg-icons";
 import { Socket } from "socket.io-client";
+import { useWebRTCContext } from "../../WebRTC/useWebRTCContext";
+import { useAuth } from "@/AuthContext";
+import { Link } from "react-router-dom";
+
+// modals
+import ChannelModal from "../PopupModals/CreateChannelModal";
+import InviteModal from "../InviteModal/InviteModal";
+import DeleteServerModal from "../PopupModals/DeleteServerModal";
+import LeaveServerModal from "../PopupModals/LeaveServerModal";
+
+import ServerMenu from "./ServerMenu";
+import SettingsButton from "../Profile/SettingsButton";
+import LogoutButton from "../Profile/LogoutButton";
+
+import defaultAvatar from "../../assets/default-avatar.svg";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faMicrophone } from "@fortawesome/free-solid-svg-icons";
+import { faMicrophoneSlash } from "@fortawesome/free-solid-svg-icons";
+import { Hash, Plus, Volume2 } from "lucide-react";
 import {
   AudioLines,
   PhoneOff,
@@ -27,7 +33,6 @@ import {
 } from "lucide-react";
 import { Tooltip } from "react-tooltip";
 import "react-tooltip/dist/react-tooltip.css"; // Import required CSS
-import { useWebRTCContext } from "../../WebRTC/useWebRTCContext";
 
 interface onlineUsers {
   id: number;
@@ -57,6 +62,7 @@ interface MenuActionsProps {
   onInvitePeople: () => void;
   onDeleteServer: () => void;
   onCreateChannel: () => void;
+  onLeaveServer: () => void;
   // onCreateChannel: () => void;
   // Add other action handlers as needed
 }
@@ -80,14 +86,17 @@ const ChannelSidebar: React.FC<{
 }) => {
   const [channelInfo, setChannelInfo] = useState<ChannelInfo>([]);
   const [serverName, setServerName] = useState("");
+  const [user, setUser] = useState<onlineUsers | null>(null);
+  const { userId } = useAuth();
+
+  // Modals
   const [isCreateChannelModalOpen, setIsCreateChannelModalOpen] =
     useState(false); // State to control the modal
   const [isInviteModalOpen, setIsInviteModalOpen] = useState(false); // For invite modal
   const [isServerDeleteModalOpen, setIsServerDeleteModalOpen] = useState(false);
-  const [channelUpdate, setChannelUpdate] = useState(0); // Track channel changes
-  const [user, setUser] = useState<onlineUsers | null>(null);
-  const { userId } = useAuth();
+  const [isLeaveServerModalOpen, setIsLeaveServerModalOpen] = useState(false);
 
+  const [channelUpdate, setChannelUpdate] = useState(0); // Track channel changes
   // webRtc
   const [selectedVoiceChannel, setSelectedVoiceChannel] =
     useState<SingleChannelInfo>();
@@ -173,6 +182,11 @@ const ChannelSidebar: React.FC<{
   const handleOpenServerDeleteModal = () => setIsServerDeleteModalOpen(true);
   const handleCloseServerDeleteModal = () => setIsServerDeleteModalOpen(false);
 
+  const handleLeaveServer = () => setIsLeaveServerModalOpen(true);
+  const handleCloseLeaveServerModal = () => {
+    setIsLeaveServerModalOpen(false);
+    window.location.href = "/";
+  };
   // Functions to handle modal open/close
   const handleOpenInviteModal = () => setIsInviteModalOpen(true);
   const handleCloseInviteModal = () => setIsInviteModalOpen(false);
@@ -181,6 +195,7 @@ const ChannelSidebar: React.FC<{
     onInvitePeople: handleOpenInviteModal,
     onDeleteServer: handleOpenServerDeleteModal,
     onCreateChannel: handleCreateChannelOpenModal,
+    onLeaveServer: handleLeaveServer,
     // etc...
     // OnCreateChannel:
   };
@@ -590,6 +605,14 @@ const ChannelSidebar: React.FC<{
         onClose={handleCloseServerDeleteModal}
         serverId={serverId}
         serverName={serverName}
+      />
+
+      <LeaveServerModal
+        isOpen={isLeaveServerModalOpen}
+        onClose={handleCloseLeaveServerModal}
+        serverId={serverId}
+        serverName={serverName}
+        userId={userId}
       />
     </div>
   );

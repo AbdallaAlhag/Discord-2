@@ -29,6 +29,7 @@ interface MenuActionsProps {
   onInvitePeople: () => void;
   onDeleteServer: () => void;
   onCreateChannel: () => void;
+  onLeaveServer: () => void;
   // onCreateChannel: () => void;
   // Add other action handlers as needed
 }
@@ -105,6 +106,7 @@ const ServerMenu: React.FC<{
     { icon: "🔒", label: "Privacy Settings", done: false },
     { icon: "✏️", label: "Edit Server Profile", done: false },
     { icon: "👁️", label: "Hide Muted Channels", done: false },
+    { icon: "🚪", label: "Leave Server", done: true },
   ];
 
   useEffect(() => {
@@ -137,6 +139,9 @@ const ServerMenu: React.FC<{
     },
     "Create Channel": {
       handler: menuActions.onCreateChannel,
+    },
+    "Leave Server": {
+      handler: menuActions.onLeaveServer,
     },
   };
 

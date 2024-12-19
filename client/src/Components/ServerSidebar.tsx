@@ -48,6 +48,7 @@ const ServerSidebar: React.FC = () => {
   }, [API_URL, userId]);
 
   useEffect(() => {
+    console.log(params);
     if (Object.keys(params).length > 0) {
       setOpenServer(Number(params.serverId));
     } else {
@@ -186,8 +187,20 @@ const ServerSidebar: React.FC = () => {
       </div>
       <div className="group relative">
         <div className="relative">
-          <div className="absolute -left-3 top-1/2 -translate-y-1/2 group-hover:h-5 h-5 w-1 bg-white rounded-r transition-all duration-200 opacity-0 group-hover:opacity-100" />
-          <Link to={`/discover`}>
+          <div 
+          // className="absolute -left-3 top-1/2 -translate-y-1/2 group-hover:h-5 h-5 w-1 bg-white rounded-r transition-all duration-200 opacity-0 group-hover:opacity-100" 
+          className=
+          {cn(
+            "absolute -left-3 top-1/2 -translate-y-1/2 transition-all duration-200",
+            {
+              "opacity-100 h-10": openServer === 0, // Active state styles
+              "group-hover:h-5 group-hover:opacity-100 h-5 opacity-0":
+              openServer !== 0, // Hover-only styles when not active
+            },
+            "w-1 bg-white rounded-r"
+          )}
+          />
+          <Link to={`/discover/0`}>
             <div
               className="w-12 h-12 bg-[#36393f] rounded-[24px] hover:rounded-[16px] transition-all duration-200 flex items-center justify-center cursor-pointer group-hover:bg-[#3b9c5b]"
               data-tooltip-id={`tooltip-discover`} // Link element to tooltip

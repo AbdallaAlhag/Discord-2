@@ -6,6 +6,7 @@ import {
   createServerInvite,
   addToServer,
   deleteServer,
+  leaveServer,
 } from "../db/serverQueries";
 import prisma from "../db/prisma";
 
@@ -181,7 +182,6 @@ const handleAddToServer = async (
 const handleDeleteServer = async (
   req: Request,
   res: Response,
-  next: NextFunction
 ) => {
   const { serverId } = req.params; // Use req.params instead of req.body
   if (!serverId) {
@@ -198,6 +198,23 @@ const handleDeleteServer = async (
   }
 };
 
+const handleLeaveServer = async (req: Request, res: Response) => {
+  const { serverId, userId } = req.params; // Use req.params instead of req.body
+
+  if (!serverId || !userId) {
+    return res.status(400).json({ error: "Missing required fields" });
+  }
+
+  try {
+    await leaveServer(Number(serverId), Number(userId));
+    // console.log("Server channels:", serverChannels);
+    return res.status(201); // Ensure a response is always returned
+  } catch (error) {
+    return res.status(500).json({ error: "Failed to leave server" });
+  };
+};
+
+
 export {
   handleCreateServer,
   handleServerChannelsInfo,
@@ -206,4 +223,5 @@ export {
   handleAddToServer,
   handleDeleteServer,
   handleGetAllServers,
+  handleLeaveServer,
 };

@@ -7,6 +7,7 @@ import {
   handleAddToServer,
   handleDeleteServer,
   handleGetAllServers,
+  handleLeaveServer,
 } from "../Controllers/ServerController";
 const router = express.Router();
 
@@ -47,6 +48,10 @@ router.post(
 );
 
 router.delete('/delete/:serverId', (req: Request, res: Response, next: NextFunction) => {
-  handleDeleteServer(req, res, next);
+  handleDeleteServer(req, res);
 });
+
+router.delete('/leave/:serverId/:userId', (req: Request, res: Response, next: NextFunction) => {
+  handleLeaveServer(req, res);
+})
 export default router;

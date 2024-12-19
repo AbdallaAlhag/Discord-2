@@ -48,6 +48,7 @@ do this near the end:
 
 - [ ] work on server menu
     - [ ] create delete channel 
+    - [ ] create leave server
 ---
 
 - [ ] work  on real time issues: 
@@ -95,6 +96,8 @@ do this near the end:
 - [x] deploy to production
 - [x] work on front end private routes
 - [ ]  discover tab in server side -> maybe make all servers public or something like that
+- [x] leave server 
+- [ ]  leave server is not real time? low priority
 - [ ]  right click menu 
 - [ ]  permissions and roles
 - [ ]  reactions
@@ -104,6 +107,9 @@ do this near the end:
 - [ ]  discord loading page
 - [ ] Probably work on a global online indicator later
 - [ ] accept files and images/vids/gifs ? maybe add a file uploader? lol 
+- [ ] pagination for messages
+- [ ] pagination for discover channels
+- [ ] search for discover page 
 - [ ] Preview video modal when turning on camera
 - [ ] Create active on direct message tabs 
 ---

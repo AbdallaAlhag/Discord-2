@@ -220,6 +220,24 @@ const deleteServer = async (serverId: number) => {
   });
 };
 
+const leaveServer = async (serverId: number, userId: number) => {
+  try {
+    const deletedMember = await prisma.serverMember.delete({
+      where: {
+        userId_serverId: {
+          userId,
+          serverId,
+        },
+      },
+    });
+    console.log(`User with ID ${userId} left server with ID ${serverId}`);
+    return deletedMember;
+  } catch (error) {
+    console.error("Error leaving server:", error);
+    throw new Error("Could not leave server. Please check the inputs.");
+  }
+};
+
 export {
   createServer,
   getServerChannelsInfo,
@@ -227,4 +245,5 @@ export {
   createServerInvite,
   addToServer,
   deleteServer,
+  leaveServer,
 };

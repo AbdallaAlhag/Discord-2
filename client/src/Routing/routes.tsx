@@ -46,7 +46,8 @@ export const routes = [
     ),
   },
   {
-    path: "/discover",
+    // give it a default value of 0 so we can use params with the hover effect lmao
+    path: "/discover/:serverId",
     element: (
       <PrivateRoute>
         <DiscoverPage />
