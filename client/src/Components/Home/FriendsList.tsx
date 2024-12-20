@@ -90,7 +90,7 @@ export function FriendsList({ filter }: FriendsListProps) {
         axios.get(`${API_URL}/friends/pending/${userId}`),
         axios.get(`${API_URL}/friends/blocked/${userId}`),
       ]);
-      console.log("friends: ", friendsRes.data.friends);
+      // console.log("friends: ", friendsRes.data.friends);
       // console.log('pending: ', pendingRes.data);
       setFriends(
         friendsRes.data.friends.length > 0

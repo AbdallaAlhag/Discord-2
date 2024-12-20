@@ -13,7 +13,6 @@ import LeaveServerModal from "../PopupModals/LeaveServerModal";
 
 import ServerMenu from "./ServerMenu";
 import SettingsButton from "../Profile/SettingsButton";
-import LogoutButton from "../Profile/LogoutButton";
 
 import defaultAvatar from "../../assets/default-avatar.svg";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
@@ -548,23 +547,6 @@ const ChannelSidebar: React.FC<{
             />
           </>
         )}
-        <div
-          data-tooltip-id={`tooltip-logout`}
-          data-tooltip-content={"Logout?xD"}
-        >
-          <LogoutButton className="p-2 hover:bg-[#383a40] rounded-sm " />
-        </div>
-        <Tooltip
-          id="tooltip-logout"
-          place="top"
-          className="z-10 "
-          style={{
-            backgroundColor: "black",
-            color: "white",
-            fontSize: "12px",
-            fontWeight: "bold",
-          }}
-        />
         <div
           className="hover:bg-[#383a40] rounded-sm"
           data-tooltip-id={`tooltip-settings`}

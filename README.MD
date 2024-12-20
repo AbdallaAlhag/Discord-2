@@ -49,7 +49,7 @@ do this near the end:
 
 - [ ] work on server menu
     - [ ] create delete channel 
-    - [ ] create leave server
+    - [x] create leave server
 ---
 
 - [ ] work  on real time issues: 
@@ -99,10 +99,11 @@ do this near the end:
 - [x]  discover tab in server side -> maybe make all servers public or something like that
 - [x] leave server 
     - [ ]  leave server is not real time? low priority
+- [x] profile settings
+- [ ] server settings
 - [ ]  right click menu (might be part of a version 2 feature)
 - [ ]  permissions and roles
 - [ ]  reactions
-- [ ]  profile settings and settings in general
 - [ ]  dark mode (never done this before)
 - [ ]  group message for private chats?
 - [ ]  discord loading page

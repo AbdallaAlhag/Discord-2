@@ -1,6 +1,5 @@
 import { Users, Plus } from "lucide-react";
 import SettingsButton from "../Profile/SettingsButton";
-import LogoutButton from "../Profile/LogoutButton";
 import { useAuth } from "@/AuthContext";
 import axios from "axios";
 import { useState, useEffect } from "react";
@@ -229,24 +228,7 @@ export default function FriendSidebar({
             borderRadius: "4px",
           }}
         />
-        <div
-          data-tooltip-id={`tooltip-logout`}
-          data-tooltip-content={"Logout?xD"}
-        >
-          <LogoutButton className="p-2 hover:bg-[#383a40] rounded-sm " />
-        </div>
-        <Tooltip
-          id="tooltip-logout"
-          place="top"
-          className="z-10 "
-          style={{
-            backgroundColor: "black",
-            color: "white",
-            fontSize: "12px",
-            fontWeight: "bold",
-            borderRadius: "4px",
-          }}
-        />
+        
         <div
           className="hover:bg-[#383a40] rounded-sm"
           data-tooltip-id={`tooltip-settings`}

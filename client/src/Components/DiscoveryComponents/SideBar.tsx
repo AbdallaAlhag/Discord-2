@@ -1,5 +1,4 @@
 import SettingsButton from "../Profile/SettingsButton";
-import LogoutButton from "../Profile/LogoutButton";
 import { useAuth } from "@/AuthContext";
 import defaultAvatar from "../../assets/default-avatar.svg";
 import axios from "axios";
@@ -102,24 +101,7 @@ export default function SideBar() {
             borderRadius: "4px",
           }}
         />
-        <div
-          data-tooltip-id={`tooltip-logout`}
-          data-tooltip-content={"Logout?xD"}
-        >
-          <LogoutButton className="p-2 hover:bg-[#383a40] rounded-sm " />
-        </div>
-        <Tooltip
-          id="tooltip-logout"
-          place="top"
-          className="z-10 "
-          style={{
-            backgroundColor: "black",
-            color: "white",
-            fontSize: "12px",
-            fontWeight: "bold",
-            borderRadius: "4px",
-          }}
-        />
+       
         <div
           className="hover:bg-[#383a40] rounded-sm"
           data-tooltip-id={`tooltip-settings`}

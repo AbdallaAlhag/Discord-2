@@ -17,7 +17,6 @@ import { MediaData, MediaType } from "../TenorComponent/Types/tenor";
 import { TypingIndicator } from "./ServerTypingIndicator";
 import { Tooltip } from "react-tooltip";
 import "react-tooltip/dist/react-tooltip.css"; // Import required CSS
-import { channel } from "diagnostics_channel";
 interface Message {
   userId: number;
   user: { username: string; avatarUrl: string };
@@ -421,7 +420,7 @@ const ServerChat: React.FC<ChatProps> = ({
       <div className="h-12 px-4 flex items-center shadow-md">
         <Hash className="w-6 h-6 text-[#8e9297] mr-2" />
         <span className="text-white font-bold">
-          {channelInfo ? channelInfo.name : `Channel id: '${channelId}'`}
+          {channelInfo ? channelInfo.name : "general"}
         </span>
         <div className="ml-auto flex items-center space-x-4 text-[#b9bbbe]">
           <button
