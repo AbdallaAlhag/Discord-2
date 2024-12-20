@@ -83,6 +83,8 @@ const ChannelSidebar: React.FC<{
   ChannelWebRTC: React.FC;
   socket: Socket;
   handleVoiceChannelSelect: (channelId: SetStateAction<number | null>) => void;
+  isMobile: boolean;
+  setShowSidebar: React.Dispatch<React.SetStateAction<boolean>>;
 }> = ({
   serverId,
   channelId,
@@ -90,6 +92,8 @@ const ChannelSidebar: React.FC<{
   ChannelWebRTC,
   socket,
   handleVoiceChannelSelect,
+  isMobile,
+  setShowSidebar,
 }) => {
   const [channelInfo, setChannelInfo] = useState<ChannelInfo>([]);
   const [serverName, setServerName] = useState("");
@@ -192,7 +196,6 @@ const ChannelSidebar: React.FC<{
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [serverId, userId, channelUpdate]);
 
-
   const handleCreateChannelOpenModal = () => setIsCreateChannelModalOpen(true);
   const handleCreateChannelCloseModal = () =>
     setIsCreateChannelModalOpen(false);
@@ -221,7 +224,11 @@ const ChannelSidebar: React.FC<{
     <div className="w-60 bg-[#2f3136] flex flex-col">
       {/* server name */}
       <div className="h-12 flex items-center justify-between ">
-        <ServerMenu serverName={serverName} menuActions={MenuActions} role={user?.role}/>
+        <ServerMenu
+          serverName={serverName}
+          menuActions={MenuActions}
+          role={user?.role}
+        />
       </div>
       {/* channels */}
       <div className="flex-1 overflow-y-auto ">
@@ -246,6 +253,9 @@ const ChannelSidebar: React.FC<{
                 key={channel.id}
                 className="flex items-center justify-between px-2 py-1  rounded-md hover:bg-[#40444b] cursor-pointer transition-all"
                 onClick={() => {
+                  if (isMobile) {
+                    setShowSidebar(false);
+                  }
                   if (isVoiceModalOpen && selectedVoiceChannel) {
                     setIsVoiceChannelDisplay(false);
                   }
@@ -302,6 +312,9 @@ const ChannelSidebar: React.FC<{
                   // Open voice/video chat modal or navigate to voice channel
                   setSelectedVoiceChannel(channel);
                   setIsVoiceModalOpen(true);
+                  if (isMobile) {
+                    setShowSidebar(false);
+                  }
                   if (isVoiceModalOpen && selectedVoiceChannel) {
                     setIsVoiceChannelDisplay(true);
                     closePictureInPicture();

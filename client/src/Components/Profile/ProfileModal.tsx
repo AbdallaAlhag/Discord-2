@@ -1,5 +1,10 @@
 import { X, User, Mail, AlertTriangle } from "lucide-react";
-import { Dialog, DialogContent } from "@/Components/ui/dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogTitle,
+  DialogDescription,
+} from "@/Components/ui/dialog";
 import { Button } from "@/Components/ui/button";
 // import { cn } from "@/lib/utils"
 import { useAuth } from "@/AuthContext";
@@ -68,7 +73,10 @@ export default function ProfileModal({ isOpen, onClose }: ProfileModalProps) {
           ? "bg-[#42464D] text-white"
           : "text-gray-300 hover:bg-[#42464D] hover:text-white"
       }`}
-      onClick={() => setActiveTab(tab)}
+      onClick={() => {
+        console.log("tab is being clicked");
+        setActiveTab(tab);
+      }}
     >
       {label}
     </button>
@@ -77,55 +85,65 @@ export default function ProfileModal({ isOpen, onClose }: ProfileModalProps) {
   if (!isOpen) return null;
 
   return (
-    <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
-      <DialogContent className="max-w-none max-h-[95vh] p-0 border-none bg-transparent">
-        <div className="fixed inset-0 bg-[#2b2d31] backdrop-blur-sm flex items-center justify-center z-30">
-          <div className="w-full h-[100vh] bg-gradient-to-r from-[#2b2d31] to-[#313338] rounded-lg shadow-xl flex justify-center relative animate-in fade-in-0 zoom-in-95">
-            {/* Sidebar */}
-            <div className="w-[232px] bg-[#2b2d31] p-3 rounded-l-lg pt-12">
-              <div className="py-[16px]">
-                <input
-                  type="text"
-                  placeholder="Search"
-                  className="w-full bg-[#1E1F22] text-sm text-gray-300 px-2 py-2 rounded border-none focus:ring-0 placeholder-gray-500"
-                />
-              </div>
-              <div className="text-xs font-semibold text-gray-400 mb-2 px-2">
-                USER SETTINGS
-              </div>
-              <TabButton tab="account" label="My Account" />
-              <TabButton tab="profile" label="User Profile" />
-              <TabButton tab="privacy" label="Privacy & Safety" />
-              <LogoutButton className="w-full text-left px-2 py-1.5 rounded transition-colors text-gray-300 hover:bg-[#42464D] hover:text-white flex justify-between" />
-            </div>
+    <>
+      <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
+        <DialogContent className="max-w-none max-h-[95vh] p-0 border-none bg-transparent z-[200]">
+          {/* Accessible Title and Description */}
+          <DialogTitle className="sr-only">Settings</DialogTitle>
+          <DialogDescription className="sr-only">
+            Navigate user settings tabs and update preferences.
+          </DialogDescription>
 
-            {/* Main Content */}
-            <div className="flex-1 flex flex-col max-w-[750px] pt-10">
-              <div className="flex items-center justify-between p-4 border-b border-[#202225]">
-                <div className="flex items-center gap-2">
-                  <h2 className="text-xl font-semibold text-white">
-                    {activeTab === "account" && "My Account"}
-                    {activeTab === "profile" && "User Profile"}
-                    {activeTab === "privacy" && "Privacy & Safety"}
-                  </h2>
+          <div className="fixed inset-0 bg-[#2b2d31] backdrop-blur-sm flex items-center justify-center z-30">
+            <div className="w-full h-[100vh] bg-gradient-to-r from-[#2b2d31] to-[#313338] rounded-lg shadow-xl flex justify-center relative animate-in fade-in-0 zoom-in-95">
+              {/* Sidebar */}
+              <div className="w-[232px] bg-[#2b2d31] p-3 rounded-l-lg pt-12">
+                <div className="py-[16px]">
+                  <input
+                    type="text"
+                    placeholder="Search"
+                    className="w-full bg-[#1E1F22] text-sm text-gray-300 px-2 py-2 rounded border-none focus:ring-0 placeholder-gray-500"
+                  />
                 </div>
-                <Button
-                  variant="dark"
-                  size="circle"
-                  onClick={onClose}
-                  className="text-gray-400 hover:text-white transition-colors"
-                >
-                  <X className="h-6 w-6" />
-                  <span className="sr-only">Close</span>
-                </Button>
+                <div className="text-xs font-semibold text-gray-400 mb-2 px-2">
+                  USER SETTINGS
+                </div>
+                <TabButton tab="account" label="My Account" />
+                <TabButton tab="profile" label="User Profile" />
+                <TabButton tab="privacy" label="Privacy & Safety" />
+                <LogoutButton className="w-full text-left px-2 py-1.5 rounded transition-colors text-gray-300 hover:bg-[#42464D] hover:text-white flex justify-between" />
               </div>
 
-              <div className="flex-1 overflow-y-auto">{renderTabContent()}</div>
+              {/* Main Content */}
+              <div className="flex-1 flex flex-col max-w-[750px] pt-10">
+                <div className="flex items-center justify-between p-4 border-b border-[#202225]">
+                  <div className="flex items-center gap-2">
+                    <h2 className="text-xl font-semibold text-white">
+                      {activeTab === "account" && "My Account"}
+                      {activeTab === "profile" && "User Profile"}
+                      {activeTab === "privacy" && "Privacy & Safety"}
+                    </h2>
+                  </div>
+                  <Button
+                    variant="dark"
+                    size="circle"
+                    onClick={onClose}
+                    className="text-gray-400 hover:text-white transition-colors"
+                  >
+                    <X className="h-6 w-6" />
+                    <span className="sr-only">Close</span>
+                  </Button>
+                </div>
+
+                <div className="flex-1 overflow-y-auto">
+                  {renderTabContent()}
+                </div>
+              </div>
             </div>
           </div>
-        </div>
-      </DialogContent>
-    </Dialog>
+        </DialogContent>
+      </Dialog>
+    </>
   );
 }
 // Account Tab Component

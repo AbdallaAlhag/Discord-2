@@ -101,9 +101,7 @@ do this near the end:
     - [ ]  leave server is not real time? low priority
 - [x] profile settings
 - [x]  permissions and roles -> revamped and set up roles for server menu
-- [ ] server settings
-- [ ]  right click menu (might be part of a version 2 feature)
-- [ ]  reactions
+- [ ] mobile friendly
 - [ ]  dark mode (never done this before)
 - [ ]  group message for private chats?
 - [ ]  discord loading page
@@ -114,6 +112,12 @@ do this near the end:
 - [ ] search for discover page 
 - [ ] Preview video modal when turning on camera
 - [ ] Create active on direct message tabs 
+- [ ] add ads -> just to play around with
+---
+v2 features:
+- [ ]  right click menu (might be part of a version 2 feature)
+- [ ]  reactions
+- [ ] server settings
 ---
 
 

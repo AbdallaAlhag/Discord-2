@@ -23,6 +23,24 @@ function ServerPage() {
   const refVoiceChannelDisplay = useRef<HTMLDivElement>(null);
   const [voiceChannelId, setVoiceChannelId] = useState<number | null>(null);
   const [openMemberList, setOpenMemberList] = useState(true);
+  const [isMobile, setIsMobile] = useState(false);
+  const [showSidebar, setShowSidebar] = useState(false);
+
+  useEffect(() => {
+    const handleResize = () => {
+      setIsMobile(window.innerWidth < 768);
+    };
+
+    handleResize();
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
+
+  
+
+  const toggleSidebar = () => {
+    setShowSidebar(!showSidebar);
+  };
 
   const handleVoiceChannelSelect = (
     channelId: SetStateAction<number | null>
@@ -84,17 +102,55 @@ function ServerPage() {
         userId={userId}
         type="video"
       >
-        <ServerSidebar />
-        {serverId && channelId && (
-          <ChannelSidebar
-            serverId={serverId}
-            channelId={channelId}
-            setIsVoiceChannelDisplay={setIsVoiceChannelDisplay}
-            ChannelWebRTC={ChannelWebRTC}
-            socket={socket}
-            handleVoiceChannelSelect={handleVoiceChannelSelect}
-          />
+        {isMobile && (
+          <button
+            onClick={toggleSidebar}
+            className={`fixed top-4 left-4 z-50 p-2 bg-gray-700 rounded-md ${
+              showSidebar ? "ml-10" : ""
+            }`}
+          >
+            <svg
+              className="w-6 h-6 text-white"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d={
+                  showSidebar
+                    ? "M6 18L18 6M6 6l12 12"
+                    : "M4 6h16M4 12h16M4 18h16"
+                }
+              />
+            </svg>
+          </button>
         )}
+
+        <div
+          className={`
+        ${isMobile ? "fixed left-0 top-0 h-full z-40" : ""}
+        ${isMobile && !showSidebar ? "-translate-x-full" : "translate-x-0"}
+        transition-transform duration-300 ease-in-out flex
+      `}
+        >
+          <ServerSidebar />
+          {serverId && channelId && (
+            <ChannelSidebar
+              serverId={serverId}
+              channelId={channelId}
+              setIsVoiceChannelDisplay={setIsVoiceChannelDisplay}
+              ChannelWebRTC={ChannelWebRTC}
+              socket={socket}
+              handleVoiceChannelSelect={handleVoiceChannelSelect}
+              isMobile={isMobile}
+              setShowSidebar={setShowSidebar}
+            />
+          )}
+        </div>
+
         {serverId && channelId && (
           <>
             {isVoiceChannelDisplay ? (
@@ -120,6 +176,13 @@ function ServerPage() {
               </>
             )}
           </>
+        )}
+
+        {isMobile && showSidebar && (
+          <div
+            className="fixed inset-0 bg-black bg-opacity-50 z-30"
+            onClick={toggleSidebar}
+          />
         )}
       </WebRTCProvider>
     </div>
