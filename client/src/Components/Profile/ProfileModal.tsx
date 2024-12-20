@@ -37,7 +37,7 @@ export default function ProfileModal({ isOpen, onClose }: ProfileModalProps) {
       .get(`${VITE_API_BASE_URL}/user/${userId}`)
       .then((response) => {
         setUserInfo(response.data.user);
-        console.log(response.data.user);
+        // console.log(response.data.user);
       })
       .catch((error) => {
         console.error(error);

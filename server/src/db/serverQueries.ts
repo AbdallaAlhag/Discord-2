@@ -18,6 +18,7 @@ const createServer = async (name: string, userId: number) => {
       members: {
         create: {
           userId,
+          role: "OWNER", // Server creator is automatically owner
         },
       },
     },
@@ -189,17 +190,6 @@ const deleteServer = async (serverId: number) => {
     },
   });
 
-  // Delete all permissions related to the server
-  await prisma.permission.deleteMany({
-    where: { serverId },
-  });
-
-  // Delete all roles related to the server
-  await prisma.role.deleteMany({
-    where: { serverId },
-  });
-
-  // Delete all invites related to the server
   await prisma.serverInvite.deleteMany({
     where: { serverId },
   });

@@ -6,6 +6,7 @@ interface MenuItem {
   icon: string;
   label: string;
   done: boolean;
+  role: "OWNER" | "ADMIN" | "MEMBER" | undefined;
 }
 
 interface MenuButtonProps {
@@ -93,20 +94,20 @@ const MenuItem: React.FC<{ item: MenuItem; actions: MenuActionMap }> = ({
 const ServerMenu: React.FC<{
   serverName: string;
   menuActions: MenuActionsProps;
-}> = ({ serverName, menuActions }) => {
+  role: "OWNER" | "ADMIN" | "MEMBER" | undefined;
+}> = ({ serverName, menuActions, role }) => {
   const [isOpen, setIsOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
 
   const menuItems: MenuItem[] = [
-    { icon: "👥", label: "Invite People", done: true },
-    { icon: "⚙️", label: "Server Settings", done: false },
-    { icon: "➕", label: "Create Channel", done: true },
-    { icon: "📱", label: "Delete Server", done: true },
-    { icon: "🔔", label: "Notification Settings", done: false },
-    { icon: "🔒", label: "Privacy Settings", done: false },
-    { icon: "✏️", label: "Edit Server Profile", done: false },
-    { icon: "👁️", label: "Hide Muted Channels", done: false },
-    { icon: "🚪", label: "Leave Server", done: true },
+    { icon: "👥", label: "Invite People", done: true, role: "MEMBER" },
+    { icon: "⚙️", label: "Server Settings", done: false, role: "OWNER" },
+    { icon: "➕", label: "Create Channel", done: true, role: "MEMBER" },
+    { icon: "📱", label: "Delete Server", done: true, role: "OWNER" },
+    { icon: "🔔", label: "Notification Settings", done: false, role: "OWNER" },
+    { icon: "🔒", label: "Privacy Settings", done: false, role: "OWNER" },
+    { icon: "✏️", label: "Edit Server Profile", done: false, role: "OWNER" },
+    { icon: "🚪", label: "Leave Server", done: true, role: "MEMBER" },
   ];
 
   useEffect(() => {
@@ -174,7 +175,10 @@ const ServerMenu: React.FC<{
                 {index === 6 && (
                   <div className="border-b border-[#24252a] w-full" />
                 )}
-                <MenuItem item={item} actions={actionMap} />
+                {(role === "OWNER" || role === item.role) && (
+                  <MenuItem item={item} actions={actionMap} />
+                )}
+                {/* <MenuItem item={item} actions={actionMap} /> */}
               </React.Fragment>
             ))}
           </div>

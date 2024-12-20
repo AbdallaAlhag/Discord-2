@@ -37,10 +37,18 @@ interface onlineUsers {
   id: number;
   username: string;
   avatarUrl: null | string;
-  status: "online" | "offline" | "idle" | "dnd";
-  isGroup?: boolean;
-  memberCount?: number;
+  // I'll just find out only the role for the current server
+  // memberships: {
+  //   role: "OWNER" | "ADMIN" | "MEMBER";
+  //   server: {
+  //     iconUrl: null | string;
+  //     name: string;
+  //   }[];
+  //   serverId: number;
+  // }[];
+  role: "OWNER" | "ADMIN" | "MEMBER";
 }
+
 type ChannelInfo = {
   id: number;
   serverId: number;
@@ -149,8 +157,17 @@ const ChannelSidebar: React.FC<{
       if (!userId) return;
       try {
         const response = await axios.get(`${VITE_API_BASE_URL}/user/${userId}`);
-        setUser(response.data.user);
-        // console.log("user: ", response.data.user);
+        const userData = response.data.user;
+        const membership = userData.memberships.find(
+          (membership: { serverId: number }) =>
+            membership.serverId === Number(serverId)
+        );
+        setUser({
+          id: userData.id,
+          username: userData.username,
+          avatarUrl: userData.avatarUrl,
+          role: membership.role, // Extract the role
+        });
       } catch (err) {
         console.error("Error fetching user ", err);
       }
@@ -172,7 +189,9 @@ const ChannelSidebar: React.FC<{
     };
     fetchUser();
     fetchChannels();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [serverId, userId, channelUpdate]);
+
 
   const handleCreateChannelOpenModal = () => setIsCreateChannelModalOpen(true);
   const handleCreateChannelCloseModal = () =>
@@ -202,7 +221,7 @@ const ChannelSidebar: React.FC<{
     <div className="w-60 bg-[#2f3136] flex flex-col">
       {/* server name */}
       <div className="h-12 flex items-center justify-between ">
-        <ServerMenu serverName={serverName} menuActions={MenuActions} />
+        <ServerMenu serverName={serverName} menuActions={MenuActions} role={user?.role}/>
       </div>
       {/* channels */}
       <div className="flex-1 overflow-y-auto ">

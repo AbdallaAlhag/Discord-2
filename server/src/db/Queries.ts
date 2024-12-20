@@ -119,5 +119,17 @@ export const getUser = async (userId: number) =>
       email: true,
       avatarUrl: true,
       createdAt: true,
+      memberships: {
+        select: {
+          serverId: true,
+          role: true,
+          server: {
+            select: {
+              name: true,
+              iconUrl: true,
+            },
+          },
+        },
+      },
     },
   });

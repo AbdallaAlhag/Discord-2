@@ -100,9 +100,9 @@ do this near the end:
 - [x] leave server 
     - [ ]  leave server is not real time? low priority
 - [x] profile settings
+- [x]  permissions and roles -> revamped and set up roles for server menu
 - [ ] server settings
 - [ ]  right click menu (might be part of a version 2 feature)
-- [ ]  permissions and roles
 - [ ]  reactions
 - [ ]  dark mode (never done this before)
 - [ ]  group message for private chats?
