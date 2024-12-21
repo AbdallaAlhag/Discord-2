@@ -70,7 +70,7 @@ export const DiscoverPage = () => {
       >
         {/* Navbar - Lower z-index than sidebars */}
         <div className="sticky top-0 z-[100]">
-          <NavBar />
+          <NavBar isMobile={isMobile}/>
         </div>
         <div className="flex-1 overflow-y-auto">
           <Hero />

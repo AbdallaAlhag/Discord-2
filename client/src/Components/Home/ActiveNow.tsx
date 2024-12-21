@@ -1,6 +1,6 @@
 const ActiveNow: React.FC = function () {
   return (
-    <div className="w-[340px] bg-[#2f3136] p-4 border-l border-[#202225]">
+    <div className="w-80 bg-[#2f3136] p-4 border-l border-[#202225] hidden lg:block ">
       <h2 className="text-white font-bold mb-4">Active Now</h2>
       <div className="text-center py-8">
         <h3 className="text-white font-semibold mb-2">It's quiet for now...</h3>
@@ -11,6 +11,6 @@ const ActiveNow: React.FC = function () {
       </div>
     </div>
   );
-}
+};
 
 export default ActiveNow;

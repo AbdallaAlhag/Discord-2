@@ -101,9 +101,8 @@ do this near the end:
     - [ ]  leave server is not real time? low priority
 - [x] profile settings
 - [x]  permissions and roles -> revamped and set up roles for server menu
-- [ ] mobile friendly
+- [x] mobile friendly
 - [ ]  dark mode (never done this before)
-- [ ]  group message for private chats?
 - [ ]  discord loading page
 - [ ] Probably work on a global online indicator later
 - [ ] accept files and images/vids/gifs ? maybe add a file uploader? lol 
@@ -116,6 +115,7 @@ do this near the end:
 ---
 v2 features:
 - [ ]  right click menu (might be part of a version 2 feature)
+- [ ]  group message for private chats?
 - [ ]  reactions
 - [ ] server settings
 ---
