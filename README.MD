@@ -104,13 +104,12 @@ do this near the end:
 - [x] mobile friendly
 - [ ]  dark mode (never done this before)
 - [ ]  discord loading page
-- [ ] Probably work on a global online indicator later
 - [ ] accept files and images/vids/gifs ? maybe add a file uploader? lol 
 - [ ] pagination for messages
 - [ ] pagination for discover channels
-- [ ] search for discover page 
+- [ ] search in general
 - [ ] Preview video modal when turning on camera
-- [ ] Create active on direct message tabs 
+- [x] Create active on direct message tabs 
 - [ ] add ads -> just to play around with
 ---
 v2 features:

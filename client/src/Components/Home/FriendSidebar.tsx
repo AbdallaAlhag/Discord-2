@@ -14,10 +14,7 @@ interface onlineUsers {
   id: number;
   username: string;
   avatarUrl: null | string;
-  // status: "online" | "offline" | "idle" | "dnd";
   onlineStatus: boolean;
-  isGroup?: boolean;
-  memberCount?: number;
 }
 
 interface FriendSidebarProps {
@@ -34,8 +31,6 @@ const directMessages: onlineUsers[] = [
     username: "LeetCode",
     avatarUrl: null,
     onlineStatus: true,
-    isGroup: true,
-    memberCount: 5,
   },
   { id: 6, username: "aj", avatarUrl: null, onlineStatus: false },
   { id: 7, username: "aotmika", avatarUrl: null, onlineStatus: true },
@@ -65,6 +60,7 @@ export default function FriendSidebar({
   const [user, setUser] = useState<onlineUsers | null>(null);
   const { userId } = useAuth();
   const API_URL = import.meta.env.VITE_API_BASE_URL;
+  const [activeTab, setActiveTab] = useState<"Friends" | number>("Friends");
 
   const onlineStatusDependency = friends
     .map((user) => user.onlineStatus)
@@ -114,8 +110,15 @@ export default function FriendSidebar({
         <div className="px-2">
           <Link to="/">
             <button
-              className="w-full flex items-center px-2 py-2 text-[#dcddde] hover:bg-[#42464D] rounded group"
-              onClick={() => toggleChatSection(null)}
+              className={`w-full flex items-center px-2 py-2 text-[#dcddde] hover:bg-[#42464D] rounded group ${
+                activeTab === "Friends"
+                  ? "bg-[#42464D] text-white"
+                  : "text-gray-300 hover:bg-[#42464D] hover:text-white"
+              }`}
+              onClick={() => {
+                setActiveTab("Friends");
+                toggleChatSection(null);
+              }}
             >
               <Users className="w-5 h-5 mr-4" />
               <span className="text-lg font-semibold">Friends</span>
@@ -135,8 +138,15 @@ export default function FriendSidebar({
             {friends.map((dm) => (
               <button
                 key={dm.id}
-                className="w-full flex items-center px-2 py-1 text-[#96989d] hover:text-[#dcddde] hover:bg-[#42464D] rounded group"
-                onClick={() => toggleChatSection(dm.id)} // Use user ID to toggle chat room
+                className={`w-full flex items-center px-2 py-1 text-[#96989d] hover:text-[#dcddde] hover:bg-[#42464D] rounded group ${
+                  activeTab === dm.id
+                    ? "bg-[#42464D] text-white"
+                    : "text-gray-300 hover:bg-[#42464D] hover:text-white"
+                }`}
+                onClick={() => {
+                  setActiveTab(dm.id);
+                  toggleChatSection(dm.id);
+                }} // Use user ID to toggle chat room
               >
                 {/* <div className="w-8 h-8 rounded-full bg-[#36393f] flex items-center justify-center relative mr-3">
                   <span>{dm.avatar}</span>
@@ -163,11 +173,6 @@ export default function FriendSidebar({
                 </div>
                 <span className="text-sm flex-1 text-left truncate">
                   {dm.username}
-                  {dm.isGroup && (
-                    <span className="text-xs text-[#96989d] ml-1">
-                      ({dm.memberCount})
-                    </span>
-                  )}
                 </span>
               </button>
             ))}
@@ -228,7 +233,7 @@ export default function FriendSidebar({
             borderRadius: "4px",
           }}
         />
-        
+
         <div
           className="hover:bg-[#383a40] rounded-sm"
           data-tooltip-id={`tooltip-settings`}

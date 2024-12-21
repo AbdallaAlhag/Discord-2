@@ -72,7 +72,7 @@ export default function ProfileModal({ isOpen, onClose }: ProfileModalProps) {
         activeTab === tab
           ? "bg-[#42464D] text-white"
           : "text-gray-300 hover:bg-[#42464D] hover:text-white"
-      }`}
+      }z-[199]`}
       onClick={() => {
         console.log("tab is being clicked");
         setActiveTab(tab);
