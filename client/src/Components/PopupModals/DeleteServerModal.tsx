@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { Button } from "@/Components/ui/button";
 import { X } from "lucide-react";
 import axios from "axios";
+import ReactDOM from "react-dom";
 
 interface DeleteServerModalProps {
   isOpen: boolean;
@@ -43,7 +44,7 @@ export default function DeleteServerModal({
 
   if (!isOpen) return null;
 
-  return (
+  return ReactDOM.createPortal(
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
       <div className="bg-[#313338] rounded-lg shadow-xl w-full max-w-md p-6">
         <div className="flex justify-between items-center mb-6">
@@ -88,6 +89,7 @@ export default function DeleteServerModal({
           </Button>
         </div>
       </div>
-    </div>
+    </div>,
+    document.body
   );
 }

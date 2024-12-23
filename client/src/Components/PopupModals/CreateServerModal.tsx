@@ -1,5 +1,6 @@
 import React from "react";
 import { X } from "lucide-react";
+import ReactDOM from "react-dom";
 
 interface ModalProps {
   isOpen: boolean;
@@ -10,7 +11,7 @@ interface ModalProps {
 export function Modal({ isOpen, onClose, children }: ModalProps) {
   if (!isOpen) return null;
 
-  return (
+  return ReactDOM.createPortal(
     <div className="fixed inset-0 z-50 flex items-center justify-center">
       <div
         className="fixed inset-0 bg-black/70 transition-opacity"
@@ -27,6 +28,7 @@ export function Modal({ isOpen, onClose, children }: ModalProps) {
           {children}
         </div>
       </div>
-    </div>
+    </div>,
+    document.body
   );
 }

@@ -1,6 +1,7 @@
 import { Button } from "@/Components/ui/button";
 import { X } from "lucide-react";
 import axios from "axios";
+import ReactDOM from "react-dom";
 
 interface LeaveServerModalProps {
   isOpen: boolean;
@@ -33,7 +34,7 @@ const LeaveServerModal: React.FC<LeaveServerModalProps> = ({
   };
   if (!isOpen) return null;
 
-  return (
+  return ReactDOM.createPortal(
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
       <div className="bg-[#313338] rounded-lg shadow-xl w-full max-w-md p-6">
         <div className="flex justify-between items-center mb-3">
@@ -64,7 +65,8 @@ const LeaveServerModal: React.FC<LeaveServerModalProps> = ({
           </Button>
         </div>
       </div>
-    </div>
+    </div>,
+    document.body
   );
 };
 

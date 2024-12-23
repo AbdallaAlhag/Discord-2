@@ -28,6 +28,19 @@ CREATE TYPE public."MessageType" AS ENUM (
 
 ALTER TYPE public."MessageType" OWNER TO alhag;
 
+--
+-- Name: ServerRole; Type: TYPE; Schema: public; Owner: alhag
+--
+
+CREATE TYPE public."ServerRole" AS ENUM (
+    'OWNER',
+    'ADMIN',
+    'MEMBER'
+);
+
+
+ALTER TYPE public."ServerRole" OWNER TO alhag;
+
 SET default_tablespace = '';
 
 SET default_table_access_method = heap;
@@ -217,42 +230,6 @@ ALTER SEQUENCE public."Message_id_seq" OWNED BY public."Message".id;
 
 
 --
--- Name: Permission; Type: TABLE; Schema: public; Owner: alhag
---
-
-CREATE TABLE public."Permission" (
-    id integer NOT NULL,
-    "serverId" integer NOT NULL,
-    "userId" integer NOT NULL,
-    "roleId" integer NOT NULL
-);
-
-
-ALTER TABLE public."Permission" OWNER TO alhag;
-
---
--- Name: Permission_id_seq; Type: SEQUENCE; Schema: public; Owner: alhag
---
-
-CREATE SEQUENCE public."Permission_id_seq"
-    AS integer
-    START WITH 1
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1;
-
-
-ALTER SEQUENCE public."Permission_id_seq" OWNER TO alhag;
-
---
--- Name: Permission_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: alhag
---
-
-ALTER SEQUENCE public."Permission_id_seq" OWNED BY public."Permission".id;
-
-
---
 -- Name: Reaction; Type: TABLE; Schema: public; Owner: alhag
 --
 
@@ -287,41 +264,6 @@ ALTER SEQUENCE public."Reaction_id_seq" OWNER TO alhag;
 --
 
 ALTER SEQUENCE public."Reaction_id_seq" OWNED BY public."Reaction".id;
-
-
---
--- Name: Role; Type: TABLE; Schema: public; Owner: alhag
---
-
-CREATE TABLE public."Role" (
-    id integer NOT NULL,
-    "serverId" integer NOT NULL,
-    name text NOT NULL
-);
-
-
-ALTER TABLE public."Role" OWNER TO alhag;
-
---
--- Name: Role_id_seq; Type: SEQUENCE; Schema: public; Owner: alhag
---
-
-CREATE SEQUENCE public."Role_id_seq"
-    AS integer
-    START WITH 1
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1;
-
-
-ALTER SEQUENCE public."Role_id_seq" OWNER TO alhag;
-
---
--- Name: Role_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: alhag
---
-
-ALTER SEQUENCE public."Role_id_seq" OWNED BY public."Role".id;
 
 
 --
@@ -390,10 +332,10 @@ CREATE TABLE public."ServerMember" (
     "userId" integer NOT NULL,
     "serverId" integer NOT NULL,
     "joinedAt" timestamp(3) without time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
-    "roleId" integer,
     "user.onlineStatus" boolean,
     "user.username" text,
-    "user.avatarUrl" text
+    "user.avatarUrl" text,
+    role public."ServerRole" DEFAULT 'MEMBER'::public."ServerRole" NOT NULL
 );
 
 
@@ -536,24 +478,10 @@ ALTER TABLE ONLY public."MessageReadReceipt" ALTER COLUMN id SET DEFAULT nextval
 
 
 --
--- Name: Permission id; Type: DEFAULT; Schema: public; Owner: alhag
---
-
-ALTER TABLE ONLY public."Permission" ALTER COLUMN id SET DEFAULT nextval('public."Permission_id_seq"'::regclass);
-
-
---
 -- Name: Reaction id; Type: DEFAULT; Schema: public; Owner: alhag
 --
 
 ALTER TABLE ONLY public."Reaction" ALTER COLUMN id SET DEFAULT nextval('public."Reaction_id_seq"'::regclass);
-
-
---
--- Name: Role id; Type: DEFAULT; Schema: public; Owner: alhag
---
-
-ALTER TABLE ONLY public."Role" ALTER COLUMN id SET DEFAULT nextval('public."Role_id_seq"'::regclass);
 
 
 --
@@ -1115,6 +1043,8 @@ COPY public."Message" (id, content, "createdAt", "channelId", "userId", "message
 558	lkajsdflkjasdf	2024-12-14 00:30:18.205	\N	7	PRIVATE	4
 559	did you read this	2024-12-14 00:30:36.4	\N	4	PRIVATE	7
 560	did you read this?	2024-12-14 00:30:54.828	\N	4	PRIVATE	7
+561	{"type":"invite","inviteCode":"fm1zdlfv","serverName":"testing voice","expiresAt":"2024-12-26T05:20:01.310Z","serverId":16}	2024-12-19 05:20:01.362	\N	4	PRIVATE	6
+562	{"type":"invite","inviteCode":"cyeqa60p","serverName":"testing voice","expiresAt":"2024-12-26T05:20:04.435Z","serverId":16}	2024-12-19 05:20:04.439	\N	4	PRIVATE	7
 \.
 
 
@@ -1246,14 +1176,6 @@ COPY public."MessageReadReceipt" (id, "messageId", "userId", "readAt") FROM stdi
 
 
 --
--- Data for Name: Permission; Type: TABLE DATA; Schema: public; Owner: alhag
---
-
-COPY public."Permission" (id, "serverId", "userId", "roleId") FROM stdin;
-\.
-
-
---
 -- Data for Name: Reaction; Type: TABLE DATA; Schema: public; Owner: alhag
 --
 
@@ -1262,23 +1184,13 @@ COPY public."Reaction" (id, emoji, "messageId", "userId", "createdAt") FROM stdi
 
 
 --
--- Data for Name: Role; Type: TABLE DATA; Schema: public; Owner: alhag
---
-
-COPY public."Role" (id, "serverId", name) FROM stdin;
-1	1	Admin
-2	1	Member
-\.
-
-
---
 -- Data for Name: Server; Type: TABLE DATA; Schema: public; Owner: alhag
 --
 
 COPY public."Server" (id, name, "iconUrl", "createdAt") FROM stdin;
-1	Tech Enthusiasts	https://example.com/icon1.png	2024-10-28 20:35:55.475
-2	Gaming Hub	https://example.com/icon2.png	2024-10-28 20:35:55.482
 16	testing voice	\N	2024-11-19 21:09:23.755
+2	Gaming Hub	\N	2024-10-28 20:35:55.482
+1	Tech Enthusiasts	\N	2024-10-28 20:35:55.475
 \.
 
 
@@ -1290,6 +1202,8 @@ COPY public."ServerInvite" (id, "inviteCode", "serverId", "createdById", "usedBy
 23	qgiezbzl	16	4	\N	2024-11-27 21:34:23.386	2024-11-20 21:34:23.387	\N	1	0	f
 24	uwj1werq	16	4	\N	2024-11-29 20:23:54.209	2024-11-22 20:23:54.211	\N	1	0	f
 25	qf3rgen0	16	7	\N	2024-11-29 20:25:02.624	2024-11-22 20:25:02.625	\N	1	0	f
+26	fm1zdlfv	16	4	\N	2024-12-26 05:20:01.31	2024-12-19 05:20:01.312	\N	1	0	f
+27	cyeqa60p	16	4	\N	2024-12-26 05:20:04.435	2024-12-19 05:20:04.437	\N	1	0	f
 \.
 
 
@@ -1297,15 +1211,14 @@ COPY public."ServerInvite" (id, "inviteCode", "serverId", "createdById", "usedBy
 -- Data for Name: ServerMember; Type: TABLE DATA; Schema: public; Owner: alhag
 --
 
-COPY public."ServerMember" (id, "userId", "serverId", "joinedAt", "roleId", "user.onlineStatus", "user.username", "user.avatarUrl") FROM stdin;
-1	1	1	2024-10-28 20:35:55.475	\N	\N	\N	\N
-2	2	1	2024-10-28 20:35:55.475	\N	\N	\N	\N
-3	3	1	2024-10-28 20:35:55.475	\N	\N	\N	\N
-4	1	2	2024-10-28 20:35:55.482	\N	\N	\N	\N
-5	2	2	2024-10-28 20:35:55.482	\N	\N	\N	\N
-28	4	16	2024-11-19 21:09:23.755	\N	\N	\N	\N
-29	7	16	2024-11-20 21:35:02.071	\N	\N	\N	\N
-30	6	16	2024-11-22 20:24:02.052	\N	\N	\N	\N
+COPY public."ServerMember" (id, "userId", "serverId", "joinedAt", "user.onlineStatus", "user.username", "user.avatarUrl", role) FROM stdin;
+1	1	1	2024-10-28 20:35:55.475	\N	\N	\N	MEMBER
+2	2	1	2024-10-28 20:35:55.475	\N	\N	\N	MEMBER
+3	3	1	2024-10-28 20:35:55.475	\N	\N	\N	MEMBER
+4	1	2	2024-10-28 20:35:55.482	\N	\N	\N	MEMBER
+5	2	2	2024-10-28 20:35:55.482	\N	\N	\N	MEMBER
+29	7	16	2024-11-20 21:35:02.071	\N	\N	\N	MEMBER
+28	4	16	2024-11-19 21:09:23.755	\N	\N	\N	OWNER
 \.
 
 
@@ -1317,10 +1230,10 @@ COPY public."User" (id, email, "avatarUrl", "createdAt", password, username, "on
 1	user1@example.com	\N	2024-10-28 20:35:55.431	password1	user_one	f
 2	user2@example.com	\N	2024-10-28 20:35:55.472	password2	user_two	f
 3	user3@example.com	\N	2024-10-28 20:35:55.474	password3	user_three	f
-7	test3@test3.com	/src/assets/defaultPfp/Solid-Indigo.png	2024-11-01 22:18:20.372	$2a$10$DZeul8jOK4cjakHsNC1.X.hVJ0iGaK9sktO8QWrHzjafE.aRf8Xty	test3	f
 5	test1@test1.com	/src/assets/defaultPfp/Solid-Green.png	2024-11-01 22:17:44.878	$2a$10$eyjdthAXmwEKhWoPIKpu2un0etB9WPdON17wg//sNbkc9tuLWVHEy	test1	f
-4	test@test.com	/src/assets/defaultPfp/Solid-Violet.png	2024-10-29 20:52:38.549	$2a$10$nAuaJ50j9x9fDTb1CysTsuHQIXW4i7LIqcWkrcrw3QyXClUvAjp6a	test	f
 13	test4@test4.com	/src/assets/defaultPfp/Solid-Yellow.png	2024-11-16 21:27:07.608	$2a$10$YROtwZpOj6K2VF6vLj.1O.cfTJYjpSaHnRUs/3mwR4s.Atdoh9VSC	test4	f
+7	test3@test3.com	/src/assets/defaultPfp/Solid-Indigo.png	2024-11-01 22:18:20.372	$2a$10$DZeul8jOK4cjakHsNC1.X.hVJ0iGaK9sktO8QWrHzjafE.aRf8Xty	test3	f
+4	test@test.com	/src/assets/defaultPfp/Solid-Violet.png	2024-10-29 20:52:38.549	$2a$10$nAuaJ50j9x9fDTb1CysTsuHQIXW4i7LIqcWkrcrw3QyXClUvAjp6a	test	f
 6	test2@test2.com	/src/assets/defaultPfp/Solid-Blue.png	2024-11-01 22:18:01.746	$2a$10$y36Mr1CQPGY71pPEuUpm9OtbdILgIkHRxL6SPZhaGMnmhFURrgNMm	test2	f
 \.
 
@@ -1342,6 +1255,7 @@ f3b1b254-b7dc-49dc-8b25-9cb73628ce0e	6c5321e42b63cb3285288b492d82a4fba12904ae27f
 fa562664-3569-49cb-bc34-67d1d0f9dc33	a8b880dc098d7b26e9d2e1090927e7f672f2f5b706f54c5ca3cca8dd3fc28adb	2024-12-09 11:55:19.081736-08	20241209195519_add_username_online_status_to_servermember	\N	\N	2024-12-09 11:55:19.072558-08	1
 3b516927-7224-492b-8ee4-e61dd6551482	ddc3eb4a601e827662c5fd17937273ae7e62ef6595760d6f9aacffb13a751a42	2024-12-09 12:01:12.329679-08	20241209200112_add_avatar_url_to_servermember	\N	\N	2024-12-09 12:01:12.325137-08	1
 e9590617-ec96-45a0-a338-b59259b0f4d3	35cbea064967128e21ea52e37b69bb1da06c5407727da541d461975dff54279f	2024-12-12 11:47:06.070141-08	20241212194706_add_read_receipt	\N	\N	2024-12-12 11:47:06.032568-08	1
+d9f3e056-9747-4e7c-90eb-b902a0173c75	55f6b53dc013918e4e8ea420451868127f71fe311af8f4d82216b5039842bea0	2024-12-20 12:54:34.05162-08	20241220205434_remove_role_and_permission_update_roles_in_server_member	\N	\N	2024-12-20 12:54:34.018131-08	1
 \.
 
 
@@ -1377,14 +1291,7 @@ SELECT pg_catalog.setval('public."MessageReadReceipt_id_seq"', 119, true);
 -- Name: Message_id_seq; Type: SEQUENCE SET; Schema: public; Owner: alhag
 --
 
-SELECT pg_catalog.setval('public."Message_id_seq"', 560, true);
-
-
---
--- Name: Permission_id_seq; Type: SEQUENCE SET; Schema: public; Owner: alhag
---
-
-SELECT pg_catalog.setval('public."Permission_id_seq"', 1, false);
+SELECT pg_catalog.setval('public."Message_id_seq"', 562, true);
 
 
 --
@@ -1395,17 +1302,10 @@ SELECT pg_catalog.setval('public."Reaction_id_seq"', 1, false);
 
 
 --
--- Name: Role_id_seq; Type: SEQUENCE SET; Schema: public; Owner: alhag
---
-
-SELECT pg_catalog.setval('public."Role_id_seq"', 2, true);
-
-
---
 -- Name: ServerInvite_id_seq; Type: SEQUENCE SET; Schema: public; Owner: alhag
 --
 
-SELECT pg_catalog.setval('public."ServerInvite_id_seq"', 25, true);
+SELECT pg_catalog.setval('public."ServerInvite_id_seq"', 27, true);
 
 
 --
@@ -1470,27 +1370,11 @@ ALTER TABLE ONLY public."Message"
 
 
 --
--- Name: Permission Permission_pkey; Type: CONSTRAINT; Schema: public; Owner: alhag
---
-
-ALTER TABLE ONLY public."Permission"
-    ADD CONSTRAINT "Permission_pkey" PRIMARY KEY (id);
-
-
---
 -- Name: Reaction Reaction_pkey; Type: CONSTRAINT; Schema: public; Owner: alhag
 --
 
 ALTER TABLE ONLY public."Reaction"
     ADD CONSTRAINT "Reaction_pkey" PRIMARY KEY (id);
-
-
---
--- Name: Role Role_pkey; Type: CONSTRAINT; Schema: public; Owner: alhag
---
-
-ALTER TABLE ONLY public."Role"
-    ADD CONSTRAINT "Role_pkey" PRIMARY KEY (id);
 
 
 --
@@ -1677,30 +1561,6 @@ ALTER TABLE ONLY public."Message"
 
 
 --
--- Name: Permission Permission_roleId_fkey; Type: FK CONSTRAINT; Schema: public; Owner: alhag
---
-
-ALTER TABLE ONLY public."Permission"
-    ADD CONSTRAINT "Permission_roleId_fkey" FOREIGN KEY ("roleId") REFERENCES public."Role"(id) ON UPDATE CASCADE ON DELETE RESTRICT;
-
-
---
--- Name: Permission Permission_serverId_fkey; Type: FK CONSTRAINT; Schema: public; Owner: alhag
---
-
-ALTER TABLE ONLY public."Permission"
-    ADD CONSTRAINT "Permission_serverId_fkey" FOREIGN KEY ("serverId") REFERENCES public."Server"(id) ON UPDATE CASCADE ON DELETE RESTRICT;
-
-
---
--- Name: Permission Permission_userId_fkey; Type: FK CONSTRAINT; Schema: public; Owner: alhag
---
-
-ALTER TABLE ONLY public."Permission"
-    ADD CONSTRAINT "Permission_userId_fkey" FOREIGN KEY ("userId") REFERENCES public."User"(id) ON UPDATE CASCADE ON DELETE RESTRICT;
-
-
---
 -- Name: Reaction Reaction_messageId_fkey; Type: FK CONSTRAINT; Schema: public; Owner: alhag
 --
 
@@ -1714,14 +1574,6 @@ ALTER TABLE ONLY public."Reaction"
 
 ALTER TABLE ONLY public."Reaction"
     ADD CONSTRAINT "Reaction_userId_fkey" FOREIGN KEY ("userId") REFERENCES public."User"(id) ON UPDATE CASCADE ON DELETE RESTRICT;
-
-
---
--- Name: Role Role_serverId_fkey; Type: FK CONSTRAINT; Schema: public; Owner: alhag
---
-
-ALTER TABLE ONLY public."Role"
-    ADD CONSTRAINT "Role_serverId_fkey" FOREIGN KEY ("serverId") REFERENCES public."Server"(id) ON UPDATE CASCADE ON DELETE RESTRICT;
 
 
 --
@@ -1746,14 +1598,6 @@ ALTER TABLE ONLY public."ServerInvite"
 
 ALTER TABLE ONLY public."ServerInvite"
     ADD CONSTRAINT "ServerInvite_usedById_fkey" FOREIGN KEY ("usedById") REFERENCES public."User"(id) ON UPDATE CASCADE ON DELETE SET NULL;
-
-
---
--- Name: ServerMember ServerMember_roleId_fkey; Type: FK CONSTRAINT; Schema: public; Owner: alhag
---
-
-ALTER TABLE ONLY public."ServerMember"
-    ADD CONSTRAINT "ServerMember_roleId_fkey" FOREIGN KEY ("roleId") REFERENCES public."Role"(id) ON UPDATE CASCADE ON DELETE SET NULL;
 
 
 --

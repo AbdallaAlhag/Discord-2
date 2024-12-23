@@ -5,6 +5,7 @@ import { SearchInput } from "./SearchInput";
 import axios from "axios";
 import { useAuth } from "@/AuthContext";
 import { Socket, io } from "socket.io-client";
+import ReactDOM from "react-dom";
 
 interface Friend {
   id: string;
@@ -182,7 +183,7 @@ export default function InviteModal({
       !friend.memberships.some((membership) => membership.serverId == serverId)
   );
 
-  return (
+  return ReactDOM.createPortal(
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center">
       <div className="bg-[#313338] rounded-md w-full max-w-md text-gray-200">
         <div className="p-4">
@@ -248,6 +249,7 @@ export default function InviteModal({
           </div>
         </div>
       </div>
-    </div>
+    </div>,
+    document.body
   );
 }

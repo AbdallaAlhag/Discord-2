@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { X, Hash, Volume2 } from "lucide-react";
+import ReactDOM from "react-dom";
 
 interface ChannelModalProps {
   isOpen: boolean;
@@ -32,7 +33,7 @@ export default function ChannelModal({
     onClose();
   };
 
-  return (
+  return ReactDOM.createPortal(
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center">
       <div className="bg-[#313338] rounded-md w-full max-w-md p-4 text-gray-200">
         <div className="flex justify-between items-center mb-4">
@@ -164,6 +165,7 @@ export default function ChannelModal({
           </div>
         </form>
       </div>
-    </div>
+    </div>,
+    document.body
   );
 }

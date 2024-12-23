@@ -206,7 +206,6 @@ const ChannelSidebar: React.FC<{
   const handleLeaveServer = () => setIsLeaveServerModalOpen(true);
   const handleCloseLeaveServerModal = () => {
     setIsLeaveServerModalOpen(false);
-    window.location.href = "/";
   };
   // Functions to handle modal open/close
   const handleOpenInviteModal = () => setIsInviteModalOpen(true);

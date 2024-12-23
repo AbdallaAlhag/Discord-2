@@ -68,10 +68,10 @@ export default function ProfileModal({ isOpen, onClose }: ProfileModalProps) {
 
   const TabButton = ({ tab, label }: { tab: TabType; label: string }) => (
     <button
-      className={`w-full text-left px-2 py-1.5 rounded transition-colors ${
+      className={`w-full text-left px-2 py-1.5 rounded text-white ${
         activeTab === tab
-          ? "bg-[#42464D] text-white"
-          : "text-gray-300 hover:bg-[#42464D] hover:text-white"
+          ? "bg-[#42464D] "
+          : " hover:bg-[#42464D] "
       }z-[199]`}
       onClick={() => {
         console.log("tab is being clicked");
@@ -111,7 +111,7 @@ export default function ProfileModal({ isOpen, onClose }: ProfileModalProps) {
                 <TabButton tab="account" label="My Account" />
                 <TabButton tab="profile" label="User Profile" />
                 <TabButton tab="privacy" label="Privacy & Safety" />
-                <LogoutButton className="w-full text-left px-2 py-1.5 rounded transition-colors text-gray-300 hover:bg-[#42464D] hover:text-white flex justify-between" />
+                <LogoutButton className="w-full text-left px-2 py-1.5 rounded transition-colors text-white hover:bg-[#42464D] hover:text-white flex justify-between" />
               </div>
 
               {/* Main Content */}

@@ -102,12 +102,18 @@ do this near the end:
 - [x] profile settings
 - [x]  permissions and roles -> revamped and set up roles for server menu
 - [x] mobile friendly
-- [ ]  dark mode (never done this before)
-- [ ]  discord loading page
-- [ ] accept files and images/vids/gifs ? maybe add a file uploader? lol 
+    - [ ] update tenor gif picker for mobile
+- [ ] fix modals not properly displaying -> using react portals to render the a child component into a DOM node that exist outside the DOM hierarchy of the parent components
+- [ ] clicking outside logout modal should close it
+- [ ] accept files and images/vids/gifs ? maybe add a file uploader? lol -> uploadthings
+    - [ ] upload server img
+    - [ ] upload and edit profile img
+    - [ ] upload via chat input
 - [ ] pagination for messages
 - [ ] pagination for discover channels
 - [ ] search in general
+- [ ]  dark mode (never done this before)
+- [ ]  discord loading page
 - [ ] Preview video modal when turning on camera
 - [x] Create active on direct message tabs 
 - [ ] add ads -> just to play around with

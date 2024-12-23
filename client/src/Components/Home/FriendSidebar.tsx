@@ -1,4 +1,4 @@
-import { Users, Plus } from "lucide-react";
+import { Users } from "lucide-react";
 import SettingsButton from "../Profile/SettingsButton";
 import { useAuth } from "@/AuthContext";
 import axios from "axios";
@@ -131,7 +131,6 @@ export default function FriendSidebar({
             <span className="text-[#96989d] uppercase font-semibold">
               Direct Messages
             </span>
-            <Plus className="w-4 h-4 text-[#96989d] hover:text-[#dcddde] cursor-pointer" />
           </div>
 
           <div className="mt-2 space-y-0.5">
