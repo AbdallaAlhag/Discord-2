@@ -134,7 +134,8 @@ export function ServerCreation() {
             </div>
 
             <p className="text-xs text-gray-400 mb-6">
-              By creating a server, you agree to Discord-2's Community Guidelines.
+              By creating a server, you agree to Discord-2's Community
+              Guidelines.
             </p>
 
             <div className="flex justify-between">

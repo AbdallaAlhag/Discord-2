@@ -8,6 +8,7 @@ import appRouter from "./Routes/AppRouter";
 import chatRouter from "./Routes/ChatRouter";
 import friendRouter from "./Routes/FriendRouter";
 import serverRouter from "./Routes/ServerRouter";
+import uploadRouter from "./Routes/UploadRouter";
 import { errorHandler } from "./Middleware/ErrorHandler";
 import passport from "./Auth/passportConfig";
 import http from "http";
@@ -45,6 +46,7 @@ app.use("/auth", authRouter);
 app.use("/chat", chatRouter);
 app.use("/friends", friendRouter);
 app.use("/server", serverRouter);
+app.use("/upload", uploadRouter);
 app.use(errorHandler);
 
 const io = new Server(server, {

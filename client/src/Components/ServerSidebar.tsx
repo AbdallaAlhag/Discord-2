@@ -101,7 +101,7 @@ const ServerSidebar: React.FC = () => {
       </div>
 
       <NotificationSidebar />
-
+      {/* Add iconUrl to server */}
       <div className="w-12 h-[2px] bg-[#36393f] rounded-full" />
       {server?.length > 0 &&
         server.map((serv: Server) => (
@@ -120,7 +120,29 @@ const ServerSidebar: React.FC = () => {
                   )}
                 />
                 <Link to={`/server/${serv.id}/${serv.channels[0].id}`}>
-                  <div
+                  {serv.iconUrl ? (
+                    <img
+                      src={serv.iconUrl}
+                      className="w-12 h-12 rounded-[24px]"
+                      alt={serv.name}
+                      key={serv.id}
+                      data-tooltip-id={`tooltip-${serv.id}`} // Link element to tooltip
+                      data-tooltip-content={serv.name} // Tooltip content dynamically
+                    />
+                  ) : (
+                    <div
+                      key={serv.id}
+                      className="w-12 h-12 bg-[#36393f] rounded-[24px] hover:rounded-[16px] transition-all duration-200 flex items-center justify-center cursor-pointer"
+                      data-tooltip-id={`tooltip-${serv.id}`} // Link element to tooltip
+                      data-tooltip-content={serv.name} // Tooltip content dynamically
+                    >
+                      {/* Display the first letter of the server name */}
+                      <div className="w-6 h-6 text-[#dcddde] text-center">
+                        {serv.name.charAt(0).toUpperCase()}
+                      </div>
+                    </div>
+                  )}
+                  {/* <div
                     key={serv.id}
                     className="w-12 h-12 bg-[#36393f] rounded-[24px] hover:rounded-[16px] transition-all duration-200 flex items-center justify-center cursor-pointer "
                     data-tooltip-id={`tooltip-${serv.id}`} // Link element to tooltip
@@ -129,7 +151,7 @@ const ServerSidebar: React.FC = () => {
                     <div className="w-6 h-6 text-[#dcddde] text-center">
                       {serv.name.charAt(0).toUpperCase()}
                     </div>
-                  </div>
+                  </div> */}
                 </Link>
                 <Tooltip
                   id={`tooltip-${serv.id}`}

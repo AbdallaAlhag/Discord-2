@@ -17,7 +17,9 @@ const handleGetAllServers = async (
 ) => {
   try {
     const servers = await prisma.server.findMany({
-      include: { members: { select: { user: { select: { onlineStatus: true } } } } },
+      include: {
+        members: { select: { user: { select: { onlineStatus: true } } } },
+      },
     });
     return res.status(201).json(servers); // Ensure a response is always returned
   } catch (error) {
@@ -30,13 +32,13 @@ const handleCreateServer = async (
   res: Response,
   next: NextFunction
 ) => {
-  const { name, userId } = req.body;
+  const { name, userId, iconUrl } = req.body;
   if (!name || !userId) {
     return res.status(400).json({ error: "Missing required fields" });
   }
 
   try {
-    const serverChannels = await createServer(name, userId);
+    const serverChannels = await createServer(name, userId, iconUrl);
     return res.status(201).json(serverChannels); // Ensure a response is always returned
   } catch (error) {
     return res.status(500).json({ error: "Failed to create server" });
@@ -179,10 +181,7 @@ const handleAddToServer = async (
   }
 };
 
-const handleDeleteServer = async (
-  req: Request,
-  res: Response,
-) => {
+const handleDeleteServer = async (req: Request, res: Response) => {
   const { serverId } = req.params; // Use req.params instead of req.body
   if (!serverId) {
     return res.status(400).json({ error: "Missing required fields" });
@@ -211,9 +210,8 @@ const handleLeaveServer = async (req: Request, res: Response) => {
     return res.status(201); // Ensure a response is always returned
   } catch (error) {
     return res.status(500).json({ error: "Failed to leave server" });
-  };
+  }
 };
-
 
 export {
   handleCreateServer,

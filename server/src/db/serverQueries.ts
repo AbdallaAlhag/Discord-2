@@ -1,9 +1,10 @@
 import prisma from "./prisma";
 
-const createServer = async (name: string, userId: number) => {
+const createServer = async (name: string, userId: number, iconUrl: string) => {
   return await prisma.server.create({
     data: {
       name,
+      iconUrl,
       channels: {
         create: [
           {

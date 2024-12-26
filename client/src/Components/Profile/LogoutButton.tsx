@@ -64,11 +64,11 @@ const LogoutModal: React.FC<ModalProps> = ({ isOpen, onClose, onLogout }) => {
   return (
     <>
       {/* Backdrop */}
-      <div className="fixed inset-0 bg-black/70 z-40"></div>
+      <div className="fixed inset-0 bg-black/70 z-[301]"></div>
       {/* Modal */}
 
-      <div className="fixed inset-0  flex items-center justify-center z-50">
-        <div className="bg-[#313338] rounded-lg shadow-xl w-full max-w-md p-6">
+      <div className="fixed inset-0  flex items-center justify-center z-[302]">
+        <div className="bg-[#313338] rounded-lg shadow-xl w-full max-w-md p-6 ">
           <div className="flex justify-between items-center mb-3">
             <h2 className="text-2xl font-bold text-white">Logout?</h2>
             <Button
