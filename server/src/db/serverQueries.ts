@@ -1,4 +1,5 @@
 import prisma from "./prisma";
+import axios from "axios";
 
 const createServer = async (name: string, userId: number, iconUrl: string) => {
   return await prisma.server.create({
@@ -167,6 +168,36 @@ const addToServer = async (serverId: string, userId: string) => {
 };
 
 const deleteServer = async (serverId: number) => {
+  // Fetch the server to get the icon URL
+  const server = await prisma.server.findUnique({
+    where: { id: serverId },
+    select: { iconUrl: true },
+  });
+
+  if (!server) {
+    throw new Error(`Server with ID ${serverId} not found.`);
+  }
+
+  if (server.iconUrl) {
+    // Parse the file name from the icon URL
+    const iconUrl = server.iconUrl;
+    const fileKey = iconUrl.split("/").pop(); // Extracts the file name from the URL
+    // Call the delete-object route if iconUrl exists
+    if (fileKey) {
+      try {
+        const response = await axios.post(
+          `${process.env.VITE_API_BASE_URL}/upload/delete-object`,
+          {
+            fileKey,
+          }
+        );
+      } catch (error) {
+        console.error("Error deleting S3 file:", error);
+        throw new Error("Failed to delete server icon from S3.");
+      }
+    }
+  }
+
   // Delete all reactions related to messages in the server's channels
   await prisma.reaction.deleteMany({
     where: {

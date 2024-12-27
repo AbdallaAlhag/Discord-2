@@ -1,7 +1,7 @@
 import express, { Router } from "express";
 import { S3 } from "@aws-sdk/client-s3"; // Import S3 client from v3
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner"; // Import the utility for generating signed URLs
-import { PutObjectCommand } from "@aws-sdk/client-s3"; // Import the S3 command for 'putObject'
+import { PutObjectCommand, DeleteObjectCommand } from "@aws-sdk/client-s3"; // Import the S3 command for 'putObject'
 
 const router: Router = express.Router();
 
@@ -36,7 +36,6 @@ const generateUniqueFilename = (fileName: string) => {
 router.post("/get-signed-url", async (req, res) => {
   const { fileName, fileType } = req.body;
   // Log the request body for debugging
-  console.log("Request body:", req.body);
 
   if (!fileName || !fileType) {
     console.log('missing "fileName" or "fileType" in request body');
@@ -46,7 +45,6 @@ router.post("/get-signed-url", async (req, res) => {
   try {
     // Generate a unique filename for S2 based on uploaded file name
     const uniqueFileName = generateUniqueFilename(fileName);
-    console.log("Generated unique filename:", uniqueFileName);
 
     // Using AWS SDK v3 to get a unique upload URL
     const command = new PutObjectCommand({
@@ -59,8 +57,6 @@ router.post("/get-signed-url", async (req, res) => {
       expiresIn: URL_EXPIRATION_TIME,
     });
 
-    console.log("Signed URL:", url);
-    console.log("Unique Filename:", uniqueFileName);
     // Send the response with the URL and the unique filename
     res.status(200).json({
       url,
@@ -69,6 +65,29 @@ router.post("/get-signed-url", async (req, res) => {
   } catch (err) {
     console.error("Error generating signed URL:", err);
     res.status(500).send(err);
+  }
+});
+
+// Route to delete an object from S3
+router.post("/delete-object", async (req, res) => {
+  const { fileKey } = req.body;
+
+  if (!fileKey) {
+    console.error('missing "fileKey" in request body');
+    return;
+  }
+
+  try {
+    const deleteCommand = new DeleteObjectCommand({
+      Bucket: AWSBucketName,
+      Key: fileKey,
+    });
+
+    await s3Client.send(deleteCommand);
+    res.status(200).json({ message: "File deleted successfully" });
+  } catch (error) {
+    console.error("Error deleting file from S3:", error);
+    res.status(500).json({ error: "Failed to delete file from S3" });
   }
 });
 
