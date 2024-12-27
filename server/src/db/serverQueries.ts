@@ -185,7 +185,7 @@ const deleteServer = async (serverId: number) => {
     // Call the delete-object route if iconUrl exists
     if (fileKey) {
       try {
-        const response = await axios.post(
+        await axios.post(
           `${process.env.VITE_API_BASE_URL}/upload/delete-object`,
           {
             fileKey,

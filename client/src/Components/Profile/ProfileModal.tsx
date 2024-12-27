@@ -69,9 +69,7 @@ export default function ProfileModal({ isOpen, onClose }: ProfileModalProps) {
   const TabButton = ({ tab, label }: { tab: TabType; label: string }) => (
     <button
       className={`w-full text-left px-2 py-1.5 rounded text-white ${
-        activeTab === tab
-          ? "bg-[#42464D] "
-          : " hover:bg-[#42464D] "
+        activeTab === tab ? "bg-[#42464D] " : " hover:bg-[#42464D] "
       }z-[199]`}
       onClick={() => {
         setActiveTab(tab);
@@ -242,135 +240,231 @@ const SecuritySection = () => (
   </>
 );
 
-const UserProfileTab: React.FC<TabProps> = ({ userInfo }) => (
-  <div className="min-h-screen  text-white">
-    <div className="max-w-3xl mx-auto">
-      <div className="flex border-b border-gray-700 py-2">
-        <button className="px-4 py-2 text-white border-b-2 border-white">
-          User Profile
-        </button>
-        <button className="px-4 py-2 text-gray-400 hover:text-gray-200">
-          Server Profiles
-        </button>
-      </div>{" "}
-      <div className="grid md:grid-cols-2 gap-4">
-        <div>
-          <div className="p-4 space-y-6">
-            <div>
-              <label className="block text-gray-400 text-sm uppercase mb-2">
-                Display Name
-              </label>
-              <input
-                type="text"
-                value={userInfo?.username}
-                className="w-full bg-[#1e1f22] text-white p-2 rounded"
-                readOnly
-              />
-            </div>
-            <div className="h-px bg-gray-700 my-4" />
+const UserProfileTab: React.FC<TabProps> = ({ userInfo }) => {
+  const [imageFile, setImageFile] = useState<File | null>(null);
+  const { userId } = useAuth();
 
-            <div>
-              <label className="block text-gray-400 text-sm uppercase mb-2">
-                Pronouns
-              </label>
-              <input
-                type="text"
-                placeholder="Add your pronouns"
-                className="w-full bg-[#1e1f22] text-white p-2 rounded"
-              />
-            </div>
-            <div className="h-px bg-gray-700 my-4" />
+  // Trigger file input when button is clicked
+  const handleButtonClick = () => {
+    const imageInput = document.getElementById(
+      "imageInput"
+    ) as HTMLInputElement;
+    imageInput.click();
+  };
 
-            <div>
-              <label className="block text-gray-400 text-sm uppercase mb-2">
-                Avatar
-              </label>
-              <div className="flex gap-4">
-                <button className="bg-[#5865f2] text-white px-4 py-2 rounded hover:bg-[#6d76f4]">
-                  Change Avatar
-                </button>
-                <button className="text-white px-4 py-2 hover:underline">
-                  Remove Avatar
+  const handleRemoveImage = async () => {
+    await axios.post(`${VITE_API_BASE_URL}/user/${userId}`, {
+      avatarUrl: "",
+    });
+    setImageFile(null);
+    window.location.reload();
+  };
+
+  // Handle the image selection
+  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      setImageFile(file);
+    }
+  };
+  // Handle image upload to the server (or S3)
+  const handleUpload = async () => {
+    if (imageFile) {
+      // Example: Get signed URL from your server
+      try {
+        const response = await axios.post(
+          `${VITE_API_BASE_URL}/upload/get-signed-url`,
+          {
+            fileName: imageFile.name,
+            fileType: imageFile.type,
+          }
+        );
+
+        const { url: signedUrl } = response.data;
+
+        // Upload image to S3 using the signed URL
+        const uploadResponse = await axios.put(signedUrl, imageFile, {
+          headers: {
+            "Content-Type": imageFile.type,
+          },
+        });
+
+        const uploadedImageUrl = signedUrl.split("?")[0]; // Removes query params to get the public URL
+
+        // update user profile
+        await axios.post(`${VITE_API_BASE_URL}/user/${userId}`, {
+          avatarUrl: uploadedImageUrl,
+        });
+
+        console.log("Image uploaded successfully:", uploadResponse);
+        window.location.reload();
+      } catch (error) {
+        console.error("Error uploading image:", error);
+      }
+    }
+  };
+  return (
+    <div className="min-h-screen  text-white">
+      <div className="max-w-3xl mx-auto">
+        <div className="flex border-b border-gray-700 py-2">
+          <button className="px-4 py-2 text-white border-b-2 border-white">
+            User Profile
+          </button>
+          <button className="px-4 py-2 text-gray-400 hover:text-gray-200">
+            Server Profiles
+          </button>
+        </div>{" "}
+        <div className="grid md:grid-cols-2 gap-4">
+          <div>
+            <div className="p-4 space-y-6">
+              <div>
+                <label className="block text-gray-400 text-sm uppercase mb-2">
+                  Display Name
+                </label>
+                <input
+                  type="text"
+                  value={userInfo?.username}
+                  className="w-full bg-[#1e1f22] text-white p-2 rounded"
+                  readOnly
+                />
+              </div>
+              <div className="h-px bg-gray-700 my-4" />
+
+              <div>
+                <label className="block text-gray-400 text-sm uppercase mb-2">
+                  Pronouns
+                </label>
+                <input
+                  type="text"
+                  placeholder="Add your pronouns"
+                  className="w-full bg-[#1e1f22] text-white p-2 rounded"
+                />
+              </div>
+              <div className="h-px bg-gray-700 my-4" />
+
+              <div>
+                <label className="block text-gray-400 text-sm uppercase mb-2">
+                  Avatar
+                </label>
+
+                <div className="flex gap-4">
+                  <input
+                    type="file"
+                    id="imageInput"
+                    style={{ display: "none" }}
+                    onChange={handleFileChange}
+                  />
+                  {!imageFile && (
+                    <button
+                      className="bg-[#5865f2] text-white px-4 py-2 rounded hover:bg-[#6d76f4]"
+                      onClick={handleButtonClick}
+                    >
+                      Change Avatar
+                    </button>
+                  )}{" "}
+                  {imageFile && (
+                    <button
+                      className="bg-[#5865f2] text-white px-4 py-2 rounded hover:bg-[#6d76f4]"
+                      onClick={handleUpload}
+                    >
+                      Submit
+                    </button>
+                  )}
+                  {imageFile && (
+                    <img
+                      src={URL.createObjectURL(imageFile)}
+                      alt="Selected file"
+                      className="w-12 h-12 rounded"
+                    />
+                  )}
+                  <button
+                    className="text-white px-4 py-2 hover:underline"
+                    onClick={handleRemoveImage}
+                  >
+                    Remove Avatar
+                  </button>
+                </div>
+              </div>
+              <div className="h-px bg-gray-700 my-4" />
+
+              <div>
+                <label className="block text-gray-400 text-sm uppercase mb-2">
+                  Banner Color
+                </label>
+                <button
+                  className="w-16 h-16 bg-[#B39C8E] rounded flex items-center justify-center cursor-pointer hover:opacity-90"
+                  aria-label="Change banner color"
+                >
+                  <svg
+                    className="w-6 h-6 text-white"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"
+                    />
+                  </svg>
                 </button>
               </div>
-            </div>
-            <div className="h-px bg-gray-700 my-4" />
+              <div className="h-px bg-gray-700 my-4" />
 
-            <div>
-              <label className="block text-gray-400 text-sm uppercase mb-2">
-                Banner Color
-              </label>
-              <button
-                className="w-16 h-16 bg-[#B39C8E] rounded flex items-center justify-center cursor-pointer hover:opacity-90"
-                aria-label="Change banner color"
-              >
-                <svg
-                  className="w-6 h-6 text-white"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"
-                  />
-                </svg>
-              </button>
-            </div>
-            <div className="h-px bg-gray-700 my-4" />
-
-            <div>
-              <label className="block text-white text-sm uppercase mb-2">
-                About Me
-              </label>
-              <p className="block text-gray-400 text-sm uppercase mb-2">
-                You can use markdown and links if you'd like.
-              </p>
-              <div className="relative">
-                <textarea className="w-full bg-[#1E1F22] text-gray-200 p-3 rounded min-h-[120px] resize-none" />
-                <div className="absolute bottom-2 right-2 flex items-center gap-2">
-                  <span className="text-xs text-gray-400">175</span>
-                  <button className="text-gray-400 hover:text-gray-200"></button>
+              <div>
+                <label className="block text-white text-sm uppercase mb-2">
+                  About Me
+                </label>
+                <p className="block text-gray-400 text-sm uppercase mb-2">
+                  You can use markdown and links if you'd like.
+                </p>
+                <div className="relative">
+                  <textarea className="w-full bg-[#1E1F22] text-gray-200 p-3 rounded min-h-[120px] resize-none" />
+                  <div className="absolute bottom-2 right-2 flex items-center gap-2">
+                    <span className="text-xs text-gray-400">175</span>
+                    <button className="text-gray-400 hover:text-gray-200"></button>
+                  </div>
                 </div>
+              </div>
+            </div>{" "}
+          </div>
+          <div className="p-4">
+            <h2 className="text-gray-400 text-sm uppercase mb-4">Preview</h2>
+            <div className="bg-[#2B2D31] rounded-lg p-4">
+              <div className="relative">
+                <div className="w-full h-24 object-cover rounded-lg bg-[#b39c8e]" />
+                <div className="absolute -bottom-6 left-4">
+                  <img
+                    src={userInfo?.avatarUrl}
+                    alt="Avatar"
+                    className="w-[72px] h-[72px] rounded-full border-4 border-[#2B2D31]"
+                  />
+                  <div className="absolute bottom-0 right-0">
+                    <div className="w-4 h-4 bg-green-500 rounded-full border-2 border-[#2B2D31]" />
+                  </div>
+                </div>
+              </div>
+
+              <div className="mt-8 p-2">
+                <div className="flex items-center justify-between">
+                  <h3 className="text-white text-xl font-bold">Abdalla</h3>
+                </div>
+                <div className="text-gray-400 text-sm mt-1">
+                  {userInfo?.username}
+                  {userInfo?.id}
+                </div>
+                <div className="text-gray-400 text-sm mt-1">
+                  {/* user bio */}
+                </div>{" "}
+                <button className="bg-[#1E1F22] text-white px-4 py-2 rounded hover:bg-gray-800 mt-1">
+                  Example Button
+                </button>
               </div>
             </div>
           </div>{" "}
         </div>
-        <div className="p-4">
-          <h2 className="text-gray-400 text-sm uppercase mb-4">Preview</h2>
-          <div className="bg-[#2B2D31] rounded-lg p-4">
-            <div className="relative">
-              <div className="w-full h-24 object-cover rounded-lg bg-[#b39c8e]" />
-              <div className="absolute -bottom-6 left-4">
-                <img
-                  src={userInfo?.avatarUrl}
-                  alt="Avatar"
-                  className="w-[72px] h-[72px] rounded-full border-4 border-[#2B2D31]"
-                />
-                <div className="absolute bottom-0 right-0">
-                  <div className="w-4 h-4 bg-green-500 rounded-full border-2 border-[#2B2D31]" />
-                </div>
-              </div>
-            </div>
-
-            <div className="mt-8 p-2">
-              <div className="flex items-center justify-between">
-                <h3 className="text-white text-xl font-bold">Abdalla</h3>
-              </div>
-              <div className="text-gray-400 text-sm mt-1">
-                {userInfo?.username}
-                {userInfo?.id}
-              </div>
-              <div className="text-gray-400 text-sm mt-1">{/* user bio */}</div>{" "}
-              <button className="bg-[#1E1F22] text-white px-4 py-2 rounded hover:bg-gray-800 mt-1">
-                Example Button
-              </button>
-            </div>
-          </div>
-        </div>{" "}
       </div>
     </div>
-  </div>
-);
+  );
+};

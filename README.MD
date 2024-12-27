@@ -105,7 +105,7 @@ do this near the end:
     - [ ] update tenor gif picker for mobile
 - [x] fix modals not properly displaying -> using react portals to render the a child component into a DOM node that exist outside the DOM hierarchy of the parent components
 - [ ] clicking outside logout modal should close it (attempted to fix but made situation worse)
-- [ ] accept files and images/vids/gifs ? maybe add a file uploader? lol -> uploadthings
+- [ ] accept files and images/vids/gifs ? maybe add a file uploader? lol -> aws s3, able to upload and delete files
     - [x] upload server img
     - [ ] upload and edit profile img
     - [ ] upload via chat input
