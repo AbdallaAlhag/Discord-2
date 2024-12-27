@@ -175,9 +175,10 @@ const ServerMenu: React.FC<{
                 {index === 6 && (
                   <div className="border-b border-[#24252a] w-full" />
                 )}
-                {(role === "OWNER" || role === item.role) && (
-                  <MenuItem item={item} actions={actionMap} />
-                )}
+                {(role !== "OWNER" || item.label !== "Leave Server") &&
+                  (role === "OWNER" || role === item.role) && (
+                    <MenuItem item={item} actions={actionMap} />
+                  )}
                 {/* <MenuItem item={item} actions={actionMap} /> */}
               </React.Fragment>
             ))}

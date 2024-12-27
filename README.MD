@@ -107,23 +107,23 @@ do this near the end:
 - [ ] clicking outside logout modal should close it (attempted to fix but made situation worse)
 - [ ] accept files and images/vids/gifs ? maybe add a file uploader? lol -> aws s3, able to upload and delete files
     - [x] upload server img
-    - [ ] upload and edit profile img
+    - [x] upload and edit profile img
     - [ ] upload via chat input
-- [ ] shouldn't be able to leave server if you are owner, lead to empty servers not being deleted
+- [x] shouldn't be able to leave server if you are owner, lead to empty servers not being deleted
 - [ ] pagination for messages
 - [ ] pagination for discover channels
 - [ ] search in general
-- [ ]  dark mode (never done this before)
-- [ ]  discord loading page
-- [ ] Preview video modal when turning on camera
+- [ ] dark mode (never done this before)
+- [ ] discord loading page
 - [x] Create active on direct message tabs 
 - [ ] add ads -> just to play around with
 ---
 v2 features:
-- [ ]  right click menu (might be part of a version 2 feature)
-- [ ]  group message for private chats?
-- [ ]  reactions
+- [ ] right click menu (might be part of a version 2 feature)
+- [ ] group message for private chats?
+- [ ] reactions
 - [ ] server settings
+- [ ] Preview video modal when turning on camera
 ---
 
 
