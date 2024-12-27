@@ -3,6 +3,7 @@ import { Modal } from "./CreateServerModal";
 import { Users, Upload, ChevronRight, Plus } from "lucide-react";
 import axios from "axios";
 import { useAuth } from "../../AuthContext";
+import { useDropzone } from "react-dropzone";
 
 type Step = "initial" | "type" | "customize";
 const VITE_API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
@@ -12,21 +13,83 @@ export function ServerCreation() {
   const [serverName, setServerName] = useState("New Server");
   const [step, setStep] = useState<Step>("initial");
   const { userId } = useAuth();
+  const [imageUrl, setImageUrl] = useState<string | null>(null);
+  const [imageFile, setImageFile] = useState<File | null>(null);
+  const handleCreateServer = async () => {
+    try {
+      // Close modal
+      setIsOpen(false);
 
-  const handleCreate = () => {
-    setIsOpen(false);
-    axios
-      .post(`${VITE_API_BASE_URL}/server/create`, {
-        name: serverName,
-        userId: userId,
-      })
-      .then((response) => console.log(response))
-      .catch((err) => console.error("Error creating server:", err));
-    setTimeout(() => setStep("initial"), 300);
+      let uploadedImageUrl = null;
+
+      if (imageFile) {
+        console.log("Uploading image...");
+
+        // Step 1: Request a signed URL
+        const response = await axios.post(
+          `${VITE_API_BASE_URL}/upload/get-signed-url`,
+          {
+            fileName: imageFile.name,
+            fileType: imageFile.type,
+          }
+        );
+
+        const { url: signedUrl } = response.data;
+
+        if (!signedUrl) {
+          throw new Error("Signed URL not received from server.");
+        }
+
+        console.log("Received signed URL:", signedUrl);
+
+        // Step 2: Upload the file to the signed URL
+        await axios.put(signedUrl, imageFile, {
+          headers: {
+            "Content-Type": imageFile.type,
+          },
+        });
+
+        console.log("Image uploaded successfully.");
+
+        // Extract the uploaded image's URL (assumes the signed URL matches the image URL)
+        uploadedImageUrl = signedUrl.split("?")[0]; // Removes query params to get the public URL
+      }
+
+      console.log("Creating server with uploaded image URL:", uploadedImageUrl);
+
+      // Step 3: Create the server with the image URL
+      const createResponse = await axios.post(
+        `${VITE_API_BASE_URL}/server/create`,
+        {
+          name: serverName,
+          userId: userId,
+          iconUrl: uploadedImageUrl,
+        }
+      );
+
+      console.log("Server created successfully:", createResponse.data);
+
+      // Reset state after success
+      setStep("initial");
+    } catch (error) {
+      console.error("Error during server creation:", error);
+    }
   };
 
-  const handleClose = () => setIsOpen(false);
+  const { getRootProps, getInputProps, isDragActive } = useDropzone({
+    // accept: "image/*", // Only allow image files
+    onDrop: (acceptedFiles) => {
+      if (acceptedFiles.length > 0) {
+        const file = acceptedFiles[0];
+        setImageFile(file);
+        const imageUrl = URL.createObjectURL(file); // Create a preview URL
+        setImageUrl(imageUrl); // Set the image preview URL
+        // handleImageUpload(file); // Upload the selected image
+      }
+    },
+  });
 
+  const handleClose = () => setIsOpen(false);
   const renderStep = () => {
     switch (step) {
       case "initial":
@@ -109,7 +172,7 @@ export function ServerCreation() {
               can always change it later.
             </p>
 
-            <div className="flex justify-center mb-6">
+            {/* <div className="flex justify-center mb-6">
               <button className="relative group">
                 <div className="w-20 h-20 rounded-full border-2 border-dashed border-gray-600 flex items-center justify-center">
                   <Upload className="w-8 h-8 text-gray-400" />
@@ -118,6 +181,31 @@ export function ServerCreation() {
                   <Upload className="w-4 h-4 text-white" />
                 </div>
               </button>
+            </div> */}
+            <div className="flex justify-center mb-6">
+              <div
+                {...getRootProps()}
+                className="relative group cursor-pointer"
+              >
+                <div className="w-20 h-20 rounded-full border-2 border-dashed border-gray-600 flex items-center justify-center">
+                  {isDragActive ? (
+                    <p className="text-gray-400">Drop the image here</p>
+                  ) : (
+                    <Upload className="w-8 h-8 text-gray-400" />
+                  )}
+                  {imageUrl && (
+                    <img
+                      src={imageUrl}
+                      alt="Server Icon"
+                      className="w-20 h-20 rounded-full"
+                    />
+                  )}
+                </div>
+                <div className="absolute bottom-0 right-0 bg-[#5865F2] rounded-full p-1">
+                  <Upload className="w-4 h-4 text-white" />
+                </div>
+                <input {...getInputProps()} />
+              </div>
             </div>
 
             <div className="mb-6">
@@ -146,7 +234,7 @@ export function ServerCreation() {
                 Back
               </button>
               <button
-                onClick={handleCreate}
+                onClick={handleCreateServer}
                 className="px-8 py-2 bg-[#5865F2] hover:bg-[#4752C4] text-white rounded-md transition-colors"
               >
                 Create
