@@ -16,7 +16,7 @@ do this near the end:
 - [ ] fake data works well with front end but does not work with backend unless i update with my temp backend data
     - [ ] add fake data to backend and use that instead
 - [ ] change id in prisma from autoincrement to uuid
-- [ ] update and remove mock users, try to make it more intuitive for people
+- [ ] update and remove mock users, try to make it more intuitive for people -> root group chat and suggest add friends?
 ---
 
 
@@ -110,6 +110,7 @@ do this near the end:
     - [x] upload and edit profile img
     - [ ] upload via chat input
 - [x] shouldn't be able to leave server if you are owner, lead to empty servers not being deleted
+- [ ] show members list tool tip says show members list even when they are shown, change to hide
 - [ ] pagination for messages
 - [ ] pagination for discover channels
 - [ ] search in general

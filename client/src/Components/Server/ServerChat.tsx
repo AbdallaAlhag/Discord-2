@@ -6,6 +6,7 @@ import {
   ImagePlay,
   ImagePlus,
   Smile,
+  Trash2,
 } from "lucide-react";
 import { useEffect, useState, useRef, useCallback } from "react";
 import { useSocket } from "./useSocket";
@@ -75,6 +76,8 @@ const ServerChat: React.FC<ChatProps> = ({
     new Map()
   );
   const [channelInfo, setChannelInfo] = useState<serverChannel>();
+  const [imageFile, setImageFile] = useState<File | null>(null);
+  const [imageUrl, setImageUrl] = useState<string | null>(null);
 
   // return alls the channel, we could make it return a specific channel but ill just filter it here
   useEffect(() => {
@@ -233,15 +236,58 @@ const ServerChat: React.FC<ChatProps> = ({
   };
   // send Media
   const sendMedia = useCallback(
-    async (media: MediaItem) => {
-      if (!media?.url || !socket) return;
+    async (media: MediaItem, s3Url = false) => {
+      if ((!media?.url && !s3Url) || !socket) return;
+      let messageData;
 
-      const messageData = {
-        content: media.url,
-        userId: userId,
-        channelId: channelId,
-        createdAt: new Date().toISOString(),
-      };
+      // let use change the media link to s3 bucket
+      console.log("media: ", media);
+      console.log("s3Url: ", s3Url);
+      if (s3Url) {
+        try {
+          const response = await axios.post(
+            `${VITE_API_BASE_URL}/upload/get-signed-url`,
+            {
+              fileName: imageFile?.name,
+              fileType: imageFile?.type,
+            }
+          );
+
+          const { url: signedUrl } = response.data;
+
+          // Upload image to S3 using the signed URL
+          await axios
+            .put(signedUrl, imageFile, {
+              headers: {
+                "Content-Type": imageFile?.type,
+              },
+            })
+            .then(() => {
+              console.log("Image uploaded to S3 successfully");
+              setImageFile(null);
+              setImageUrl(null);
+            });
+
+          const uploadedImageUrl = signedUrl.split("?")[0]; // Removes query params to get the public URL
+
+          messageData = {
+            content: uploadedImageUrl,
+            userId: userId,
+            channelId: channelId,
+            createdAt: new Date().toISOString(),
+          };
+        } catch (error) {
+          console.error("Error uploading image:", error);
+          return;
+        }
+      } else {
+        messageData = {
+          content: media.url,
+          userId: userId,
+          channelId: channelId,
+          createdAt: new Date().toISOString(),
+        };
+      }
 
       try {
         // Send to server and save in database
@@ -263,13 +309,13 @@ const ServerChat: React.FC<ChatProps> = ({
         setError("Failed to send message");
       }
     },
-    [socket, userId, channelId]
+    [socket, imageFile, userId, channelId]
   );
 
   // send selected media through gifpicker
   useEffect(() => {
     if (SelectedMedia) {
-      sendMedia(SelectedMedia);
+      sendMedia(SelectedMedia, false);
       setSelectedMedia(null);
     }
   }, [SelectedMedia, sendMedia]);
@@ -281,21 +327,97 @@ const ServerChat: React.FC<ChatProps> = ({
   // Handle key press
   const handleKeyPress = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === "Enter" && !e.shiftKey) {
+      if (imageFile && imageUrl) {
+        sendMedia(imageUrl as unknown as MediaItem, true);
+      }
       e.preventDefault();
       sendMessage();
+      // if image, then send image also -> maybe use sendMedia
     }
   };
 
-  const isGifUrl = (url: string): boolean => {
-    // Check if the string ends with .gif
-    const isGif = url.toLowerCase().endsWith(".gif");
-    // Check if it's a valid URL
-    try {
-      new URL(url);
-      return isGif;
-    } catch {
-      return false;
+  // const isGifUrl = (url: string): boolean => {
+  //   // Check if the string ends with .gif
+  //   const isGif = url.toLowerCase().endsWith(".gif");
+  //   // Check if it's a valid URL
+  //   try {
+  //     new URL(url);
+  //     return isGif;
+  //   } catch {
+  //     return false;
+  //   }
+  // };
+
+  const isImageUrl = (url: string): boolean =>
+    /\.(jpeg|jpg|png|webp)$/i.test(url);
+  const isGifUrl = (url: string): boolean => /\.gif$/i.test(url);
+  const isVideoUrl = (url: string): boolean =>
+    /\.(mp4|mov|webm|ogg)$/i.test(url);
+  const isAudioUrl = (url: string): boolean => /\.(mp3|wav|ogg)$/i.test(url);
+
+  // Check if the content is plain text
+  const isPlainText = (content: string): boolean => {
+    // If it doesn't match any known media patterns, treat it as text
+    return !isImageUrl(content) && !isGifUrl(content) && !isVideoUrl(content);
+  };
+  const renderMedia = (url: string) => {
+    if (isGifUrl(url)) {
+      return (
+        <div className="max-w-sm mb-1">
+          <img
+            src={url}
+            alt="GIF"
+            className="rounded-lg max-w-full h-auto"
+            loading="lazy"
+          />
+        </div>
+      );
     }
+
+    if (isImageUrl(url)) {
+      return (
+        <div className="max-w-sm mb-1">
+          <img
+            src={url}
+            alt="Image"
+            className="rounded-lg max-w-full h-auto"
+            loading="lazy"
+          />
+        </div>
+      );
+    }
+
+    if (isVideoUrl(url)) {
+      return (
+        <div className="max-w-sm mb-1">
+          <video src={url} controls className="rounded-lg max-w-full h-auto">
+            Your browser does not support the video tag.
+          </video>
+        </div>
+      );
+    }
+    if (isAudioUrl(url)) {
+      return (
+        <div className="max-w-sm mb-1">
+          <audio
+            src={url}
+            controls
+            className="rounded-lg max-w-full h-auto"
+          ></audio>
+        </div>
+      );
+    }
+    if (isPlainText(url)) {
+      return <span className="text-white break-words">{url}</span>;
+    }
+    // Fallback for unsupported media
+    return (
+      <div className="max-w-sm mb-1">
+        <span className="text-white break-words">
+          Unsupported content type: {url}
+        </span>
+      </div>
+    );
   };
 
   // Client-side code example, ping server to update online status
@@ -414,6 +536,77 @@ const ServerChat: React.FC<ChatProps> = ({
     );
   };
 
+  // file upload
+
+  const handleButtonClick = () => {
+    const imageInput = document.getElementById(
+      "imageInput"
+    ) as HTMLInputElement;
+    imageInput.click();
+  };
+
+  const isImageUrlMimeType = (mimeType: string): boolean =>
+    /^image\/(jpeg|jpg|png|webp)$/i.test(mimeType);
+
+  const isGifUrlMimeType = (mimeType: string): boolean =>
+    /^image\/gif$/i.test(mimeType);
+
+  const isVideoUrlMimeType = (mimeType: string): boolean =>
+    /^(video\/(mp4|mov|webm|ogg))$/i.test(mimeType);
+
+  const isAudioUrlMimeType = (mimeType: string): boolean =>
+    /^(audio\/(mp3|wav|ogg))$/i.test(mimeType);
+
+  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    console.log("file: ", file);
+
+    if (!file) {
+      console.error("No file selected");
+      return;
+    }
+    const imageUrl = URL.createObjectURL(file);
+    const fileType = file.type; // Get the MIME type from the file
+
+    // Determine the file type using utility functions
+    if (isImageUrlMimeType(fileType)) {
+      console.log("File is an image");
+      // Handle image-specific logic
+      setImageFile(file);
+      setImageUrl(imageUrl);
+    } else if (isGifUrlMimeType(fileType)) {
+      console.log("File is a GIF");
+      // Handle GIF-specific logic
+      setImageFile(file);
+      setImageUrl(imageUrl);
+    } else if (isVideoUrlMimeType(fileType)) {
+      console.log("File is a video");
+      // Handle video-specific logic
+      setImageFile(file);
+      setImageUrl(imageUrl);
+    } else if (isAudioUrlMimeType(fileType)) {
+      console.log("File is an audio");
+      // Handle audio-specific logic
+      setImageFile(file);
+      setImageUrl(imageUrl);
+    } else {
+      console.error("Unsupported file type");
+      // Optionally handle unsupported files
+    }
+    event.target.value = ""; // Reset file input
+  };
+
+  //   Calling URL.createObjectURL creates an in-memory object URL. If you are not revoking it, it may lead to memory leaks.
+
+  // Solution: Revoke the object URL when it is no longer needed, for example, when the component unmounts or the file is changed again:
+  // tsx
+  useEffect(() => {
+    return () => {
+      if (imageUrl) {
+        URL.revokeObjectURL(imageUrl);
+      }
+    };
+  }, [imageUrl]);
   return (
     <div className="flex-1 bg-[#36393f] flex flex-col">
       {/* Header */}
@@ -535,7 +728,7 @@ const ServerChat: React.FC<ChatProps> = ({
                         </span>
                       </div>
                     )}
-                    {isGifUrl(msg.content) ? (
+                    {/* {isGifUrl(msg.content) ? (
                       <div className="max-w-sm mb-1">
                         <img
                           src={msg.content}
@@ -548,7 +741,8 @@ const ServerChat: React.FC<ChatProps> = ({
                       <span className="text-white break-words">
                         {msg.content}
                       </span>
-                    )}
+                    )} */}
+                    {renderMedia(msg.content)}
                   </div>
                 </div>
                 {isDifferentDay && (
@@ -570,44 +764,139 @@ const ServerChat: React.FC<ChatProps> = ({
         )}
       </div>
 
-      {/* Input Area */}
-      <div className="h-16 flex items-center px-4 pb-6">
-        <div className="flex items-center space-x-2 bg-[#202225] rounded-l-md py-2 pl-3">
-          <Plus className="w-6 h-6 cursor-pointer bg-[#b5bac1] hover:text-white transition-colors rounded-sm" />
-        </div>
-        <input
-          type="text"
-          className="flex-1 bg-[#202225] text-white  px-3 py-2 focus:outline-none"
-          placeholder="Type your message here..."
-          value={newMessage}
-          onChange={(e) => {
-            handleInputChange(e);
-            handleGroupTyping();
-          }}
-          onKeyDown={handleKeyPress}
-        />
-        <div className="flex items-center space-x-2 bg-[#202225] rounded-r-md py-2 pr-3 mr-2">
-          <ImagePlay
-            className="w-6 h-6 cursor-pointer bg-[#b5bac1] hover:text-white transition-colors rounded-sm"
-            onClick={() => {
-              setIsMediaPickerOpen((prev) => !prev);
-              setActiveTab("GIFs");
-            }}
-          />
-          <ImagePlus
-            className="w-6 h-6 cursor-pointer bg-[#b5bac1] hover:text-white transition-colors rounded-sm"
-            onClick={() => {
-              setIsMediaPickerOpen((prev) => !prev);
-              setActiveTab("Stickers");
-            }}
-          />
-          <Smile
-            className="w-6 h-6 cursor-pointer bg-[#b5bac1] hover:text-white transition-colors rounded-sm"
-            onClick={() => {
-              setIsMediaPickerOpen((prev) => !prev);
-              setActiveTab("Emoji");
-            }}
-          />
+      <div
+        className={`flex flex-col ${
+          imageUrl ? "min-h-[144px]" : "min-h-[68px]"
+        } px-4 py-2 transition-all duration-200`}
+      >
+        <div className="flex flex-col bg-[#202225] rounded-md">
+          {/* Image Preview - Only shown when image exists */}
+          {imageUrl && imageFile && (
+            <>
+              <div className="p-2">
+                <div className="relative w-24 h-24 rounded-md bg-cover bg-center">
+                  {isImageUrlMimeType(imageFile.type) ? (
+                    <img
+                      src={imageUrl}
+                      alt="Image preview"
+                      className="w-full h-full object-cover rounded-md"
+                    />
+                  ) : isGifUrlMimeType(imageFile.type) ? (
+                    <img
+                      src={imageUrl}
+                      alt="GIF preview"
+                      className="w-full h-full object-cover rounded-md"
+                    />
+                  ) : isVideoUrlMimeType(imageFile.type) ? (
+                    <video
+                      src={imageUrl}
+                      controls
+                      className="w-full h-full object-cover rounded-md"
+                    >
+                      Your browser does not support the video tag.
+                    </video>
+                  ) : isAudioUrlMimeType(imageFile.type) ? (
+                    <audio
+                      src={imageUrl}
+                      controls
+                      className="w-full h-full object-cover rounded-md"
+                    >
+                      Your browser does not support the audio tag.
+                    </audio>
+                  ) : (
+                    <div className="flex justify-center items-center text-white">
+                      Unsupported media type
+                    </div>
+                  )}
+
+                  {/* Remove button */}
+                  <button
+                    className="absolute top-0 right-0 p-1 text-[#b9bbbe] hover:text-white transition-colors bg-[#313338]"
+                    onClick={() => {
+                      setImageUrl("");
+                      setImageFile(null);
+                    }}
+                    data-tooltip-id={`remove-attachment`} // Link element to tooltip
+                    data-tooltip-content={"Remove attachment"}
+                  >
+                    <Trash2
+                      className="w-5 h-5 z-10 bg-[#313338] rounded-full"
+                      color="#f23f43"
+                    />
+                    <Tooltip
+                      id={`remove-attachment`}
+                      place="top"
+                      className="z-10 ml-2.5"
+                      style={{
+                        backgroundColor: "black",
+                        color: "white",
+                        fontWeight: "bold",
+                      }}
+                    />
+                  </button>
+                </div>
+              </div>
+              <div className="text-[#b9bbbe] text-xs text-start pl-2">
+                {imageFile.name}
+              </div>
+
+              <div className="flex items-center my-2">
+                <hr className="flex-grow border-t border-[#3f4147]" />
+              </div>
+            </>
+          )}
+          {/* Message Input */}
+          <div className="flex items-center">
+            <div className="flex items-center space-x-2 py-2 pl-3">
+              <input
+                type="file"
+                id="imageInput"
+                className="hidden"
+                accept="image/*,video/*,audio/*"
+                onChange={handleFileChange}
+              />
+              <Plus
+                className="w-6 h-6 cursor-pointer bg-[#b5bac1]  hover:text-white transition-colors rounded-xl p-1"
+                onClick={handleButtonClick}
+              />
+            </div>
+            <input
+              type="text"
+              className="flex-1 bg-transparent text-white px-3 py-2 focus:outline-none"
+              placeholder="Type your message here..."
+              value={newMessage}
+              onChange={(e) => {
+                handleInputChange(e);
+                handleGroupTyping();
+              }}
+              onKeyDown={handleKeyPress}
+            />
+            {/* </div> */}
+
+            <div className="flex items-center space-x-2 bg-[#202225] rounded-r-md py-2 pr-3 mr-2">
+              <ImagePlay
+                className="w-6 h-6 cursor-pointer bg-[#b5bac1] hover:text-white transition-colors rounded-sm"
+                onClick={() => {
+                  setIsMediaPickerOpen((prev) => !prev);
+                  setActiveTab("GIFs");
+                }}
+              />
+              <ImagePlus
+                className="w-6 h-6 cursor-pointer bg-[#b5bac1] hover:text-white transition-colors rounded-sm"
+                onClick={() => {
+                  setIsMediaPickerOpen((prev) => !prev);
+                  setActiveTab("Stickers");
+                }}
+              />
+              <Smile
+                className="w-6 h-6 cursor-pointer bg-[#b5bac1] hover:text-white transition-colors rounded-sm"
+                onClick={() => {
+                  setIsMediaPickerOpen((prev) => !prev);
+                  setActiveTab("Emoji");
+                }}
+              />
+            </div>
+          </div>
         </div>
         {/* <button
           onClick={sendMessage}
@@ -617,6 +906,7 @@ const ServerChat: React.FC<ChatProps> = ({
           Send
         </button> */}
       </div>
+
       {isMediaPickerOpen && (
         <div
           ref={gifPickerRef}
