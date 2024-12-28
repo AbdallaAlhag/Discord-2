@@ -49,6 +49,8 @@ const PrivateMessage: React.FC<PrivateMessageProps> = ({
   const isGifUrl = (url: string): boolean => {
     // Check if the string ends with .gif
     const isGif = url.toLowerCase().endsWith(".gif");
+
+    // const isGif = (url: string): boolean => /\.gif$/i.test(url);
     // console.log("isGif: ", isGif);
     // Check if it's a valid URL
     try {
@@ -115,55 +117,177 @@ const PrivateMessage: React.FC<PrivateMessageProps> = ({
     prevMessage.user?.username !== message.user?.username ||
     timeInterval;
 
+  // const renderContent = () => {
+  //   if (typeof message.content === "string") {
+  //     if (isGifUrl(message.content)) {
+  //       return (
+  //         <div className="max-w-sm mb-1">
+  //           <img
+  //             src={message.content}
+  //             alt="GIF"
+  //             className="rounded-lg max-w-full h-auto"
+  //             loading="lazy"
+  //           />
+  //         </div>
+  //       );
+  //     }
+  //     // console.log("read receipts: ", message.readReceipts);
+  //     // console.log("time read at: ", message.readReceipts[0].readAt);
+  //     return (
+  //       <div
+  //         ref={(el) => {
+  //           if (el) {
+  //             messageRefs.current.set(message.id, el);
+  //           }
+  //         }}
+  //         data-message-id={message.id}
+  //         data-sender-id={message.senderId}
+  //         key={message.id}
+  //         className="flex flex-col"
+  //       >
+  //         <span className="text-white break-words">
+  //           {message.content}
+  //           {message.readReceipts &&
+  //             message.readReceipts.length > 0 &&
+  //             message.readReceipts[0]?.readAt && (
+  //               <span className="text-xs text-muted-foreground ml-1 group-hover:inline hidden">
+  //                 Read @{" "}
+  //                 {new Intl.DateTimeFormat("en-US", {
+  //                   hour: "2-digit",
+  //                   minute: "2-digit",
+  //                 }).format(new Date(message.readReceipts[0]?.readAt))}
+  //               </span>
+  //             )}
+  //         </span>
+  //       </div>
+  //     );
+  //   } else if (isInviteContent(message.content)) {
+  //     return <InviteEmbed inviteData={message.content} />;
+  //   }
+  //   return null;
+  // };
+
+  const isImageUrl = (url: string): boolean =>
+    /\.(jpeg|jpg|png|webp)$/i.test(url);
+  const isVideoUrl = (url: string): boolean =>
+    /\.(mp4|mov|webm|ogg)$/i.test(url);
+  const isAudioUrl = (url: string): boolean => /\.(mp3|wav|ogg)$/i.test(url);
+
+  // Check if the content is plain text
+  // const isPlainText = (content: string): boolean => {
+  //   // If it doesn't match any known media patterns, treat it as text
+  //   return !isImageUrl(content) && !isGifUrl(content) && !isVideoUrl(content);
+  // };
+
   const renderContent = () => {
-    if (typeof message.content === "string") {
-      if (isGifUrl(message.content)) {
+    const { content, id, senderId, readReceipts } = message;
+
+    const renderMessageContent = (content: string | InviteContent) => {
+      if (typeof content === "string") {
+        // Media Handling
+        if (isGifUrl(content)) {
+          return (
+            <div className="max-w-sm mb-1">
+              <img
+                src={content}
+                alt="GIF"
+                className="rounded-lg max-w-full h-auto"
+                loading="lazy"
+              />
+            </div>
+          );
+        }
+
+        if (isImageUrl(content)) {
+          return (
+            <div className="max-w-sm mb-1">
+              <img
+                src={content}
+                alt="Image"
+                className="rounded-lg max-w-full h-auto"
+                loading="lazy"
+              />
+            </div>
+          );
+        }
+
+        if (isVideoUrl(content)) {
+          return (
+            <div className="max-w-sm mb-1">
+              <video
+                src={content}
+                controls
+                className="rounded-lg max-w-full h-auto"
+              >
+                Your browser does not support the video tag.
+              </video>
+            </div>
+          );
+        }
+
+        if (isAudioUrl(content)) {
+          return (
+            <div className="max-w-sm mb-1">
+              <audio
+                src={content}
+                controls
+                className="rounded-lg max-w-full h-auto"
+              />
+            </div>
+          );
+        }
+
+        // Plain Text
         return (
-          <div className="max-w-sm mb-1">
-            <img
-              src={message.content}
-              alt="GIF"
-              className="rounded-lg max-w-full h-auto"
-              loading="lazy"
-            />
-          </div>
-        );
-      }
-      // console.log("read receipts: ", message.readReceipts);
-      // console.log("time read at: ", message.readReceipts[0].readAt);
-      return (
-        <div
-          ref={(el) => {
-            if (el) {
-              messageRefs.current.set(message.id, el);
-            }
-          }}
-          data-message-id={message.id}
-          data-sender-id={message.senderId}
-          key={message.id}
-          className="flex flex-col"
-        >
           <span className="text-white break-words">
-            {message.content}
-            {message.readReceipts &&
-              message.readReceipts.length > 0 &&
-              message.readReceipts[0]?.readAt && (
+            {content}
+            {readReceipts &&
+              readReceipts.length > 0 &&
+              readReceipts[0]?.readAt && (
                 <span className="text-xs text-muted-foreground ml-1 group-hover:inline hidden">
                   Read @{" "}
                   {new Intl.DateTimeFormat("en-US", {
                     hour: "2-digit",
                     minute: "2-digit",
-                  }).format(new Date(message.readReceipts[0]?.readAt))}
+                  }).format(new Date(readReceipts[0]?.readAt))}
                 </span>
               )}
           </span>
+        );
+      }
+
+      // Invite Content
+      if (isInviteContent(content)) {
+        return <InviteEmbed inviteData={content} />;
+      }
+
+      // Unsupported Content Fallback
+      return (
+        <div className="max-w-sm mb-1">
+          <span className="text-white break-words">
+            Unsupported content type.
+          </span>
         </div>
       );
-    } else if (isInviteContent(message.content)) {
-      return <InviteEmbed inviteData={message.content} />;
-    }
-    return null;
+    };
+
+    return (
+      <div
+        ref={(el) => {
+          if (el) {
+            messageRefs.current.set(id, el);
+          }
+        }}
+        data-message-id={id}
+        data-sender-id={senderId}
+        key={id}
+        className="flex flex-col"
+      >
+        {renderMessageContent(content)}
+      </div>
+    );
   };
+
   const formattedTime = new Intl.DateTimeFormat("en-US", {
     hour: "2-digit",
     minute: "2-digit",

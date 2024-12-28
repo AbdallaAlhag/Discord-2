@@ -109,7 +109,7 @@ do this near the end:
     - [x] upload server img
     - [x] upload and edit profile img
     - [x] upload via server chat input -> drop in v2
-    - [ ] upload via private chat input -> drop in v2
+    - [x] upload via private chat input -> drop in v2
 - [x] shouldn't be able to leave server if you are owner, lead to empty servers not being deleted
 - [x] show members list tool tip says show members list even when they are shown, change to hide
 - [ ] pagination for messages
