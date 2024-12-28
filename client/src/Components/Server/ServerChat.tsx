@@ -36,6 +36,7 @@ interface ChatProps {
   channelId: string;
   serverId: string;
   setOpenMemberList: React.Dispatch<React.SetStateAction<boolean>>;
+  openMemberList: boolean;
 }
 interface MediaItem {
   url: string;
@@ -53,6 +54,7 @@ const ServerChat: React.FC<ChatProps> = ({
   channelId,
   serverId,
   setOpenMemberList,
+  openMemberList,
 }) => {
   const [messages, setMessages] = useState<Message[]>([]);
   const [newMessage, setNewMessage] = useState("");
@@ -620,7 +622,9 @@ const ServerChat: React.FC<ChatProps> = ({
             className="w-5 h-5 cursor-pointer "
             onClick={() => setOpenMemberList((prev) => !prev)}
             data-tooltip-id={`tooltip-members`} // Link element to tooltip
-            data-tooltip-content={"Show Member List"}
+            data-tooltip-content={
+              !openMemberList ? "Show Member List" : "Hide Member List"
+            }
           >
             <Users className="w-5 h-5 cursor-pointer border-none" />
           </button>

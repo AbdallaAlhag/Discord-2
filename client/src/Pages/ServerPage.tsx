@@ -171,6 +171,7 @@ function ServerPage() {
                   serverId={serverId}
                   channelId={channelId}
                   setOpenMemberList={setOpenMemberList}
+                  openMemberList={openMemberList}
                 />
                 {openMemberList && <MemberList serverId={serverId} />}
               </>

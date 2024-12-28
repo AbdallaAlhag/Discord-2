@@ -193,7 +193,6 @@ const ChannelSidebar: React.FC<{
     };
     fetchUser();
     fetchChannels();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [serverId, userId, channelUpdate]);
 
   const handleCreateChannelOpenModal = () => setIsCreateChannelModalOpen(true);

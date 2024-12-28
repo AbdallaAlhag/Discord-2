@@ -108,9 +108,10 @@ do this near the end:
 - [ ] accept files and images/vids/gifs ? maybe add a file uploader? lol -> aws s3, able to upload and delete files
     - [x] upload server img
     - [x] upload and edit profile img
-    - [ ] upload via chat input
+    - [x] upload via server chat input -> drop in v2
+    - [ ] upload via private chat input -> drop in v2
 - [x] shouldn't be able to leave server if you are owner, lead to empty servers not being deleted
-- [ ] show members list tool tip says show members list even when they are shown, change to hide
+- [x] show members list tool tip says show members list even when they are shown, change to hide
 - [ ] pagination for messages
 - [ ] pagination for discover channels
 - [ ] search in general
