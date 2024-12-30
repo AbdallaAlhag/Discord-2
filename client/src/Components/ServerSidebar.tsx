@@ -30,12 +30,19 @@ const ServerSidebar: React.FC = () => {
   const [isDataLoaded, setIsDataLoaded] = useState(false);
 
   // console.log("Route Params:", params);
-
+  const globalServerId = process.env.NODE_ENV === "production" ? 55 : 59;
   useEffect(() => {
     const fetchServers = async () => {
       if (userId && !isDataLoaded) {
         try {
           const response = await axios.get(`${API_URL}/servers/${userId}`);
+
+          // sort it so global server is first
+          const sortedServers = response.data.servers.sort(
+            (a: Server, b: Server) =>
+              a.id === globalServerId ? -1 : b.id === globalServerId ? 1 : 0
+          );
+          setServer(sortedServers);
           setServer(response.data.servers);
           serverCache.current = response.data.servers; // Cache the data
           setIsDataLoaded(true);

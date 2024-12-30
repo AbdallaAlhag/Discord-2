@@ -2,7 +2,7 @@ import express, { Router, Request, Response, NextFunction } from "express";
 import {
   signUp,
   login,
-  loginAsGuest,
+  // loginAsGuest,
   setDefaultPfp,
   markOffline,
 } from "../Controllers/AuthController";
@@ -24,7 +24,7 @@ router.post("/login", (req: Request, res: Response, next: NextFunction) => {
   login(req, res, next);
 });
 
-router.post("/login/guest", loginAsGuest);
+// router.post("/login/guest", loginAsGuest);
 
 router.post("/logoutStatus:userId", markOffline);
 // router.get('/logout', logOut);

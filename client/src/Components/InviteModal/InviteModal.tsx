@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { X, Hash, Copy } from "lucide-react";
 import { FriendItem } from "./FriendItem";
 import { SearchInput } from "./SearchInput";
@@ -71,21 +71,6 @@ export default function InviteModal({
     };
   }, [userId, API_URL]);
 
-  // Mock friends data
-  const testFriends: Friend[] = useMemo(
-    () => [
-      { id: "1", username: "SamFieri", avatarUrl: null, memberships: [] },
-      {
-        id: "2",
-        username: "Admiral Audacious",
-        avatarUrl: null,
-        memberships: [],
-      },
-      { id: "3", username: "viperndgrass", avatarUrl: null, memberships: [] },
-      { id: "4", username: "Ethanqg", avatarUrl: null, memberships: [] },
-    ],
-    []
-  );
 
   useEffect(() => {
     setFilteredFriends(
@@ -103,17 +88,13 @@ export default function InviteModal({
       const friendsRes = await axios.get(`${API_URL}/friends/${userId}`);
       // console.log("friendsRes: ", friendsRes.data.friends);
       const fetchedFriends: Friend[] =
-        friendsRes.data.friends.length > 0
-          ? friendsRes.data.friends
-          : testFriends;
+        friendsRes.data.friends.length > 0 ? friendsRes.data.friends : [];
       setAllFriends(fetchedFriends);
       setFilteredFriends(fetchedFriends);
     } catch (err) {
       console.error("Error fetching friends data", err);
-      setAllFriends(testFriends);
-      setFilteredFriends(testFriends);
     }
-  }, [userId, API_URL, testFriends]);
+  }, [userId, API_URL]);
 
   useEffect(() => {
     fetchFriendData();

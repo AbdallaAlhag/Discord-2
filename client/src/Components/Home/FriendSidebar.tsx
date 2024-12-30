@@ -21,23 +21,6 @@ interface FriendSidebarProps {
   toggleChatSection: (id: number | null) => void;
 }
 
-const directMessages: onlineUsers[] = [
-  { id: 1, username: "viperndgrass", avatarUrl: null, onlineStatus: true },
-  { id: 2, username: "Admiral Audacious", avatarUrl: null, onlineStatus: true },
-  { id: 3, username: "Ethanqg", avatarUrl: null, onlineStatus: false },
-  { id: 4, username: "Abwbkr Alhag", avatarUrl: null, onlineStatus: false },
-  {
-    id: 5,
-    username: "LeetCode",
-    avatarUrl: null,
-    onlineStatus: true,
-  },
-  { id: 6, username: "aj", avatarUrl: null, onlineStatus: false },
-  { id: 7, username: "aotmika", avatarUrl: null, onlineStatus: true },
-  { id: 8, username: "SamFieri", avatarUrl: null, onlineStatus: false },
-  { id: 9, username: "qwertea", avatarUrl: null, onlineStatus: true },
-];
-
 // function StatusIndicator({ status }: { status: onlineUsers["status"] }) {
 //   const statusColors = {
 //     online: "bg-[#3ba55d]",
@@ -71,14 +54,9 @@ export default function FriendSidebar({
       try {
         const response = await axios.get(`${API_URL}/friends/${userId}`);
         // console.log("friends list: ", response.data.friends);
-        setFriends(
-          response.data.friends.length > 0
-            ? response.data.friends
-            : directMessages
-        );
+        setFriends(response.data.friends || []);
       } catch (err) {
         console.error("Error fetching friends ", err);
-        setFriends(directMessages);
       }
     };
 

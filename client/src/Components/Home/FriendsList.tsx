@@ -1,6 +1,6 @@
 import { MessageSquare, MoreVertical, Check, X } from "lucide-react";
 import axios from "axios";
-import { useEffect, useMemo, useState, useCallback } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { useAuth } from "@/AuthContext";
 import defaultAvatar from "../../assets/default-avatar.svg";
 import { Link } from "react-router-dom";
@@ -36,47 +36,7 @@ export function FriendsList({ filter }: FriendsListProps) {
   const { userId } = useAuth();
   const API_URL = import.meta.env.VITE_API_BASE_URL;
 
-  const testFriends = useMemo(
-    () => [
-      {
-        id: 1,
-        username: "viperndgrass",
-        onlineStatus: true,
-        activity: "Playing Valorant",
-      },
-      {
-        id: 2,
-        username: "Admiral Audacious",
-        onlineStatus: true,
-        activity: "In Voice Channel",
-      },
-      {
-        id: 3,
-        username: "Ethanqg",
-        onlineStatus: true,
-        activity: "Visual Studio Code",
-      },
-      {
-        id: 4,
-        username: "Abwbkr Alhag",
-        onlineStatus: true,
-        activity: "Spotify",
-      },
-      {
-        id: 5,
-        username: "aotmika",
-        onlineStatus: true,
-        activity: "League of Legends",
-      },
-      {
-        id: 6,
-        username: "qwertea",
-        onlineStatus: true,
-        activity: "In Voice Channel",
-      },
-    ],
-    []
-  );
+  
 
   const onlineStatusDependency = friends
     .map((user) => user.onlineStatus)
@@ -92,19 +52,14 @@ export function FriendsList({ filter }: FriendsListProps) {
       ]);
       // console.log("friends: ", friendsRes.data.friends);
       // console.log('pending: ', pendingRes.data);
-      setFriends(
-        friendsRes.data.friends.length > 0
-          ? friendsRes.data.friends
-          : testFriends
-      );
+      setFriends(friendsRes.data.friends || []);
       setPendingRequests(pendingRes.data);
       // console.log("pending requests: ", pendingRes.data);
       setBlockedUsers(blockedRes.data);
     } catch (err) {
       console.error("Error fetching friends data", err);
-      setFriends(testFriends);
     }
-  }, [userId, API_URL, testFriends]);
+  }, [userId, API_URL]);
 
   useEffect(() => {
     fetchFriendData();

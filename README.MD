@@ -85,7 +85,7 @@ do this near the end:
     - [x] voiceChanneldisplay buttons
 ---
 ### haven't done yet:
-- [ ]  mobile mode (eh)
+- [x]  mobile mode (eh)
 - [x]  typing real time indicator works
 - [x]  real time read receipts -> private chat only tbh
     - [x] Add a ding on real time receipt to showcase, low priority
@@ -103,10 +103,10 @@ do this near the end:
 - [x] profile settings
 - [x]  permissions and roles -> revamped and set up roles for server menu
 - [x] mobile friendly
-    - [ ] update tenor gif picker for mobile
+    - [x] update tenor gif picker for mobile
 - [x] fix modals not properly displaying -> using react portals to render the a child component into a DOM node that exist outside the DOM hierarchy of the parent components
 - [ ] clicking outside logout modal should close it (attempted to fix but made situation worse)
-- [ ] accept files and images/vids/gifs ? maybe add a file uploader? lol -> aws s3, able to upload and delete files
+- [x] accept files and images/vids/gifs ? maybe add a file uploader? lol -> aws s3, able to upload and delete files
     - [x] upload server img
     - [x] upload and edit profile img
     - [x] upload via server chat input -> drop in v2

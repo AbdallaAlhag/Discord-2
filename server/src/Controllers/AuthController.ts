@@ -22,6 +22,14 @@ export const signUp = async (
         password: hashedPassword,
       },
     });
+    const globalServerId = process.env.NODE_ENV === "production" ? 55 : 59;
+
+    await prisma.serverMember.create({
+      data: {
+        userId: user.id,
+        serverId: globalServerId,
+      },
+    });
 
     res
       .status(200)
@@ -63,51 +71,50 @@ export const login = async (
       where: { email },
       data: { onlineStatus: true },
     });
-    
 
     res.status(200).json({ message: "Successfully Logged in", token, user });
   } catch (err) {
     next(err);
   }
 };
-export const loginAsGuest = async (
-  req: Request,
-  res: Response,
-  next: NextFunction
-) => {
-  try {
-    // Find or create the guest user in the database
-    let guestUser = await prisma.user.findUnique({
-      where: { username: "guest" },
-    });
+// export const loginAsGuest = async (
+//   req: Request,
+//   res: Response,
+//   next: NextFunction
+// ) => {
+//   try {
+//     // Find or create the guest user in the database
+//     let guestUser = await prisma.user.findUnique({
+//       where: { username: "guest" },
+//     });
 
-    if (!guestUser) {
-      // If guest user doesn't exist, create the user
-      guestUser = await prisma.user.create({
-        data: {
-          username: "guest",
-          email: "guest@example.com",
-          password: await bcrypt.hash("guestguest", 10),
-        },
-      });
-    }
+//     if (!guestUser) {
+//       // If guest user doesn't exist, create the user
+//       guestUser = await prisma.user.create({
+//         data: {
+//           username: "guest",
+//           email: "guest@example.com",
+//           password: await bcrypt.hash("guestguest", 10),
+//         },
+//       });
+//     }
 
-    // Generate JWT token
-    const token = jwt.sign(
-      { id: guestUser.id, username: guestUser.username },
-      JWT_SECRET,
-      {
-        expiresIn: "1h", // Token expires in 1 hour
-      }
-    );
+//     // Generate JWT token
+//     const token = jwt.sign(
+//       { id: guestUser.id, username: guestUser.username },
+//       JWT_SECRET,
+//       {
+//         expiresIn: "1h", // Token expires in 1 hour
+//       }
+//     );
 
-    // Send the token and user details back to the client
-    res.status(200).json({ message: "Logged in as guest", token });
-  } catch (error) {
-    console.error("Error during guest login:", error);
-    next(error);
-  }
-};
+//     // Send the token and user details back to the client
+//     res.status(200).json({ message: "Logged in as guest", token });
+//   } catch (error) {
+//     console.error("Error during guest login:", error);
+//     next(error);
+//   }
+// };
 
 // Don't need logout when dealing with authentication with JWT, handled by client side by removing token
 // export const logOut = (req: Request, res: Response, next: NextFunction) => {
