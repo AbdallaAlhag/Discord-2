@@ -95,6 +95,7 @@ export function useMediaSearch(type: MediaType, searchQuery: string) {
         };
 
         const { data } = await axios.get(endpoint, { params });
+        console.log("API Response:", data);
 
         const formattedMedia = data.results.map((item: TenorResult) => ({
           id: item.id,
