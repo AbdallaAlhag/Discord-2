@@ -13,17 +13,17 @@ export default defineConfig({
   server: {
     port: 5173,
     host: true,
-    proxy: {
-      "/tenor-api": {
-        target: "https://tenor.googleapis.com/v2",
-        changeOrigin: true,
-        rewrite: (path) => path.replace(/^\/tenor-api/, ""),
-        configure: (proxy) => {
-          proxy.on("proxyReq", (proxyReq) => {
-            proxyReq.setHeader("Origin", "https://tenor.googleapis.com");
-          });
-        },
-      },
-    },
+    // proxy: {
+    //   "/tenor-api": {
+    //     target: "https://tenor.googleapis.com/v2",
+    //     changeOrigin: true,
+    //     rewrite: (path) => path.replace(/^\/tenor-api/, ""),
+    //     configure: (proxy) => {
+    //       proxy.on("proxyReq", (proxyReq) => {
+    //         proxyReq.setHeader("Origin", "https://tenor.googleapis.com");
+    //       });
+    //     },
+    //   },
+    // },
   },
 });

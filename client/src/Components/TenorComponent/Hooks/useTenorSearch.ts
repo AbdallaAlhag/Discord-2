@@ -6,6 +6,7 @@ import { emojis } from "../Data/emojis";
 const TENOR_API_KEY = import.meta.env.VITE_TENOR_API_KEY;
 // const TENOR_API_URL = "https://tenor.googleapis.com/v2";
 const VITE_CLIENT_KEY = import.meta.env.VITE_TENOR_CLIENT_KEY;
+const TENOR_API_BASE = "https://tenor.googleapis.com/v2";
 
 export function useMediaSearch(type: MediaType, searchQuery: string) {
   const [media, setMedia] = useState<MediaData[]>([]);
@@ -24,8 +25,8 @@ export function useMediaSearch(type: MediaType, searchQuery: string) {
       try {
         const endpoint =
           searchQuery.length === 2
-            ? "/tenor-api/autocomplete"
-            : "/tenor-api/search_suggestions";
+            ? `${TENOR_API_BASE}/autocomplete`
+            : `${TENOR_API_BASE}/search_suggestions`;
 
         const { data } = await axios.get(endpoint, {
           params: {
@@ -33,6 +34,9 @@ export function useMediaSearch(type: MediaType, searchQuery: string) {
             client_key: VITE_CLIENT_KEY,
             q: searchQuery,
             limit: 5,
+          },
+          headers: {
+            Accept: "application/json",
           },
         });
 
@@ -77,14 +81,15 @@ export function useMediaSearch(type: MediaType, searchQuery: string) {
         }
 
         const endpoint = searchQuery
-          ? "/tenor-api/search"
-          : "/tenor-api/featured";
+          ? `${TENOR_API_BASE}/search`
+          : `${TENOR_API_BASE}/featured`;
 
         const params = {
           key: TENOR_API_KEY,
           client_key: VITE_CLIENT_KEY,
           q: searchQuery,
           limit: 20,
+          content_filter: "high",
           searchFilter: type === "Stickers" ? "sticker,-static" : "",
           // Strongly recommended
           // string
@@ -94,9 +99,15 @@ export function useMediaSearch(type: MediaType, searchQuery: string) {
           media_filter: "gif",
         };
 
-        const { data } = await axios.get(endpoint, { params });
-        console.log("API Response:", data);
-
+        const { data } = await axios.get(endpoint, {
+          params,
+          headers: {
+            Accept: "application/json",
+          },
+        });
+        if (!data.results) {
+          throw new Error("Invalid API response format");
+        }
         const formattedMedia = data.results.map((item: TenorResult) => ({
           id: item.id,
           title: item.title,
@@ -107,7 +118,7 @@ export function useMediaSearch(type: MediaType, searchQuery: string) {
         }));
 
         setMedia(formattedMedia);
-        console.log("formattedMedia: ", formattedMedia);
+        // console.log("formattedMedia: ", formattedMedia);
       } catch (err) {
         const error = err as Error | AxiosError;
         setError(error.message);
