@@ -30,6 +30,10 @@ export function GifPicker({ onSelect, tabOnOpen }: GifPickerProps) {
     setSearchQuery(suggestion);
   };
 
+  useEffect(() => {
+    console.error("An error occurred:", error);
+  }, [error]);
+
   return (
     <div className="w-[400px] bg-gray-800 rounded-lg shadow-xl">
       <TabBar
