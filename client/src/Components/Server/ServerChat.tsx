@@ -37,6 +37,7 @@ interface ChatProps {
   serverId: string;
   setOpenMemberList: React.Dispatch<React.SetStateAction<boolean>>;
   openMemberList: boolean;
+  isMobile: boolean;
 }
 interface MediaItem {
   url: string;
@@ -55,6 +56,7 @@ const ServerChat: React.FC<ChatProps> = ({
   serverId,
   setOpenMemberList,
   openMemberList,
+  isMobile,
 }) => {
   const [messages, setMessages] = useState<Message[]>([]);
   const [newMessage, setNewMessage] = useState("");
@@ -914,7 +916,18 @@ const ServerChat: React.FC<ChatProps> = ({
       {isMediaPickerOpen && (
         <div
           ref={gifPickerRef}
-          className="fixed bottom-12 right-[16.5rem] flex items-start justify-end mb-5 z-50"
+          // className={
+          //   !isMobile
+          //     ? "fixed bottom-12 right-[16.5rem] flex items-start justify-end mb-5 z-50"
+          //     : "fixed bottom-12 right-0 flex items-start justify-end mb-5 z-50"
+          // }
+          className={
+            !isMobile
+              ? openMemberList
+                ? "fixed bottom-12 right-[16.5rem] flex items-start justify-end mb-5 z-50"
+                : "fixed bottom-12 right-6 flex items-end justify-end mb-5 z-50"
+              : "fixed bottom-12 right-0 flex items-start justify-end mb-5 z-50"
+          }
         >
           <div className="relative">
             {/* <button

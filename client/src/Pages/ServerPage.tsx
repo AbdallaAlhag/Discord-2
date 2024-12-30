@@ -172,6 +172,7 @@ function ServerPage() {
                   channelId={channelId}
                   setOpenMemberList={setOpenMemberList}
                   openMemberList={openMemberList}
+                  isMobile={isMobile}
                 />
                 {openMemberList && <MemberList serverId={serverId} />}
               </>

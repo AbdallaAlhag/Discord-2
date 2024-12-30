@@ -60,13 +60,14 @@ const VITE_API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
 interface ChatProps {
   friendId: number;
+  isMobile: boolean;
 }
 
 interface MediaItem {
   url: string;
 }
 
-const PrivateChat: React.FC<ChatProps> = ({ friendId }) => {
+const PrivateChat: React.FC<ChatProps> = ({ friendId, isMobile }) => {
   const [messages, setMessages] = useState<Message[]>([]);
   const [newMessage, setNewMessage] = useState("");
   const [isLoading, setIsLoading] = useState(true);
@@ -602,14 +603,12 @@ const PrivateChat: React.FC<ChatProps> = ({ friendId }) => {
         }
       } else {
         messageData = {
-            content: media.url,
-            senderId: userId,
-            recipientId: friendId,
-            createdAt: new Date().toISOString(),
-          };
+          content: media.url,
+          senderId: userId,
+          recipientId: friendId,
+          createdAt: new Date().toISOString(),
+        };
       }
-
-
 
       try {
         // Send to server and save in database
@@ -1004,7 +1003,12 @@ const PrivateChat: React.FC<ChatProps> = ({ friendId }) => {
         {isMediaPickerOpen && (
           <div
             ref={gifPickerRef}
-            className="fixed bottom-12 right-6 flex items-end justify-end mb-5 z-50"
+            // className={"fixed bottom-12 right-6 flex items-end justify-end mb-5 z-50"}
+            className={
+              !isMobile
+                ? "fixed bottom-12 right-6 flex items-end justify-end mb-5 z-50"
+                : "fixed bottom-12 right-0 flex items-start justify-end mb-5 z-50"
+            }
           >
             <div className="relative">
               {/* <button

@@ -104,6 +104,7 @@ function HomePage() {
               !isNaN(parseInt(friendIdLink)) &&
               parseInt(friendIdLink))
           }
+          isMobile={isMobile}
         />
       )}
 

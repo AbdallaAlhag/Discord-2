@@ -68,6 +68,7 @@ do this near the end:
     - [x] Get voiceChanneldisplay working properly
         - [x] get all buttons to work in serverchannelsidebar 
         - [x] voice display
+    - [ ] pop out freezes
 ---
 
 - [x] work on server channel online indicator, just showcase users in server

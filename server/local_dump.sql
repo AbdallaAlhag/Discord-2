@@ -17,6 +17,22 @@ SET client_min_messages = warning;
 SET row_security = off;
 
 --
+-- Name: public; Type: SCHEMA; Schema: -; Owner: pg_database_owner
+--
+
+CREATE SCHEMA public;
+
+
+ALTER SCHEMA public OWNER TO pg_database_owner;
+
+--
+-- Name: SCHEMA public; Type: COMMENT; Schema: -; Owner: pg_database_owner
+--
+
+COMMENT ON SCHEMA public IS 'standard public schema';
+
+
+--
 -- Name: MessageType; Type: TYPE; Schema: public; Owner: alhag
 --
 
@@ -1045,6 +1061,36 @@ COPY public."Message" (id, content, "createdAt", "channelId", "userId", "message
 560	did you read this?	2024-12-14 00:30:54.828	\N	4	PRIVATE	7
 561	{"type":"invite","inviteCode":"fm1zdlfv","serverName":"testing voice","expiresAt":"2024-12-26T05:20:01.310Z","serverId":16}	2024-12-19 05:20:01.362	\N	4	PRIVATE	6
 562	{"type":"invite","inviteCode":"cyeqa60p","serverName":"testing voice","expiresAt":"2024-12-26T05:20:04.435Z","serverId":16}	2024-12-19 05:20:04.439	\N	4	PRIVATE	7
+563	hi	2024-12-23 22:47:56.086	18	4	CHANNEL	\N
+564	what is going on 	2024-12-23 22:48:03.334	18	4	CHANNEL	\N
+565	okay	2024-12-23 22:48:15.014	18	4	CHANNEL	\N
+566	we	2024-12-23 22:48:32.897	18	4	CHANNEL	\N
+567	https://media.tenor.com/GOYRQva4UeoAAAAC/anime-dance.gif	2024-12-27 22:42:43.962	18	4	CHANNEL	\N
+568	https://media.tenor.com/SOm8Kz7yruwAAAAC/haappy-friday-friday.gif	2024-12-27 23:18:17.029	18	4	CHANNEL	\N
+569	blob:http://localhost:5173/1bd5457a-0a82-4926-9327-389bf5fd53c1	2024-12-27 23:21:09.715	18	4	CHANNEL	\N
+570	asd	2024-12-27 23:29:12.305	18	4	CHANNEL	\N
+571	asd	2024-12-27 23:29:16.326	18	4	CHANNEL	\N
+572	asd	2024-12-28 00:18:13.655	18	4	CHANNEL	\N
+573	test	2024-12-28 06:38:21.854	18	4	CHANNEL	\N
+574	dog	2024-12-28 06:40:14.935	18	4	CHANNEL	\N
+575	dog	2024-12-28 06:40:44.712	18	4	CHANNEL	\N
+576	dog	2024-12-28 06:41:23.019	18	4	CHANNEL	\N
+577	dog	2024-12-28 06:43:18.801	18	4	CHANNEL	\N
+578	test	2024-12-28 06:43:54.952	18	4	CHANNEL	\N
+579	test	2024-12-28 06:44:28.015	18	4	CHANNEL	\N
+580	test	2024-12-28 06:44:42.618	18	4	CHANNEL	\N
+581	test	2024-12-28 06:46:10.987	18	4	CHANNEL	\N
+582	dog	2024-12-28 06:49:15.363	18	4	CHANNEL	\N
+583	https://discord-2-aws-s3.s3.us-east-2.amazonaws.com/dog-1735368555345.jpeg	2024-12-28 06:49:15.732	18	4	CHANNEL	\N
+584	yo	2024-12-28 06:59:04.867	18	4	CHANNEL	\N
+585	https://discord-2-aws-s3.s3.us-east-2.amazonaws.com/cat-1735369144861.jpeg	2024-12-28 06:59:05.307	18	4	CHANNEL	\N
+586	https://discord-2-aws-s3.s3.us-east-2.amazonaws.com/dog-1735369235390.jpeg	2024-12-28 07:00:35.772	18	4	CHANNEL	\N
+587	https://discord-2-aws-s3.s3.us-east-2.amazonaws.com/file_example_MP4_480_1_5MG%20%281%29-1735369856194.mp4	2024-12-28 07:10:57.063	18	4	CHANNEL	\N
+588	asdfasdf	2024-12-28 15:36:57.457	\N	4	PRIVATE	7
+589	https://discord-2-aws-s3.s3.us-east-2.amazonaws.com/dog-1735400217435.jpeg	2024-12-28 15:36:57.834	\N	4	PRIVATE	7
+590	hey	2024-12-28 15:47:22.557	\N	4	PRIVATE	7
+591	cat	2024-12-28 15:49:21.313	\N	4	PRIVATE	7
+592	https://discord-2-aws-s3.s3.us-east-2.amazonaws.com/cat-1735400961304.jpeg	2024-12-28 15:49:21.76	\N	4	PRIVATE	7
 \.
 
 
@@ -1233,7 +1279,7 @@ COPY public."User" (id, email, "avatarUrl", "createdAt", password, username, "on
 5	test1@test1.com	/src/assets/defaultPfp/Solid-Green.png	2024-11-01 22:17:44.878	$2a$10$eyjdthAXmwEKhWoPIKpu2un0etB9WPdON17wg//sNbkc9tuLWVHEy	test1	f
 13	test4@test4.com	/src/assets/defaultPfp/Solid-Yellow.png	2024-11-16 21:27:07.608	$2a$10$YROtwZpOj6K2VF6vLj.1O.cfTJYjpSaHnRUs/3mwR4s.Atdoh9VSC	test4	f
 7	test3@test3.com	/src/assets/defaultPfp/Solid-Indigo.png	2024-11-01 22:18:20.372	$2a$10$DZeul8jOK4cjakHsNC1.X.hVJ0iGaK9sktO8QWrHzjafE.aRf8Xty	test3	f
-4	test@test.com	/src/assets/defaultPfp/Solid-Violet.png	2024-10-29 20:52:38.549	$2a$10$nAuaJ50j9x9fDTb1CysTsuHQIXW4i7LIqcWkrcrw3QyXClUvAjp6a	test	f
+4	test@test.com	https://discord-2-aws-s3.s3.us-east-2.amazonaws.com/cat-1735338533448.jpeg	2024-10-29 20:52:38.549	$2a$10$nAuaJ50j9x9fDTb1CysTsuHQIXW4i7LIqcWkrcrw3QyXClUvAjp6a	test	t
 6	test2@test2.com	/src/assets/defaultPfp/Solid-Blue.png	2024-11-01 22:18:01.746	$2a$10$y36Mr1CQPGY71pPEuUpm9OtbdILgIkHRxL6SPZhaGMnmhFURrgNMm	test2	f
 \.
 
@@ -1263,7 +1309,7 @@ d9f3e056-9747-4e7c-90eb-b902a0173c75	55f6b53dc013918e4e8ea420451868127f71fe311af
 -- Name: Channel_id_seq; Type: SEQUENCE SET; Schema: public; Owner: alhag
 --
 
-SELECT pg_catalog.setval('public."Channel_id_seq"', 24, true);
+SELECT pg_catalog.setval('public."Channel_id_seq"', 100, true);
 
 
 --
@@ -1291,7 +1337,7 @@ SELECT pg_catalog.setval('public."MessageReadReceipt_id_seq"', 119, true);
 -- Name: Message_id_seq; Type: SEQUENCE SET; Schema: public; Owner: alhag
 --
 
-SELECT pg_catalog.setval('public."Message_id_seq"', 562, true);
+SELECT pg_catalog.setval('public."Message_id_seq"', 592, true);
 
 
 --
@@ -1312,14 +1358,14 @@ SELECT pg_catalog.setval('public."ServerInvite_id_seq"', 27, true);
 -- Name: ServerMember_id_seq; Type: SEQUENCE SET; Schema: public; Owner: alhag
 --
 
-SELECT pg_catalog.setval('public."ServerMember_id_seq"', 30, true);
+SELECT pg_catalog.setval('public."ServerMember_id_seq"', 68, true);
 
 
 --
 -- Name: Server_id_seq; Type: SEQUENCE SET; Schema: public; Owner: alhag
 --
 
-SELECT pg_catalog.setval('public."Server_id_seq"', 16, true);
+SELECT pg_catalog.setval('public."Server_id_seq"', 54, true);
 
 
 --

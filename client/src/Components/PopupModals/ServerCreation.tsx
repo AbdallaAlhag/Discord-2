@@ -71,6 +71,7 @@ export function ServerCreation() {
 
       // Reset state after success
       setStep("initial");
+      window.location.reload();
     } catch (error) {
       console.error("Error during server creation:", error);
     }
