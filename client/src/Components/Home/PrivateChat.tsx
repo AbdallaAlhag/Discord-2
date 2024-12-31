@@ -502,7 +502,7 @@ const PrivateChat: React.FC<ChatProps> = ({ friendId, isMobile }) => {
   const scrollToBottom = () => {
     setTimeout(() => {
       messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-    }, 0);
+    }, 100);
   };
 
   // Send message function
@@ -775,68 +775,70 @@ const PrivateChat: React.FC<ChatProps> = ({ friendId, isMobile }) => {
       </div>
 
       {/* Messages Area */}
-      <div className="flex-1 justify-end overflow-y-auto mb-2">
-        {isLoading ? (
-          <div className="text-center text-[#b9bbbe]">Loading messages...</div>
-        ) : error ? (
-          <div className="text-center text-red-500">{error}</div>
-        ) : messages.length === 0 ? (
-          <div className="text-center text-[#b9bbbe]">No messages yet</div>
-        ) : (
-          // messages.map((msg) => (
-          //   <PrivateMessage
-          //     key={msg.id || msg.id}
-          //     message={msg}
-          //     isOwn={msg.senderId === userId}
-          //   />
-          // ))
-          messages.map((msg, index) => {
-            const prevMsg = index > 0 && messages[index - 1];
-            const nextMsg = index < messages.length - 1 && messages[index + 1];
-
-            // console.log("prevMsg: ", prevMsg);
-            // console.log("current msg: ", msg);
-            const isDifferentDay =
-              (prevMsg &&
-                new Date(prevMsg.createdAt).toDateString() !==
-                  new Date(msg.createdAt).toDateString()) ||
-              index === 0;
-            const similarNextMsg =
-              nextMsg && nextMsg.user?.username === msg.user?.username;
-            return (
-              <React.Fragment key={msg.id || index}>
-                {isDifferentDay && (
-                  // <div className="text-center text-[#b9bbbe] my-2">
-                  //   {new Date(msg.createdAt).toDateString()}
-                  // </div>
-                  <div className="flex items-center my-1">
-                    <hr className="w-full border-t border-[#3f4147]" />
-                    <span className="text-center w-1/6 text-[#b9bbbe]">
-                      {new Date(msg.createdAt).toLocaleString("en-US", {
-                        year: "numeric",
-                        month: "short",
-                        day: "numeric",
-                      })}
-                    </span>
-                    <hr className="w-full border-t border-[#3f4147]" />
-                  </div>
-                )}
-                <PrivateMessage
-                  message={msg}
-                  isOwn={msg.senderId === userId}
-                  prevMessage={prevMsg}
-                  differentDay={isDifferentDay}
-                  similarNextMsg={similarNextMsg}
-                  messageRefs={messageRefs}
-                />
-              </React.Fragment>
-            );
-          })
-        )}
-
-        {friendTyping && <TypingIndicator friendInfo={friendInfo} />}
-
-        <div ref={messagesEndRef} />
+      <div className="flex-1 overflow-y-auto relative">
+        <div className="min-h-full flex flex-col justify-end">
+          {isLoading ? (
+            <div className="text-center text-[#b9bbbe]">
+              Loading messages...
+            </div>
+          ) : error ? (
+            <div className="text-center text-red-500">{error}</div>
+          ) : messages.length === 0 ? (
+            <div className="text-center text-[#b9bbbe]">No messages yet</div>
+          ) : (
+            // messages.map((msg) => (
+            //   <PrivateMessage
+            //     key={msg.id || msg.id}
+            //     message={msg}
+            //     isOwn={msg.senderId === userId}
+            //   />
+            // ))
+            messages.map((msg, index) => {
+              const prevMsg = index > 0 && messages[index - 1];
+              const nextMsg =
+                index < messages.length - 1 && messages[index + 1];
+              // console.log("prevMsg: ", prevMsg);
+              // console.log("current msg: ", msg);
+              const isDifferentDay =
+                (prevMsg &&
+                  new Date(prevMsg.createdAt).toDateString() !==
+                    new Date(msg.createdAt).toDateString()) ||
+                index === 0;
+              const similarNextMsg =
+                nextMsg && nextMsg.user?.username === msg.user?.username;
+              return (
+                <React.Fragment key={msg.id || index}>
+                  {isDifferentDay && (
+                    // <div className="text-center text-[#b9bbbe] my-2">
+                    //   {new Date(msg.createdAt).toDateString()}
+                    // </div>
+                    <div className="flex items-center my-1">
+                      <hr className="w-full border-t border-[#3f4147]" />
+                      <span className="text-center w-1/6 text-[#b9bbbe]">
+                        {new Date(msg.createdAt).toLocaleString("en-US", {
+                          year: "numeric",
+                          month: "short",
+                          day: "numeric",
+                        })}
+                      </span>
+                      <hr className="w-full border-t border-[#3f4147]" />
+                    </div>
+                  )}
+                  <PrivateMessage
+                    message={msg}
+                    isOwn={msg.senderId === userId}
+                    prevMessage={prevMsg}
+                    differentDay={isDifferentDay}
+                    similarNextMsg={similarNextMsg}
+                    messageRefs={messageRefs}
+                  />
+                </React.Fragment>
+              );
+            })
+          )}
+          {friendTyping && <TypingIndicator friendInfo={friendInfo} />}
+          <div ref={messagesEndRef} />
+        </div>
       </div>
 
       {/* Input Area */}

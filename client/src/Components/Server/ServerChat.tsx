@@ -204,7 +204,7 @@ const ServerChat: React.FC<ChatProps> = ({
   const scrollToBottom = () => {
     setTimeout(() => {
       messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-    }, 0);
+    }, 100);
   };
 
   // Send message function

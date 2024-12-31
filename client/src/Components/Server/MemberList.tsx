@@ -1,5 +1,6 @@
 import axios from "axios";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
+import MiniProfileModal from "../PopupModals/MiniProfileModal";
 
 interface MemberListProps {
   serverId: string;
@@ -20,6 +21,45 @@ const VITE_API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
 const MemberList: React.FC<MemberListProps> = function ({ serverId }) {
   const [serverUserInfo, setServerUserInfo] = useState<serverUserInfo[]>([]);
+  const [isOpen, setIsOpen] = useState(false);
+  const [selectedUser, setSelectedUser] = useState<serverUserInfo | null>();
+  const [modalPosition, setModalPosition] = useState({ top: 0 });
+  const lastFocusedElement = useRef<HTMLElement | null>(null);
+
+  const handleCardClick = (user: serverUserInfo, event: React.MouseEvent) => {
+    const clickedElement = event.currentTarget;
+    const rect = clickedElement.getBoundingClientRect();
+    const parentRect = clickedElement.parentElement?.getBoundingClientRect();
+
+    if (parentRect) {
+      // Calculate position relative to the member list container
+      const topPosition = rect.top - parentRect.top;
+      setModalPosition({ top: topPosition });
+    }
+
+    setSelectedUser(user);
+    setIsOpen(true);
+  };
+
+  const handleCloseModal = () => {
+    setIsOpen(false);
+    // Return focus to the last clicked element
+    if (lastFocusedElement.current) {
+      lastFocusedElement.current.focus();
+    }
+  };
+
+  // Handle Escape key
+  useEffect(() => {
+    const handleEscape = (event: KeyboardEvent) => {
+      if (event.key === "Escape" && isOpen) {
+        handleCloseModal();
+      }
+    };
+
+    document.addEventListener("keydown", handleEscape);
+    return () => document.removeEventListener("keydown", handleEscape);
+  }, [isOpen]);
 
   const onlineStatusDependency = serverUserInfo
     .map((user) => user.user.onlineStatus)
@@ -70,6 +110,10 @@ const MemberList: React.FC<MemberListProps> = function ({ serverId }) {
           <div
             key={user.userId}
             className="flex items-center mb-1 cursor-pointer hover:bg-[#36393f] p-2 rounded"
+            onClick={(e) => handleCardClick(user, e)}
+            role="button"
+            tabIndex={0}
+            aria-expanded={isOpen && selectedUser?.userId === user.userId}
           >
             <div className="relative w-8 h-8">
               {/* <!-- Avatar --> */}
@@ -97,6 +141,10 @@ const MemberList: React.FC<MemberListProps> = function ({ serverId }) {
           <div
             key={user.userId}
             className="flex items-center mb-3 cursor-pointer hover:bg-[#36393f] p-2 rounded"
+            onClick={(e) => handleCardClick(user, e)}
+            role="button"
+            tabIndex={0}
+            aria-expanded={isOpen && selectedUser?.userId === user.userId}
           >
             <div className="relative w-8 h-8">
               {/* <!-- Avatar --> */}
@@ -111,6 +159,13 @@ const MemberList: React.FC<MemberListProps> = function ({ serverId }) {
             <span className="text-[#dcddde] ml-2">{user.user.username}</span>
           </div>
         ))}
+      {/* Profile Modal */}
+      <MiniProfileModal
+        isOpen={isOpen}
+        onClose={handleCloseModal}
+        user={selectedUser || null}
+        style={{ top: modalPosition.top }}
+      />
     </div>
   );
 };

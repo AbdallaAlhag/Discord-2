@@ -13,10 +13,9 @@
 - [ ] not done yet:
 - [x] done: 
 do this near the end:
-- [ ] fake data works well with front end but does not work with backend unless i update with my temp backend data
-    - [ ] add fake data to backend and use that instead
+- [x] fake data works well with front end, but remove it
 - [ ] change id in prisma from autoincrement to uuid
-- [ ] update and remove mock users, try to make it more intuitive for people -> root group chat and suggest add friends?
+- [x] update and remove mock users, try to make it more intuitive for people -> root group chat and suggest add friends?
 ---
 
 
@@ -50,6 +49,8 @@ do this near the end:
 - [ ] work on server menu
     - [ ] create delete channel 
     - [x] create leave server
+    - [x] create delete server
+- [x] add menu permissions
 ---
 
 - [ ] work  on real time issues: 
@@ -120,6 +121,8 @@ do this near the end:
 - [ ] discord loading page
 - [x] Create active on direct message tabs 
 - [ ] add ads -> just to play around with
+- [x] create mini profile popups
+- [ ] add ability to join discovery servers
 ---
 v2 features:
 - [ ] right click menu (might be part of a version 2 feature)
