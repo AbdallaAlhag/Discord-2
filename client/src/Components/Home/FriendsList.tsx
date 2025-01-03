@@ -2,7 +2,7 @@ import { MessageSquare, MoreVertical, Check, X } from "lucide-react";
 import axios from "axios";
 import { useEffect, useState, useCallback } from "react";
 import { useAuth } from "@/AuthContext";
-import defaultAvatar from "../../assets/default-avatar.svg";
+import defaultAvatar from "/public/default-avatar.svg";
 import { Link } from "react-router-dom";
 
 interface Friend {

@@ -101,7 +101,7 @@ do this near the end:
 - [x] work on front end private routes
 - [x]  discover tab in server side -> maybe make all servers public or something like that
 - [x] leave server 
-    - [ ]  leave server is not real time? low priority
+    - [ ]  leave server is not real time? low priority _> send to home page
 - [x] profile settings
 - [x]  permissions and roles -> revamped and set up roles for server menu
 - [x] mobile friendly

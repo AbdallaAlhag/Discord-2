@@ -3,7 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { AuthLayout, AuthButton, AuthInput } from "../Components";
 import axios from "axios";
 
-const profilePictures = import.meta.glob("/defaultPfp/*.png", {
+const profilePictures = import.meta.glob("/public/defaultPfp/*.png", {
   eager: true,
 }) as Record<string, { default: string }>;
 

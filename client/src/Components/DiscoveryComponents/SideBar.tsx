@@ -1,6 +1,6 @@
 import SettingsButton from "../Profile/SettingsButton";
 import { useAuth } from "@/AuthContext";
-import defaultAvatar from "../../assets/default-avatar.svg";
+import defaultAvatar from "/public/default-avatar.svg";
 import axios from "axios";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faMicrophone } from "@fortawesome/free-solid-svg-icons";

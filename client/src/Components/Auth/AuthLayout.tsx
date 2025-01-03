@@ -8,8 +8,9 @@ interface AuthLayoutProps {
 export function AuthLayout({ children }: AuthLayoutProps) {
   return (
     <div className="min-h-screen bg-gradient-to-br from-indigo-900 via-purple-900 to-blue-900 relative overflow-hidden">
+      {/* disabled for now since it slows down the site */}
       {/* Animated background elements */}
-      <div className="absolute inset-0 overflow-hidden">
+      {/* <div className="absolute inset-0 overflow-hidden">
         {[...Array(20)].map((_, i) => (
           <div
             key={i}
@@ -24,7 +25,7 @@ export function AuthLayout({ children }: AuthLayoutProps) {
             }}
           />
         ))}
-      </div>
+      </div> */}
 
       {/* Logo */}
       <div className="absolute top-8 left-8">

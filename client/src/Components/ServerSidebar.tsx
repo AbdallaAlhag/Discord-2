@@ -30,7 +30,7 @@ const ServerSidebar: React.FC = () => {
   const [isDataLoaded, setIsDataLoaded] = useState(false);
 
   // console.log("Route Params:", params);
-  const globalServerId = process.env.NODE_ENV === "production" ? 55 : 59;
+  const globalServerId = process.env.NODE_ENV === "production" ? 55 : 2;
   useEffect(() => {
     const fetchServers = async () => {
       if (userId && !isDataLoaded) {

@@ -1,6 +1,7 @@
 import axios from "axios";
 import { useEffect, useRef, useState } from "react";
 import MiniProfileModal from "../PopupModals/MiniProfileModal";
+import defaultAvatar from "/public/default-avatar.svg";
 
 interface MemberListProps {
   serverId: string;
@@ -118,7 +119,7 @@ const MemberList: React.FC<MemberListProps> = function ({ serverId }) {
             <div className="relative w-8 h-8">
               {/* <!-- Avatar --> */}
               <img
-                src={user.user.avatarUrl}
+                src={user.user.avatarUrl || defaultAvatar}
                 alt="user avatar"
                 className="w-full h-full rounded-full"
               />

@@ -22,7 +22,7 @@ export const signUp = async (
         password: hashedPassword,
       },
     });
-    const globalServerId = process.env.NODE_ENV === "production" ? 55 : 59;
+    const globalServerId = process.env.NODE_ENV === "production" ? 55 : 2;
 
     await prisma.serverMember.create({
       data: {
