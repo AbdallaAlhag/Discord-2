@@ -14,6 +14,7 @@
 - [x] done: 
 do this near the end:
 - [x] fake data works well with front end, but remove it
+- [ ] reset database soon 
 - [ ] change id in prisma from autoincrement to uuid
 - [x] update and remove mock users, try to make it more intuitive for people -> root group chat and suggest add friends?
 ---
@@ -122,7 +123,7 @@ do this near the end:
 - [x] Create active on direct message tabs 
 - [ ] add ads -> just to play around with
 - [x] create mini profile popups
-- [ ] add ability to join discovery servers
+- [x] add ability to join discovery servers
 ---
 v2 features:
 - [ ] right click menu (might be part of a version 2 feature)

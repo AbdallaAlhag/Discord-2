@@ -57,7 +57,7 @@ const ServerSidebar: React.FC = () => {
       }
     };
     fetchServers();
-  }, [API_URL, isDataLoaded, userId]);
+  }, [API_URL, globalServerId, isDataLoaded, userId]);
 
   useEffect(() => {
     // console.log(params);

@@ -63,6 +63,7 @@ const getServerChannelsInfo = async (serverId: number) => {
               username: true,
               onlineStatus: true,
               avatarUrl: true,
+              id: true,
             },
           },
         },

@@ -1,16 +1,22 @@
+import axios from "axios";
+import { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
+
 interface Server {
   id: string;
   name: string;
   iconUrl: string;
   members: {
     user: {
-      online: boolean;
+      onlineStatus: boolean;
+      id: string;
     };
   }[];
 }
 
 interface ServerCardProps {
   server: Server;
+  userId: number | null;
 }
 
 interface ServerHeaderProps {
@@ -21,9 +27,37 @@ interface ServerHeaderProps {
 interface ServerStatsProps {
   membersOnline: number;
   totalMembers: number;
+  isMember: boolean;
+  userId: number | null;
+  serverId: number | null;
+  serverGeneralChannel: serverChannel[];
 }
 
-export const ServerCard = ({ server }: ServerCardProps) => {
+interface serverChannel {
+  id: number;
+}
+const BASE_URL = import.meta.env.VITE_API_BASE_URL;
+
+export const ServerCard = ({ server, userId }: ServerCardProps) => {
+  const [serverGeneralChannel, setServerGeneralChannel] = useState<
+    serverChannel[]
+  >([]);
+
+  useEffect(() => {
+    const fetchServersGeneralChannel = async () => {
+      try {
+        const response = await axios.get(
+          `${BASE_URL}/server/channels/${server.id}`
+        );
+
+        // console.log("response: ", response.data.channels[0].id);
+        setServerGeneralChannel(response.data.channels[0].id);
+      } catch (error) {
+        console.error("Error fetching servers:", error);
+      }
+    };
+    fetchServersGeneralChannel();
+  }, [server.id]);
   return (
     <div className="bg-gray-800 rounded-lg overflow-hidden transition-transform hover:translate-y-[-4px]">
       <img
@@ -40,16 +74,37 @@ export const ServerCard = ({ server }: ServerCardProps) => {
           }
         />
         <ServerStats
+          serverId={Number(server.id)}
+          serverGeneralChannel={serverGeneralChannel}
           membersOnline={
-            server.members.filter((member) => member.user.online).length
+            server.members.filter((member) => member.user.onlineStatus).length
           }
           totalMembers={server.members.length}
+          isMember={server.members.some(
+            (member) => Number(member.user.id) === userId
+          )}
+          userId={userId}
         />
       </div>
     </div>
   );
 };
-const ServerStats = ({ membersOnline, totalMembers }: ServerStatsProps) => {
+const ServerStats = ({
+  membersOnline,
+  totalMembers,
+  userId,
+  isMember,
+  serverId,
+  serverGeneralChannel,
+}: ServerStatsProps) => {
+  async function joinServer() {
+    try {
+      await axios.post(`${BASE_URL}/server/join/${userId}/${serverId}`);
+      window.location.href = `/server/${serverId}/${serverGeneralChannel}`;
+    } catch (error) {
+      console.error("Error fetching servers:", error);
+    }
+  }
   return (
     <div className="flex space-x-4 text-sm text-gray-400">
       <span className="flex items-center">
@@ -60,6 +115,20 @@ const ServerStats = ({ membersOnline, totalMembers }: ServerStatsProps) => {
         <span className="w-4 h-4 text-gray-400 mr-1">👥</span>
         {formatNumber(totalMembers)} Members
       </span>
+      {!isMember ? (
+        <button
+          className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+          onClick={() => joinServer()}
+        >
+          Join
+        </button>
+      ) : (
+        <Link to={`/server/${serverId}/${serverGeneralChannel}`}>
+          <button className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
+            Open
+          </button>
+        </Link>
+      )}
     </div>
   );
 };

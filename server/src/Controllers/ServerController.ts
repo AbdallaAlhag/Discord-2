@@ -18,7 +18,9 @@ const handleGetAllServers = async (
   try {
     const servers = await prisma.server.findMany({
       include: {
-        members: { select: { user: { select: { onlineStatus: true } } } },
+        members: {
+          select: { user: { select: { onlineStatus: true, id: true } } },
+        },
       },
     });
     return res.status(201).json(servers); // Ensure a response is always returned
@@ -138,7 +140,8 @@ const handleAddToServer = async (
   const { userId, serverId } = req.params;
   const { inviteData } = req.body;
 
-  if (!serverId || !userId || !inviteData) {
+  // if (!serverId || !userId || !inviteData) {
+  if (!serverId || !userId) {
     return res.status(400).json({ error: "Missing required fields" });
   }
 
