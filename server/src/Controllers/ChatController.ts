@@ -79,10 +79,9 @@ const handleReadReceipt = async (req: Request, res: Response) => {
 
     res.status(200).json({ success: true });
   } catch (error) {
-    res.status(500).json({ error: 'Failed to mark message as read' });
+    res.status(500).json({ error: "Failed to mark message as read" });
   }
 };
-
 
 export {
   handleCreateChannelMessage,

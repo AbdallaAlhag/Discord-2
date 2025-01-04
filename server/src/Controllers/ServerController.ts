@@ -116,7 +116,7 @@ const handleServerInvite = async (
 
     // Get the server details for the response
     const server = await prisma.server.findUnique({
-      where: { id: parseInt(serverId) },
+      where: { id: serverId },
       select: { name: true },
     });
 
@@ -148,7 +148,7 @@ const handleAddToServer = async (
   try {
     // make sure server is valid
     const server = await prisma.server.findUnique({
-      where: { id: parseInt(serverId) },
+      where: { id: serverId },
       select: { name: true },
     });
 
@@ -159,10 +159,10 @@ const handleAddToServer = async (
     // Check if the user is already a member of the server
     const isMember = await prisma.server.findFirst({
       where: {
-        id: parseInt(serverId),
+        id: serverId,
         members: {
           some: {
-            userId: parseInt(userId),
+            userId: userId,
           },
         },
       },

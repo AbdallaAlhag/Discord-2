@@ -1,7 +1,7 @@
 import axios from "axios";
 import { useEffect, useRef, useState } from "react";
 import MiniProfileModal from "../PopupModals/MiniProfileModal";
-import defaultAvatar from "/public/default-avatar.svg";
+import defaultAvatar from "/default-avatar.svg";
 
 interface MemberListProps {
   serverId: string;

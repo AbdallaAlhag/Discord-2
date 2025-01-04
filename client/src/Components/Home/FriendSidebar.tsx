@@ -3,7 +3,7 @@ import SettingsButton from "../Profile/SettingsButton";
 import { useAuth } from "@/AuthContext";
 import axios from "axios";
 import { useState, useEffect } from "react";
-import defaultAvatar from "/public/default-avatar.svg";
+import defaultAvatar from "/default-avatar.svg";
 import { Link } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faMicrophone } from "@fortawesome/free-solid-svg-icons";

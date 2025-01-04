@@ -1,4 +1,4 @@
-import defaultAvatar from "/public/default-avatar.svg";
+import defaultAvatar from "/default-avatar.svg";
 
 interface FriendItemProps {
   name: string;

@@ -14,7 +14,7 @@ import LeaveServerModal from "../PopupModals/LeaveServerModal";
 import ServerMenu from "./ServerMenu";
 import SettingsButton from "../Profile/SettingsButton";
 
-import defaultAvatar from "/public/default-avatar.svg";
+import defaultAvatar from "/default-avatar.svg";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faMicrophone } from "@fortawesome/free-solid-svg-icons";
 import { faMicrophoneSlash } from "@fortawesome/free-solid-svg-icons";

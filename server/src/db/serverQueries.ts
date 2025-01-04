@@ -19,7 +19,7 @@ const createServer = async (name: string, userId: number, iconUrl: string) => {
       },
       members: {
         create: {
-          userId,
+          userId: String(userId),
           role: "OWNER", // Server creator is automatically owner
         },
       },
@@ -41,14 +41,14 @@ const createChannel = async (
     data: {
       name,
       isVoice,
-      serverId,
+      serverId: serverId.toString(),
     },
   });
 };
 const getServerChannelsInfo = async (serverId: number) => {
   return await prisma.server.findUnique({
     where: {
-      id: serverId,
+      id: String(serverId),
     },
     include: {
       channels: {
@@ -89,8 +89,8 @@ const createServerInvite = async (
     data: {
       inviteCode,
       expiresAt,
-      server: { connect: { id: serverId } },
-      createdBy: { connect: { id: createdById } },
+      server: { connect: { id: serverId.toString() } },
+      createdBy: { connect: { id: createdById.toString() } },
       maxUses: 1,
     },
     include: {
@@ -113,8 +113,8 @@ const createServerInvite = async (
         serverId: invite.serverId,
       }),
       messageType: "PRIVATE",
-      user: { connect: { id: createdById } },
-      recipient: { connect: { id: invitedUserId } },
+      user: { connect: { id: createdById.toString() } },
+      recipient: { connect: { id: invitedUserId.toString() } },
     },
   });
 
@@ -129,7 +129,7 @@ const createServerInvite = async (
 const addToServer = async (serverId: string, userId: string) => {
   try {
     const userExists = await prisma.user.findUnique({
-      where: { id: Number(userId) },
+      where: { id: userId },
     });
 
     if (!userExists) {
@@ -139,10 +139,10 @@ const addToServer = async (serverId: string, userId: string) => {
 
     const existingMember = await prisma.server.findFirst({
       where: {
-        id: parseInt(serverId),
+        id: serverId,
         members: {
           some: {
-            userId: parseInt(userId),
+            userId: userId,
           },
         },
       },
@@ -150,11 +150,11 @@ const addToServer = async (serverId: string, userId: string) => {
 
     if (!existingMember) {
       return await prisma.server.update({
-        where: { id: parseInt(serverId) },
+        where: { id: serverId },
         data: {
           members: {
             create: {
-              userId: parseInt(userId),
+              userId: userId,
             },
           },
         },
@@ -171,7 +171,7 @@ const addToServer = async (serverId: string, userId: string) => {
 const deleteServer = async (serverId: number) => {
   // Fetch the server to get the icon URL
   const server = await prisma.server.findUnique({
-    where: { id: serverId },
+    where: { id: serverId.toString() },
     select: { iconUrl: true },
   });
 
@@ -204,7 +204,7 @@ const deleteServer = async (serverId: number) => {
     where: {
       message: {
         channel: {
-          serverId,
+          serverId: serverId.toString(),
         },
       },
     },
@@ -216,7 +216,7 @@ const deleteServer = async (serverId: number) => {
       channelId: {
         in: (
           await prisma.channel.findMany({
-            where: { serverId },
+            where: { serverId: serverId.toString() },
           })
         ).map((channel) => channel.id),
       },
@@ -224,22 +224,22 @@ const deleteServer = async (serverId: number) => {
   });
 
   await prisma.serverInvite.deleteMany({
-    where: { serverId },
+    where: { serverId: serverId.toString() },
   });
 
   // Delete all server members related to the server
   await prisma.serverMember.deleteMany({
-    where: { serverId },
+    where: { serverId: serverId.toString() },
   });
 
   // Delete all channels related to the server
   await prisma.channel.deleteMany({
-    where: { serverId },
+    where: { serverId: serverId.toString() },
   });
 
   // Finally, delete the server
   await prisma.server.delete({
-    where: { id: serverId },
+    where: { id: serverId.toString() },
   });
 };
 
@@ -248,8 +248,8 @@ const leaveServer = async (serverId: number, userId: number) => {
     const deletedMember = await prisma.serverMember.delete({
       where: {
         userId_serverId: {
-          userId,
-          serverId,
+          userId: userId.toString(),
+          serverId: serverId.toString(),
         },
       },
     });

@@ -17,7 +17,7 @@ export const getServers = async (userId: number) => {
         members: {
           some: {
             userId: {
-              equals: userId,
+              equals: String(userId),
             },
           },
         },
@@ -40,7 +40,7 @@ export const getFriends = async (userId: number) => {
   try {
     // Retrieve friends where the user is the initiator or recipient in the Friend relationship
     const userWithFriends = await prisma.user.findUnique({
-      where: { id: userId },
+      where: { id: userId.toString() },
       include: {
         friends: {
           include: {
@@ -102,17 +102,17 @@ export const getFriends = async (userId: number) => {
 
 export const getMessages = async (channelId: number) =>
   await prisma.message.findMany({
-    where: { channelId },
+    where: { channelId: channelId.toString() },
     orderBy: { createdAt: "desc" },
     include: { user: true },
   });
 
 export const getChannel = async (channelId: number) =>
-  await prisma.channel.findUnique({ where: { id: channelId } });
+  await prisma.channel.findUnique({ where: { id: String(channelId) } });
 
 export const getUser = async (userId: number) =>
   await prisma.user.findUnique({
-    where: { id: userId },
+    where: { id: String(userId) },
     select: {
       id: true,
       username: true,

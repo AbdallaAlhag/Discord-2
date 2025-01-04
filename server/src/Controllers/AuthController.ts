@@ -22,12 +22,12 @@ export const signUp = async (
         password: hashedPassword,
       },
     });
-    const globalServerId = process.env.NODE_ENV === "production" ? 55 : 2;
+    const globalServerId = process.env.NODE_ENV === "production" ? 2 : 2;
 
     await prisma.serverMember.create({
       data: {
         userId: user.id,
-        serverId: globalServerId,
+        serverId: String(globalServerId),
       },
     });
 
@@ -156,7 +156,7 @@ export const markOffline = async (
   try {
     const userId = Number(req.params.userId);
     await prisma.user.update({
-      where: { id: userId },
+      where: { id: String(userId) },
       data: { onlineStatus: false },
     });
     res.status(200).json({ success: true });

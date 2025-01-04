@@ -14,8 +14,8 @@
 - [x] done: 
 do this near the end:
 - [x] fake data works well with front end, but remove it
-- [ ] reset database soon 
-- [ ] change id in prisma from autoincrement to uuid
+- [x] reset database dev and prod
+- [x] change id in prisma from autoincrement to uuid
 - [x] update and remove mock users, try to make it more intuitive for people -> root group chat and suggest add friends?
 ---
 

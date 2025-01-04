@@ -22,7 +22,7 @@ passport.use(
         arg1:
           | boolean
           | {
-              id: number;
+              id: string;
               username: string;
               email: string;
               password: string;

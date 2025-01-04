@@ -6,7 +6,6 @@ import prisma from "../db/prisma";
 const sendFriendRequest = async (req: Request, res: Response): Promise<any> => {
   const { senderId, recipientId } = req.body;
   try {
-
     try {
       const existingFriendship = await prisma.friend.findFirst({
         where: {
@@ -38,7 +37,7 @@ const acceptFriendRequest = async (req: Request, res: Response) => {
 
   try {
     const request = await prisma.friendRequest.update({
-      where: { id: parseInt(requestId) },
+      where: { id: requestId },
       data: { status: "ACCEPTED" },
       include: { sender: true, recipient: true },
     });
@@ -62,7 +61,7 @@ const declineFriendRequest = async (req: Request, res: Response) => {
 
   try {
     await prisma.friendRequest.update({
-      where: { id: parseInt(requestId) },
+      where: { id: requestId },
       data: { status: "DECLINED" },
     });
 
@@ -79,7 +78,7 @@ const getPendingRequests = async (req: Request, res: Response) => {
   try {
     const pendingRequests = await prisma.friendRequest.findMany({
       where: {
-        recipientId: parseInt(userId),
+        recipientId: userId,
         status: "PENDING",
       },
       include: {

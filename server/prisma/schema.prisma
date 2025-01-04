@@ -8,7 +8,7 @@ datasource db {
 }
 
 model User {
-  id               Int             @id @default(autoincrement())
+  id               String          @id @default(uuid())
   email            String          @unique
   avatarUrl        String?
   createdAt        DateTime        @default(now())
@@ -30,7 +30,7 @@ model User {
 }
 
 model Server {
-  id        Int            @id @default(autoincrement())
+  id        String         @id @default(uuid())
   name      String
   iconUrl   String?
   createdAt DateTime       @default(now())
@@ -40,8 +40,8 @@ model Server {
 }
 
 model Channel {
-  id        Int       @id @default(autoincrement())
-  serverId  Int
+  id        String    @id @default(uuid())
+  serverId  String
   name      String
   isVoice   Boolean   @default(false)
   createdAt DateTime  @default(now())
@@ -50,9 +50,9 @@ model Channel {
 }
 
 model ServerMember {
-  id           Int        @id @default(autoincrement())
-  userId       Int
-  serverId     Int
+  id           String     @id @default(uuid())
+  userId       String
+  serverId     String
   joinedAt     DateTime   @default(now())
   role         ServerRole @default(MEMBER) // New enum field
   server       Server     @relation(fields: [serverId], references: [id])
@@ -73,13 +73,13 @@ enum ServerRole {
 }
 
 model Message {
-  id          Int         @id @default(autoincrement())
+  id          String      @id @default(uuid())
   content     String
   createdAt   DateTime    @default(now())
-  channelId   Int?
-  userId      Int
+  channelId   String?
+  userId      String
   messageType MessageType
-  recipientId Int?
+  recipientId String?
   channel     Channel?    @relation(fields: [channelId], references: [id])
   recipient   User?       @relation("MessageRecipient", fields: [recipientId], references: [id])
   user        User        @relation("MessageSender", fields: [userId], references: [id])
@@ -90,9 +90,9 @@ model Message {
 }
 
 model MessageReadReceipt {
-  id        Int      @id @default(autoincrement())
-  messageId Int
-  userId    Int
+  id        String   @id @default(uuid())
+  messageId String
+  userId    String
   readAt    DateTime @default(now())
 
   message Message @relation(fields: [messageId], references: [id])
@@ -107,19 +107,19 @@ enum MessageType {
 }
 
 model Friend {
-  id       Int  @id @default(autoincrement())
-  userId   Int
-  friendId Int
-  friend   User @relation("FriendUsers", fields: [friendId], references: [id])
-  user     User @relation("UserFriends", fields: [userId], references: [id])
+  id       String @id @default(uuid())
+  userId   String
+  friendId String
+  friend   User   @relation("FriendUsers", fields: [friendId], references: [id])
+  user     User   @relation("UserFriends", fields: [userId], references: [id])
 
   @@unique([userId, friendId])
 }
 
 model FriendRequest {
-  id          Int      @id @default(autoincrement())
-  senderId    Int
-  recipientId Int
+  id          String   @id @default(uuid())
+  senderId    String
+  recipientId String
   status      String   @default("PENDING")
   createdAt   DateTime @default(now())
   recipient   User     @relation("ReceivedRequests", fields: [recipientId], references: [id])
@@ -127,11 +127,11 @@ model FriendRequest {
 }
 
 model ServerInvite {
-  id          Int       @id @default(autoincrement())
+  id          String    @id @default(uuid())
   inviteCode  String    @unique
-  serverId    Int
-  createdById Int
-  usedById    Int?
+  serverId    String
+  createdById String
+  usedById    String?
   expiresAt   DateTime
   createdAt   DateTime  @default(now())
   usedAt      DateTime?
@@ -149,10 +149,10 @@ model ServerInvite {
 }
 
 model Reaction {
-  id        Int      @id @default(autoincrement())
+  id        String   @id @default(uuid())
   emoji     String
-  messageId Int
-  userId    Int
+  messageId String
+  userId    String
   createdAt DateTime @default(now())
   message   Message  @relation(fields: [messageId], references: [id])
   user      User     @relation(fields: [userId], references: [id])

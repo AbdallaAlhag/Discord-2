@@ -9,8 +9,8 @@ async function createChannelMessage(
   const message = await prisma.message.create({
     data: {
       content,
-      userId,
-      channelId,
+      userId: userId.toString(),
+      channelId: channelId.toString(),
       messageType: "CHANNEL",
     },
     include: {
@@ -34,7 +34,7 @@ async function createChannelMessage(
 async function getChannelMessages(channelId: number) {
   return prisma.message.findMany({
     where: {
-      channelId,
+      channelId: channelId.toString(),
       messageType: "CHANNEL",
     },
     include: {
@@ -70,27 +70,27 @@ async function createPrivateMessage(
     prisma.message.create({
       data: {
         content,
-        userId: senderId,
-        recipientId,
+        userId: senderId.toString(),
+        recipientId: recipientId.toString(),
         messageType: "PRIVATE",
       },
     });
     const createdMessage = await prisma.message.create({
       data: {
         content,
-        userId: senderId,
-        recipientId,
+        userId: senderId.toString(),
+        recipientId: recipientId.toString(),
         messageType: "PRIVATE",
       },
     });
 
     const sender = await prisma.user.findUnique({
-      where: { id: senderId },
+      where: { id: String(senderId) },
       select: { username: true, avatarUrl: true },
     });
 
     const recipient = await prisma.user.findUnique({
-      where: { id: recipientId },
+      where: { id: String(recipientId) },
       select: { username: true },
     });
 
@@ -104,7 +104,6 @@ async function createPrivateMessage(
       createdAt: createdMessage.createdAt,
       recipientId: createdMessage.recipientId,
       recipientUsername: recipient?.username,
-      
     };
   } catch (err) {
     console.error("Bug is here creating message:", err);
@@ -116,8 +115,8 @@ async function getPrivateMessages(userId: number, friendId: number) {
   return prisma.message.findMany({
     where: {
       OR: [
-        { userId, recipientId: friendId },
-        { userId: friendId, recipientId: userId },
+        { userId: String(userId), recipientId: String(friendId) },
+        { userId: String(friendId), recipientId: String(userId) },
       ],
       messageType: "PRIVATE",
     },
@@ -136,16 +135,16 @@ const updateReadReceipts = async (messageId: string, userId: number) => {
     await prisma.messageReadReceipt.upsert({
       where: {
         messageId_userId: {
-          messageId: parseInt(messageId),
-          userId: userId,
+          messageId: messageId,
+          userId: userId.toString(),
         },
       },
       update: {
         readAt: new Date(),
       },
       create: {
-        messageId: parseInt(messageId),
-        userId: userId,
+        messageId: messageId,
+        userId: userId.toString(),
       },
     });
   } catch (error) {

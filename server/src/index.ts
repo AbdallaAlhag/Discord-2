@@ -74,8 +74,8 @@ io.on("connection", async (socket) => {
     return;
   }
 
-  const numericUserId = Number(userId);
-  if (isNaN(numericUserId)) {
+  const numericUserId = String(userId);
+  if (isNaN(Number(numericUserId))) {
     console.error("Invalid userId:", userId);
     return;
   }
@@ -220,7 +220,7 @@ io.on("connection", async (socket) => {
     const userSession = activeUsers.get(socket.id);
     prisma.user
       .update({
-        where: { id: Number(userId) },
+        where: { id: String(userId) },
         data: {
           onlineStatus: false,
         },

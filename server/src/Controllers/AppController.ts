@@ -62,13 +62,13 @@ export const updateUserAvatar = async (
 
     if (avatarUrl && avatarUrl !== "") {
       await prisma.user.update({
-        where: { id: userId },
+        where: { id: String(userId) },
         data: { avatarUrl: avatarUrl },
       });
     } else {
       // find avatarURL
       const avatarIcon = await prisma.user.findUnique({
-        where: { id: userId },
+        where: { id: String(userId) },
         select: { avatarUrl: true },
       });
       if (
@@ -92,7 +92,7 @@ export const updateUserAvatar = async (
         }
         // reset to default pic
         await prisma.user.update({
-          where: { id: userId },
+          where: { id: String(userId) },
           data: { avatarUrl: "/src/assets/defaultPfp/Solid-Blue.png" },
         });
       }
