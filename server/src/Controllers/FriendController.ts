@@ -100,9 +100,129 @@ const getPendingRequests = async (req: Request, res: Response) => {
   }
 };
 
+const grabSuggestedUsers = async (req: Request, res: Response) => {
+  const { userId } = req.params;
+
+  try {
+    // Step 1: Get the friends of the user
+    const friends = await prisma.friend.findMany({
+      where: {
+        OR: [{ userId: userId }, { friendId: userId }],
+      },
+      include: {
+        user: {
+          select: {
+            id: true,
+            username: true,
+            avatarUrl: true,
+            onlineStatus: true,
+          },
+        },
+        friend: {
+          select: {
+            id: true,
+            username: true,
+            avatarUrl: true,
+            onlineStatus: true,
+          },
+        },
+      },
+    });
+
+    // Step 2: If the user has friends, get their friends, filtering out those already friends with the user
+    if (friends.length > 0) {
+      const suggestedUsers = friends
+        .flatMap((f) => [f.user, f.friend])
+        .filter((u) => u.id !== userId) // Exclude the user from the suggestions
+        .reduce((acc, cur) => {
+          if (!acc.find((u) => String(u.id) === cur.id)) {
+            acc.push(cur);
+          }
+          return acc;
+        }, [] as { id: string; username: string; avatarUrl: string | null; onlineStatus: boolean }[]);
+
+      // Step 3: Fetch friends of friends who are not already friends with the user
+      const secondDegreeFriends = await prisma.friend.findMany({
+        where: {
+          OR: [
+            { userId: { in: friends.map((f) => f.friendId) } },
+            { friendId: { in: friends.map((f) => f.friendId) } },
+          ],
+          NOT: {
+            OR: [{ userId: userId }, { friendId: userId }], // Filter out direct friends
+          },
+        },
+        include: {
+          user: {
+            select: {
+              id: true,
+              username: true,
+              avatarUrl: true,
+              onlineStatus: true,
+            },
+          },
+          friend: {
+            select: {
+              id: true,
+              username: true,
+              avatarUrl: true,
+              onlineStatus: true,
+            },
+          },
+        },
+      });
+
+      const filteredSecondDegreeFriends = secondDegreeFriends
+        .flatMap((f) => [f.user, f.friend])
+        .filter((u) => u.id !== userId) // Exclude the user
+        .reduce((acc, cur) => {
+          if (!acc.find((u) => String(u.id) === cur.id)) {
+            acc.push(cur);
+          }
+          return acc;
+        }, [] as { id: string; username: string; avatarUrl: string | null; onlineStatus: boolean }[]);
+
+      // Combine the suggested first-degree and second-degree friends
+      const allSuggestedUsers = [
+        ...suggestedUsers,
+        ...filteredSecondDegreeFriends,
+      ];
+
+      console.log("Suggested users:", allSuggestedUsers);
+
+      // Return suggested users
+      res.json(allSuggestedUsers);
+    } else {
+      // Step 4: If no friends, get 5 random users who are not friends
+      const randomUsers = await prisma.user.findMany({
+        take: 5,
+        skip: Math.floor(Math.random() * (await prisma.user.count())),
+        where: {
+          id: {
+            notIn: friends.flatMap((f) => [f.userId, f.friendId]),
+          },
+        },
+        select: {
+          id: true,
+          username: true,
+          avatarUrl: true,
+          onlineStatus: true,
+        },
+      });
+      console.log("random users:", randomUsers);
+
+      res.json(randomUsers);
+    }
+  } catch (error) {
+    console.error("Error fetching suggested users:", error);
+    res.status(500).json({ error: "Failed to fetch suggested users" });
+  }
+};
+
 export {
   sendFriendRequest,
   acceptFriendRequest,
   getPendingRequests,
   declineFriendRequest,
+  grabSuggestedUsers,
 };

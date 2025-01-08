@@ -4,7 +4,8 @@ import {
   sendFriendRequest,
   acceptFriendRequest,
   getPendingRequests,
-  declineFriendRequest
+  declineFriendRequest,
+  grabSuggestedUsers,
 } from "../Controllers/FriendController";
 
 const router = express.Router();
@@ -21,5 +22,9 @@ router.get("/pending/:userId", getPendingRequests);
 
 router.get("/blocked/:userId", (req, res) => {
   res.status(200).json([]); // Return an empty array
+});
+
+router.get("/suggested/:userId", (req, res) => {
+  grabSuggestedUsers(req, res);
 });
 export default router;

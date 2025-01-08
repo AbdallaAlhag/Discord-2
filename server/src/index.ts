@@ -206,7 +206,7 @@ io.on("connection", async (socket) => {
   socket.on("ping_presence", ({ userId }) => {
     prisma.user
       .update({
-        where: { id: userId },
+        where: { id: String(userId) },
         data: { onlineStatus: true },
       })
       .catch((err) => console.error("Error updating ping presence:", err));

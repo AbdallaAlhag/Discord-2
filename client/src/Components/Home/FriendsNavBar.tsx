@@ -23,8 +23,8 @@ const FriendsNavBar: React.FC<FriendsNavBarProps> = ({
   const sendFriendRequest = async () => {
     try {
       await axios.post(`${API_URL}/friends/request`, {
-        senderId: Number(userId),
-        recipientId: Number(friendId),
+        senderId: String(userId),
+        recipientId: String(friendId),
       });
       alert("Friend request sent");
       setFriendId("");
@@ -92,7 +92,7 @@ const FriendsNavBar: React.FC<FriendsNavBarProps> = ({
                 className="bg-[#36393f] text-white px-2 py-1 rounded text-sm"
               />
               <button
-                onClick={sendFriendRequest}
+                onClick={friendId !== "" ? sendFriendRequest : undefined}
                 className="bg-[#248046] hover:bg-[#1a6334] text-white px-2 py-1 rounded text-sm whitespace-nowrap"
               >
                 Send Request
@@ -127,7 +127,7 @@ const FriendsNavBar: React.FC<FriendsNavBarProps> = ({
                   className="bg-[#36393f] text-white px-2 py-1 rounded text-sm w-full"
                 />
                 <button
-                  onClick={sendFriendRequest}
+                  onClick={friendId !== "" ? sendFriendRequest : undefined}
                   className="bg-[#248046] hover:bg-[#1a6334] text-white px-2 py-1 rounded text-sm w-full"
                 >
                   Send Request

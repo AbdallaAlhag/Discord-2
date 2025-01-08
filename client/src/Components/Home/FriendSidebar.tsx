@@ -1,4 +1,4 @@
-import { Users } from "lucide-react";
+import { Plus, Users } from "lucide-react";
 import SettingsButton from "../Profile/SettingsButton";
 import { useAuth } from "@/AuthContext";
 import axios from "axios";
@@ -21,25 +21,11 @@ interface FriendSidebarProps {
   toggleChatSection: (id: number | null) => void;
 }
 
-// function StatusIndicator({ status }: { status: onlineUsers["status"] }) {
-//   const statusColors = {
-//     online: "bg-[#3ba55d]",
-//     offline: "bg-[#747f8d]",
-//     idle: "bg-[#faa81a]",
-//     dnd: "bg-[#ed4245]",
-//   };
-
-//   return (
-//     <div
-//       className={`absolute bottom-0 right-0 w-3 h-3 ${statusColors[status]} rounded-full border-2 border-[#2f3136]`}
-//     />
-//   );
-// }
-
 export default function FriendSidebar({
   toggleChatSection,
 }: FriendSidebarProps) {
   const [friends, setFriends] = useState<onlineUsers[]>([]);
+  const [suggestedFriends, setSuggestedFriends] = useState<onlineUsers[]>([]);
   const [user, setUser] = useState<onlineUsers | null>(null);
   const { userId } = useAuth();
   const API_URL = import.meta.env.VITE_API_BASE_URL;
@@ -48,6 +34,7 @@ export default function FriendSidebar({
   const onlineStatusDependency = friends
     .map((user) => user.onlineStatus)
     .join(",");
+
   useEffect(() => {
     const fetchFriends = async () => {
       if (!userId) return;
@@ -72,6 +59,40 @@ export default function FriendSidebar({
     };
     fetchFriends();
     fetchUser();
+  }, [API_URL, userId, onlineStatusDependency]);
+
+  const sendFriendRequest = async (friendId: number) => {
+    try {
+      await axios.post(`${API_URL}/friends/request`, {
+        senderId: String(userId),
+        recipientId: String(friendId),
+      });
+      alert("Friend request sent");
+    } catch (err) {
+      console.error("Error sending friend request", err);
+    }
+  };
+
+  useEffect(() => {
+    const fetchSuggested = async () => {
+      if (!userId) return;
+      try {
+        const response = await axios.get(
+          `${API_URL}/friends/suggested/${userId}`
+        );
+        // console.log("friends list: ", response.data.friends);
+        console.log("suggested friends: ", response.data);
+        const suggested = response.data || [];
+        const filtered = suggested.filter(
+          (friend: onlineUsers) => friend.id != userId
+        );
+        setSuggestedFriends(filtered);
+      } catch (err) {
+        console.error("Error fetching friends ", err);
+      }
+    };
+
+    fetchSuggested();
   }, [API_URL, userId, onlineStatusDependency]);
 
   return (
@@ -112,6 +133,14 @@ export default function FriendSidebar({
           </div>
 
           <div className="mt-2 space-y-0.5">
+            {friends.length === 0 && (
+              <div className="flex items-center justify-start py-4">
+                <div className="w-12 h-12 bg-[#36393f] rounded-full flex items-center justify-center mr-2">
+                  <Users className="w-6 h-6 text-[#dcddde]" />
+                </div>
+                <span className="text-[#dcddde] text-sm">No Messages Yet!</span>
+              </div>
+            )}
             {friends.map((dm) => (
               <button
                 key={dm.id}
@@ -125,15 +154,6 @@ export default function FriendSidebar({
                   toggleChatSection(dm.id);
                 }} // Use user ID to toggle chat room
               >
-                {/* <div className="w-8 h-8 rounded-full bg-[#36393f] flex items-center justify-center relative mr-3">
-                  <span>{dm.avatar}</span>
-                  <StatusIndicator status={dm.status} />
-                </div> */}
-                {/* <img
-                  src={dm.avatarUrl || defaultAvatar}
-                  alt="user avatar"
-                  className="w-8 h-8 rounded-full mr-3"
-                /> */}
                 <div className="relative w-8 h-8 mr-3">
                   {/* <!-- Avatar --> */}
                   <img
@@ -156,6 +176,49 @@ export default function FriendSidebar({
           </div>
         </div>
       </div>
+
+      {friends.length < 5 && (
+        <div className="flex-1 overflow-y-auto space-y-2 pt-4">
+          <div className="px-2 pt-4">
+            <div className="flex items-center justify-between px-2 text-xs">
+              <span className="text-[#96989d] uppercase font-semibold">
+                SUGGESTED FRIENDS
+              </span>
+            </div>
+
+            <div className="mt-2 space-y-0.5">
+              {suggestedFriends.map((dm) => (
+                <div
+                  key={dm.id}
+                  className="w-full flex items-center px-2 py-1 text-[#96989d] hover:text-[#dcddde] hover:bg-[#42464D] rounded group"
+                  // onClick={() => {
+                  //   setActiveTab(dm.id);
+                  //   toggleChatSection(dm.id);
+                  // }} // Use user ID to toggle chat room
+                >
+                  <div className="relative w-8 h-8 mr-3">
+                    {/* <!-- Avatar --> */}
+                    <img
+                      src={dm.avatarUrl || defaultAvatar}
+                      alt="user avatar"
+                      className="w-full h-full rounded-full"
+                    />
+                  </div>
+                  <span className="text-sm flex-1 text-left truncate">
+                    {dm.username}
+                  </span>
+                  <button
+                    className="w-6 h-6 flex items-center justify-center rounded-full bg-[#36393f] hover:bg-[#42464D]"
+                    onClick={() => sendFriendRequest(dm.id)}
+                  >
+                    <Plus className="w-4 h-4 text-[#dcddde]" />
+                  </button>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
 
       <div className="h-14 bg-[#232428] px-2 flex items-center mt-auto gap-1">
         <img

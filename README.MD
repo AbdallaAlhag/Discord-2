@@ -36,14 +36,13 @@ do this near the end:
     - [x] server chat still little bugged but kinda annoying to fix 
         - [x] message don't send twice and update chat dates correctly
     - [x] fix chat date display if new day
-- [ ] register page background is pretty slow sometimes
+- [x] register page background is pretty slow sometimes
 ---
 
 - [x] Work on gif picker, make it a modal and work on opening and closing it. 
     - [x] make sure it works with messaging (.gifs work)
-        - [ ] make sure it works with other types
-    - [ ] try to get stickers working
-    - [ ] Add loaders to values (already have loader but i like the square ones better)
+        - [x] make sure it works with other types
+    - [x] try to get stickers working
 - [x] Fix: voice channel is based on server channel text group not voice group
 ---
 
@@ -77,7 +76,6 @@ do this near the end:
     - [x] haven't set online indicator up yet, but it should be simple
     - [x] friends nav
     - [x] direct messages 
-    - [ ] active now -> let's keep this as is
     - [x] memberLists
 - [x] Update tooltips for buttons 
     - [x] channel sidebar buttons
@@ -118,12 +116,14 @@ do this near the end:
 - [ ] pagination for messages
 - [ ] pagination for discover channels
 - [ ] search in general
-- [ ] dark mode (never done this before)
-- [ ] discord loading page
+- [ ] discord loader
 - [x] Create active on direct message tabs 
 - [ ] add ads -> just to play around with
 - [x] create mini profile popups
 - [x] add ability to join discovery servers
+- [ ] rec to add users if no friends 
+- [ ] fix blocked users in backend?, right now just returns an empty array
+- [ ] we can spam friend request lol 
 ---
 v2 features:
 - [ ] right click menu (might be part of a version 2 feature)

@@ -1,6 +1,6 @@
 import SettingsButton from "../Profile/SettingsButton";
 import { useAuth } from "@/AuthContext";
-import defaultAvatar from "/public/default-avatar.svg";
+import defaultAvatar from "/default-avatar.svg";
 import axios from "axios";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faMicrophone } from "@fortawesome/free-solid-svg-icons";
@@ -101,7 +101,7 @@ export default function SideBar() {
             borderRadius: "4px",
           }}
         />
-       
+
         <div
           className="hover:bg-[#383a40] rounded-sm"
           data-tooltip-id={`tooltip-settings`}
