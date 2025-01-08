@@ -121,7 +121,7 @@ do this near the end:
 - [ ] add ads -> just to play around with
 - [x] create mini profile popups
 - [x] add ability to join discovery servers
-- [ ] rec to add users if no friends 
+- [x] rec to add users if no friends 
 - [ ] fix blocked users in backend?, right now just returns an empty array
 - [ ] we can spam friend request lol 
 ---

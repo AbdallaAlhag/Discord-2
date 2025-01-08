@@ -1,3 +1,5 @@
+import AdComponent from "../AdComponent";
+
 const ActiveNow: React.FC = function () {
   return (
     <div className="w-80 bg-[#2f3136] p-4 border-l border-[#202225] hidden lg:block ">
@@ -9,6 +11,7 @@ const ActiveNow: React.FC = function () {
           voice—we'll show it here!
         </p>
       </div>
+      <AdComponent adClient="ca-pub-9496966331104914" adSlot="9125565066" />
     </div>
   );
 };
