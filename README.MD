@@ -4,9 +4,9 @@ Live Demo: [Discord-2](https://discord-2.vercel.app/)
 
 A full-stack application inspired by Discord, designed for real-time messaging, server management, and user interactions. This project includes features like voice and video chat, private and server-based messaging, and mobile-friendly designs.
 
-![alt text](readmeExtra\privatePage.png)
-![alt text](readmeExtra\publicPage.png)
-![alt text](readmeExtra\discoveryPage.png)
+![alt text](readmeExtra/privatePage.png)
+![alt text](readmeExtra/publicPage.png)
+![alt text](readmeExtra/discoveryPage.png)
 ## Features
 Core Functionalities:
 - Messaging
@@ -68,7 +68,8 @@ Ads:
 - Google Adsense
 
 ## Initial Database Schema
-![alt text](intialSchema.png)
+![alt text](readmeExtra/intialSchema.png)
+
 
 ## Run Locally
 
