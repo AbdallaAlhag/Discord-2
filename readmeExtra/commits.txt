@@ -1,0 +1,119 @@
+7ecca84 Add Adsense ad to website
+3fde131 Add suggested friends feature
+f7f7b8e Change id of int @increment to string @uuid and converted back-end to handle the type change. Future bugs might result from this
+a955590 Rest production database
+00b5a9f Reset database
+f7a1b1e Able to open and join servers in discovery page
+00fbddf Create/finish mini profile modal
+5f573ab Create global server that holds all users
+b1aee48 Update tenor api for production
+7d96d0f Testing tenor calls
+551b6a2 Make friendNavBar mobile friendly
+2e486c4 Add error logging to tenor component
+4c199c5 Adjust tenor component to work with mobile
+dd16b26 Finish file upload for private messages
+0dce4d3 Fixed tooltip on show member button
+915c897 Finish img/video/audio for server chat to properly upload and display them, Entire functionality is complete
+c94efcd Change permission where owner can't leave server, leading to empty server that does not get deleted
+0507d5e Complete ability to update and remove avatarUrl with s3 bucket working
+71383de Finish removing serverImg from s3 when  deleting server
+0786187 Complete uploading for serverImage
+60606c4 switch from uploadThing to aws s3, create backend to call it
+4452042 Fix modal opening constrained by parent div with react portals to set it outside ensuring its full size
+f604a1a Create active styling on direct messages tab
+5852ada Adjust activeMembers and switch up styling for mobile on navbar in discoveryPage
+ca1752a Make homePage, serverPage, and discoveryPage mobile friendly
+6fca506 revamp roles and permission and set up server menu to adjust accordingly
+a86c59c update profile settings
+d000ef3 Open and close memberslist and retrieved and displayed channel name
+097c12d remove nitro and shop from friend sidebar
+d3762c1 update create server modal
+2c636e7 filter out friends that are in the server from being invited
+642403d Added leave server on client and server functionality
+441af64 Add discover page + components and backend functionality
+28178a1 Add private routes in front end
+3b040be add publicPfp folder to public folder
+0d0a28a add backend loggin for cors issue
+463055c set up netlify .toml file
+1c65229 remove cors manual headers so they dont override
+edfb488 open cors policy, not very secure
+b043542 update cors
+5c044ef Fix cors variable
+64c6d3d update cors policy for fronted deployment
+ebaec45 update cors policy in backend
+aee2388 fix build issues-> comment out seed file not using it yet
+32e9205 update scripts for backend
+13f0b4e fix build errors for init deployment
+60376bc fixed real time in read_receips
+5eee783 Added notifications to private messages
+2b5cc5d Implemented read receipts but trying to fix update on last message
+fed6a99 Fix typing indicator in private messages and create typing indicator for server chat
+f935f25 Add tool tips to varius buttons like in server channel sidebar, private message sidebar, channelwrbrtc, voice channel modal, and voicechannelDisplay
+48efb8c Add onlineStatus to user db and update backend to incorporate it. Also create ws to check for it, also login/logout ws should turn on and off for real time, and update all sections like friends nav, direct messages, memberslist to check online status and display the ui correctly
+d4c914e Update active server styling
+f894796 Update server memberlist with a quick rough draft that grabs all server  users
+acfb6f6 Add msg time hover over private/server chat
+a59ca6d fix real time and message dates in serverchat
+4d37036 webrtc uses voice channel as id instead of text channels
+52b985b Complete full screen and pictureinpicture buttons for voiceDisplay
+14e6be4 update todo format in readme
+a4dc7b3 testing todo list in markdown
+aa99bbe Add functionality to Voice Channel Display main buttons
+409c654 Reconnect voiceDisplay and add functionality to server channel sidebar buttons
+0163027 Update single source of webrtc for server chat media
+b9c0484 Refactor webrtc for servers to rely on single socket instead of independent components with two sockets
+2b46831 Updated webrtc components to work with both display and main rtcchat
+4b1356c Got video call working and users can properly turn off videos
+66036d0 Finish styling voice channel display
+d0fef9e Connect voice channel overlay to serverpage and channelsidebar
+bfdf3ef Voice channel modal initiated
+7dda112 Add voice default to new server and update voice channels to be called in channel sidebar
+a666439 Update profile buttons mic, headphones"
+5509776 Align search suggestion properly
+f4249cd Update server chat up to private chat standard
+69b7323 Private message accepts gifs
+f649fc8 Add avatarUrl to messageData for websocket
+f8ab552 Set tabs on open for gif picker
+1f4cec8 checking if env
+5249e43 Rotate public key
+1b11666 Add rough draft working Gif picker with implemented api calls
+b97c503 Start working on gif/sticker library
+d3ecda7 Remove all cached files from index and reapply .gitignore rules
+cd442d9 Add pfp to both server and private chat
+d825d99 Update default pfp when registering and front end code
+70990c7 adjust the buttons and links on home
+fb907e5 ^ Same change as prev chat except with server chat and aligned prev msg w/ curr w/ next msg
+12f6f22 group similar messages together in private chat
+458d45f Able to Nuke server and any related assets
+e58520e Set profile modal to full screen
+7876e90 Fixed chat date divider
+a342f5e Restyle both server and private chat alongside their input
+770ac99 Create Server Menu button
+99df524 Restructure serverchat to work with websockets
+1a32056 Users can join servers now
+cf8c09f Create invite acceptance backend
+12b5156 Embedded invite is able to send through button invite
+d9e0a69 invite rough draft working but still needs more time. Able to send invite through invite modal or by invite link
+bae144b Got independent server channels working, I doubt it's real time
+16f50bb Default server channel working and get/post works for messaging
+4766bbb Finish grabbing server channels and added create channel implementation
+3f8d37c Create Add server modal
+8576f2b Add typing indicator with websocket
+270e72c Real time messages working with private conversations
+6e64ded Rough draft version of messaging working. Grabbing message history between two users in private message and real time update using websocket
+892f262 Finish rough draft of friend request, able to send/view pending/accept/decline
+0685845 Create friend-relationship in the backend and update friendNavBar + Add friend"
+48f6765 Generate chat message backend
+e42d2ee grab friends list from backend for friends sidebar but with a focus on messages"
+fc4d6e3 Switch between friends and chat in homepage + grab friends from backend in middlesection of homepage
+a3bea67 Ensure global management of userId
+3afa4e2 Create and implement profile/settings modal
+4ca4b2d Register accounts and Logging in working properly
+9b8b116 Fix discord Icon
+5112ef5 Create Auth file with passport JWT and Auth route and Controller with built in db
+20b39d1 Create basic login/register page with their components
+d809b69 Create HomePage and ServerPage independent of each other
+b8d0b82 Create basic model database for application and seed data
+a783b34 Create front-end basic layout
+7ffcf91 init readme
+e734192 first commit

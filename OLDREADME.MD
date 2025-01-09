@@ -1,121 +1,12 @@
-
 # Discord-2
-Live Demo: [Discord-2](https://discord-2.vercel.app/)
+    npx kill-port 3000 to kill server if already in use
 
-A full-stack application inspired by Discord, designed for real-time messaging, server management, and user interactions. This project includes features like voice and video chat, private and server-based messaging, and mobile-friendly designs.
+--> Start project on 10/28/2022
+--> 12/13/24, end of week 7
+--> Finish project by end of December!
+--> deploy this bad boy 12/16/2024
 
-![alt text](readmeExtra\privatePage.png)
-![alt text](readmeExtra\publicPage.png)
-![alt text](readmeExtra\discoveryPage.png)
-## Features
-Core Functionalities:
-- Messaging
-    - Real-time messaging using WebSockets.
-    - Typing indicators and read receipts.
-    - Support for text, images, videos, audio, and GIFs.
-- Server Management:
-    - Create, join, and manage servers with channels.
-    - Role-based permissions and member lists.
-- Voice and Video Chat:
-    - Integrated voice and video calls with WebRTC.
-    - Full-screen and picture-in-picture support.
-- Friend System:
-    - Add, accept, or decline friend requests.
-    - Suggested friends feature.
-- Gif Selector:
-    - Select and share GIFs/sticker/emoji from Tenor with friends
-- Mobile Optimization:
-    - Mobile-friendly navigation and layouts for discovery, chat, and server pages.
-- Error Handling and Logging:
-    - Backend logging for debugging.
-    - Error display on the UI for improved user experience.
-
-
-## Tech Stack
-
-Frontend:
-- React
-- Vite
-- TypeScript
-- Tailwind
-- Socket.io
-- WebRTC
-- Axios
-- Tenor Api
-
-Backend:
-- Node.js
-- TypeScript
-- Prisma
-- PostgreSQL
-- Express.js
-- WebSocket (Real-time Messaging)
-- WebRTC (Real-time video streaming)
-
-Authentication: 
-- Passport.js for User Authentication
-
-Database:
-- PostgreSQL
-- Prisma ORM
-
-Cloud Services:
-- AWS S3 (File Storage)
-- Netlify (Frontend Deployment)
-- Railway (Backend Deployment)
-
-Ads:
-- Google Adsense
-
-## Initial Database Schema
-![alt text](intialSchema.png)
-
-## Run Locally
-
-Prerequisites:
-- Node.js (v16 or later)
-- PostgreSQL
-- Git
-
-Clone the project
-
-```bash
-  git clone https://github.com/AbdallaAlhag/Discord-2.git
-  cd Discord-2
-```
-
-Go to the project directory
-
-```bash
-  cd Discord-2
-```
-
-Install dependencies
-
-```bash
-  npm install
-```
-
-Set up the environment variables:
-
-```bash
-  Backend:
-  DATABASE_URL=<your-database-url>
-  AWS_ACCESS_KEY=<your-aws-key>
-  AWS_SECRET_KEY=<your-aws-secret>
-  Frontend:
-  Vite_API_BASE_URL=<your-localhost>
-  VITE_TENOR_API_KEY=<your-tenor-key>
-  CLIENT_KEY=<your-tenor-name>
-```
-
-
-Start the server and client
-
-```bash
-  npm run dev
-```
-## History:
+### todo: 
 ---
 - [ ] not done yet:
 - [x] done: 
@@ -191,7 +82,7 @@ do this near the end:
     - [x] private server voice channel modal
     - [x] voiceChanneldisplay buttons
 ---
-#### Priority:
+### haven't done yet:
 - [x]  mobile mode (eh)
 - [x]  typing real time indicator works
 - [x]  real time read receipts -> private chat only tbh
@@ -243,37 +134,46 @@ v2 features:
 ---
 
 
+Test accounts:
+test users:
+    -   test@test.com
+        test
+        test
+        
+    -   test1@test1.com
+        test1
+        test1
 
-### Extra
-npx kill-port 3000 to kill server if already in use
---> Start project on 10/28/2022
---> 12/13/24, end of week 7
---> Finish project by end of December!
---> deploy this bad boy 12/16/2024
+    -   test2@test2.com
+        test2
+        test2
 
+    -   test3@test3.com
+        test3
+        test3
+
+
+EXTRA:
 default profile pfp from : https://better-default-discord.netlify.app/
 
 tenor docs: https://developers.google.com/tenor/guides/endpoints
-aws s3 docs: https://docs.aws.amazon.com/sdk-for-javascript/v2/developer-guide/s3-example-creating-buckets.html
-https://github.com/daniil/react-express-aws-s3 
+
     
 old run command based on ts-node and not ts-node-dev: // "dev": "ts-node src/index.ts ",
 
 webrtc guides: 
-
-    https://codelabs.developers.google.com/codelabs/webrtc-web#0
-    https://www.youtube.com/watch?v=GdYVTWujYD8
-    https://www.youtube.com/watch?v=g42yNO_dxWQ
-    https://millo-l.github.io/Implementing-WebRTC-using-ReactJS-and-Typescript-1-N-P2P/#github
+https://codelabs.developers.google.com/codelabs/webrtc-web#0
+https://www.youtube.com/watch?v=GdYVTWujYD8
+https://www.youtube.com/watch?v=g42yNO_dxWQ
+https://millo-l.github.io/Implementing-WebRTC-using-ReactJS-and-Typescript-1-N-P2P/#github
 
 Common Prisma Commands Summary:
-
-    Command	Purpose
-    npx prisma validate	Validate the schema for errors.
-    npx prisma migrate dev --name	Create and apply a migration in development.
-    npx prisma generate	Regenerate the Prisma Client.
-    npx prisma studio	Open Prisma Studio to view and edit the data.
-    npx prisma migrate deploy	Apply migrations to production databases.
+Command	Purpose
+npx prisma validate	Validate the schema for errors.
+npx prisma migrate dev --name	Create and apply a migration in development.
+npx prisma generate	Regenerate the Prisma Client.
+npx prisma studio	Open Prisma Studio to view and edit the data.
+npx prisma migrate deploy	Apply migrations to production databases.
 
 picsum photos: https://picsum.photos/
 
