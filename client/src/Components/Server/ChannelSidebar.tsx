@@ -163,8 +163,8 @@ const ChannelSidebar: React.FC<{
         const response = await axios.get(`${VITE_API_BASE_URL}/user/${userId}`);
         const userData = response.data.user;
         const membership = userData.memberships.find(
-          (membership: { serverId: number }) =>
-            membership.serverId === Number(serverId)
+          (membership: { serverId: string }) =>
+            membership.serverId === String(serverId)
         );
         setUser({
           id: userData.id,
