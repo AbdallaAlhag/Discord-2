@@ -11,7 +11,10 @@ A full-stack application inspired by Discord, designed for real-time messaging, 
 Core Functionalities:
 - Messaging
     - Real-time messaging using WebSockets.
-    - Typing indicators and read receipts.
+    - Real-time Typing indicators
+    - Message notifications
+    - Read receipts
+    - Embedded Server Invites
     - Support for text, images, videos, audio, and GIFs.
 - Server Management:
     - Create, join, and manage servers with channels.
