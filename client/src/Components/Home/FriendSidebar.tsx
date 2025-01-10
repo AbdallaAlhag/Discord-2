@@ -157,6 +157,7 @@ export default function FriendSidebar({
                 <div className="relative w-8 h-8 mr-3">
                   {/* <!-- Avatar --> */}
                   <img
+                    // src={dm.avatarUrl || defaultAvatar}
                     src={dm.avatarUrl || defaultAvatar}
                     alt="user avatar"
                     className="w-full h-full rounded-full"

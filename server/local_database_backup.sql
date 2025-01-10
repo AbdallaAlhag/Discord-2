@@ -66,8 +66,8 @@ SET default_table_access_method = heap;
 --
 
 CREATE TABLE public."Channel" (
-    id integer NOT NULL,
-    "serverId" integer NOT NULL,
+    id text NOT NULL,
+    "serverId" text NOT NULL,
     name text NOT NULL,
     "isVoice" boolean DEFAULT false NOT NULL,
     "createdAt" timestamp(3) without time zone DEFAULT CURRENT_TIMESTAMP NOT NULL
@@ -77,35 +77,13 @@ CREATE TABLE public."Channel" (
 ALTER TABLE public."Channel" OWNER TO alhag;
 
 --
--- Name: Channel_id_seq; Type: SEQUENCE; Schema: public; Owner: alhag
---
-
-CREATE SEQUENCE public."Channel_id_seq"
-    AS integer
-    START WITH 1
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1;
-
-
-ALTER SEQUENCE public."Channel_id_seq" OWNER TO alhag;
-
---
--- Name: Channel_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: alhag
---
-
-ALTER SEQUENCE public."Channel_id_seq" OWNED BY public."Channel".id;
-
-
---
 -- Name: Friend; Type: TABLE; Schema: public; Owner: alhag
 --
 
 CREATE TABLE public."Friend" (
-    id integer NOT NULL,
-    "userId" integer NOT NULL,
-    "friendId" integer NOT NULL
+    id text NOT NULL,
+    "userId" text NOT NULL,
+    "friendId" text NOT NULL
 );
 
 
@@ -116,9 +94,9 @@ ALTER TABLE public."Friend" OWNER TO alhag;
 --
 
 CREATE TABLE public."FriendRequest" (
-    id integer NOT NULL,
-    "senderId" integer NOT NULL,
-    "recipientId" integer NOT NULL,
+    id text NOT NULL,
+    "senderId" text NOT NULL,
+    "recipientId" text NOT NULL,
     status text DEFAULT 'PENDING'::text NOT NULL,
     "createdAt" timestamp(3) without time zone DEFAULT CURRENT_TIMESTAMP NOT NULL
 );
@@ -127,61 +105,17 @@ CREATE TABLE public."FriendRequest" (
 ALTER TABLE public."FriendRequest" OWNER TO alhag;
 
 --
--- Name: FriendRequest_id_seq; Type: SEQUENCE; Schema: public; Owner: alhag
---
-
-CREATE SEQUENCE public."FriendRequest_id_seq"
-    AS integer
-    START WITH 1
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1;
-
-
-ALTER SEQUENCE public."FriendRequest_id_seq" OWNER TO alhag;
-
---
--- Name: FriendRequest_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: alhag
---
-
-ALTER SEQUENCE public."FriendRequest_id_seq" OWNED BY public."FriendRequest".id;
-
-
---
--- Name: Friend_id_seq; Type: SEQUENCE; Schema: public; Owner: alhag
---
-
-CREATE SEQUENCE public."Friend_id_seq"
-    AS integer
-    START WITH 1
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1;
-
-
-ALTER SEQUENCE public."Friend_id_seq" OWNER TO alhag;
-
---
--- Name: Friend_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: alhag
---
-
-ALTER SEQUENCE public."Friend_id_seq" OWNED BY public."Friend".id;
-
-
---
 -- Name: Message; Type: TABLE; Schema: public; Owner: alhag
 --
 
 CREATE TABLE public."Message" (
-    id integer NOT NULL,
+    id text NOT NULL,
     content text NOT NULL,
     "createdAt" timestamp(3) without time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
-    "channelId" integer,
-    "userId" integer NOT NULL,
+    "channelId" text,
+    "userId" text NOT NULL,
     "messageType" public."MessageType" NOT NULL,
-    "recipientId" integer
+    "recipientId" text
 );
 
 
@@ -192,9 +126,9 @@ ALTER TABLE public."Message" OWNER TO alhag;
 --
 
 CREATE TABLE public."MessageReadReceipt" (
-    id integer NOT NULL,
-    "messageId" integer NOT NULL,
-    "userId" integer NOT NULL,
+    id text NOT NULL,
+    "messageId" text NOT NULL,
+    "userId" text NOT NULL,
     "readAt" timestamp(3) without time zone DEFAULT CURRENT_TIMESTAMP NOT NULL
 );
 
@@ -202,58 +136,14 @@ CREATE TABLE public."MessageReadReceipt" (
 ALTER TABLE public."MessageReadReceipt" OWNER TO alhag;
 
 --
--- Name: MessageReadReceipt_id_seq; Type: SEQUENCE; Schema: public; Owner: alhag
---
-
-CREATE SEQUENCE public."MessageReadReceipt_id_seq"
-    AS integer
-    START WITH 1
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1;
-
-
-ALTER SEQUENCE public."MessageReadReceipt_id_seq" OWNER TO alhag;
-
---
--- Name: MessageReadReceipt_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: alhag
---
-
-ALTER SEQUENCE public."MessageReadReceipt_id_seq" OWNED BY public."MessageReadReceipt".id;
-
-
---
--- Name: Message_id_seq; Type: SEQUENCE; Schema: public; Owner: alhag
---
-
-CREATE SEQUENCE public."Message_id_seq"
-    AS integer
-    START WITH 1
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1;
-
-
-ALTER SEQUENCE public."Message_id_seq" OWNER TO alhag;
-
---
--- Name: Message_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: alhag
---
-
-ALTER SEQUENCE public."Message_id_seq" OWNED BY public."Message".id;
-
-
---
 -- Name: Reaction; Type: TABLE; Schema: public; Owner: alhag
 --
 
 CREATE TABLE public."Reaction" (
-    id integer NOT NULL,
+    id text NOT NULL,
     emoji text NOT NULL,
-    "messageId" integer NOT NULL,
-    "userId" integer NOT NULL,
+    "messageId" text NOT NULL,
+    "userId" text NOT NULL,
     "createdAt" timestamp(3) without time zone DEFAULT CURRENT_TIMESTAMP NOT NULL
 );
 
@@ -261,33 +151,11 @@ CREATE TABLE public."Reaction" (
 ALTER TABLE public."Reaction" OWNER TO alhag;
 
 --
--- Name: Reaction_id_seq; Type: SEQUENCE; Schema: public; Owner: alhag
---
-
-CREATE SEQUENCE public."Reaction_id_seq"
-    AS integer
-    START WITH 1
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1;
-
-
-ALTER SEQUENCE public."Reaction_id_seq" OWNER TO alhag;
-
---
--- Name: Reaction_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: alhag
---
-
-ALTER SEQUENCE public."Reaction_id_seq" OWNED BY public."Reaction".id;
-
-
---
 -- Name: Server; Type: TABLE; Schema: public; Owner: alhag
 --
 
 CREATE TABLE public."Server" (
-    id integer NOT NULL,
+    id text NOT NULL,
     name text NOT NULL,
     "iconUrl" text,
     "createdAt" timestamp(3) without time zone DEFAULT CURRENT_TIMESTAMP NOT NULL
@@ -301,11 +169,11 @@ ALTER TABLE public."Server" OWNER TO alhag;
 --
 
 CREATE TABLE public."ServerInvite" (
-    id integer NOT NULL,
+    id text NOT NULL,
     "inviteCode" text NOT NULL,
-    "serverId" integer NOT NULL,
-    "createdById" integer NOT NULL,
-    "usedById" integer,
+    "serverId" text NOT NULL,
+    "createdById" text NOT NULL,
+    "usedById" text,
     "expiresAt" timestamp(3) without time zone NOT NULL,
     "createdAt" timestamp(3) without time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
     "usedAt" timestamp(3) without time zone,
@@ -318,35 +186,13 @@ CREATE TABLE public."ServerInvite" (
 ALTER TABLE public."ServerInvite" OWNER TO alhag;
 
 --
--- Name: ServerInvite_id_seq; Type: SEQUENCE; Schema: public; Owner: alhag
---
-
-CREATE SEQUENCE public."ServerInvite_id_seq"
-    AS integer
-    START WITH 1
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1;
-
-
-ALTER SEQUENCE public."ServerInvite_id_seq" OWNER TO alhag;
-
---
--- Name: ServerInvite_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: alhag
---
-
-ALTER SEQUENCE public."ServerInvite_id_seq" OWNED BY public."ServerInvite".id;
-
-
---
 -- Name: ServerMember; Type: TABLE; Schema: public; Owner: alhag
 --
 
 CREATE TABLE public."ServerMember" (
-    id integer NOT NULL,
-    "userId" integer NOT NULL,
-    "serverId" integer NOT NULL,
+    id text NOT NULL,
+    "userId" text NOT NULL,
+    "serverId" text NOT NULL,
     "joinedAt" timestamp(3) without time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
     "user.onlineStatus" boolean,
     "user.username" text,
@@ -358,55 +204,11 @@ CREATE TABLE public."ServerMember" (
 ALTER TABLE public."ServerMember" OWNER TO alhag;
 
 --
--- Name: ServerMember_id_seq; Type: SEQUENCE; Schema: public; Owner: alhag
---
-
-CREATE SEQUENCE public."ServerMember_id_seq"
-    AS integer
-    START WITH 1
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1;
-
-
-ALTER SEQUENCE public."ServerMember_id_seq" OWNER TO alhag;
-
---
--- Name: ServerMember_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: alhag
---
-
-ALTER SEQUENCE public."ServerMember_id_seq" OWNED BY public."ServerMember".id;
-
-
---
--- Name: Server_id_seq; Type: SEQUENCE; Schema: public; Owner: alhag
---
-
-CREATE SEQUENCE public."Server_id_seq"
-    AS integer
-    START WITH 1
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1;
-
-
-ALTER SEQUENCE public."Server_id_seq" OWNER TO alhag;
-
---
--- Name: Server_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: alhag
---
-
-ALTER SEQUENCE public."Server_id_seq" OWNED BY public."Server".id;
-
-
---
 -- Name: User; Type: TABLE; Schema: public; Owner: alhag
 --
 
 CREATE TABLE public."User" (
-    id integer NOT NULL,
+    id text NOT NULL,
     email text NOT NULL,
     "avatarUrl" text,
     "createdAt" timestamp(3) without time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
@@ -417,28 +219,6 @@ CREATE TABLE public."User" (
 
 
 ALTER TABLE public."User" OWNER TO alhag;
-
---
--- Name: User_id_seq; Type: SEQUENCE; Schema: public; Owner: alhag
---
-
-CREATE SEQUENCE public."User_id_seq"
-    AS integer
-    START WITH 1
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1;
-
-
-ALTER SEQUENCE public."User_id_seq" OWNER TO alhag;
-
---
--- Name: User_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: alhag
---
-
-ALTER SEQUENCE public."User_id_seq" OWNED BY public."User".id;
-
 
 --
 -- Name: _prisma_migrations; Type: TABLE; Schema: public; Owner: alhag
@@ -457,76 +237,6 @@ CREATE TABLE public._prisma_migrations (
 
 
 ALTER TABLE public._prisma_migrations OWNER TO alhag;
-
---
--- Name: Channel id; Type: DEFAULT; Schema: public; Owner: alhag
---
-
-ALTER TABLE ONLY public."Channel" ALTER COLUMN id SET DEFAULT nextval('public."Channel_id_seq"'::regclass);
-
-
---
--- Name: Friend id; Type: DEFAULT; Schema: public; Owner: alhag
---
-
-ALTER TABLE ONLY public."Friend" ALTER COLUMN id SET DEFAULT nextval('public."Friend_id_seq"'::regclass);
-
-
---
--- Name: FriendRequest id; Type: DEFAULT; Schema: public; Owner: alhag
---
-
-ALTER TABLE ONLY public."FriendRequest" ALTER COLUMN id SET DEFAULT nextval('public."FriendRequest_id_seq"'::regclass);
-
-
---
--- Name: Message id; Type: DEFAULT; Schema: public; Owner: alhag
---
-
-ALTER TABLE ONLY public."Message" ALTER COLUMN id SET DEFAULT nextval('public."Message_id_seq"'::regclass);
-
-
---
--- Name: MessageReadReceipt id; Type: DEFAULT; Schema: public; Owner: alhag
---
-
-ALTER TABLE ONLY public."MessageReadReceipt" ALTER COLUMN id SET DEFAULT nextval('public."MessageReadReceipt_id_seq"'::regclass);
-
-
---
--- Name: Reaction id; Type: DEFAULT; Schema: public; Owner: alhag
---
-
-ALTER TABLE ONLY public."Reaction" ALTER COLUMN id SET DEFAULT nextval('public."Reaction_id_seq"'::regclass);
-
-
---
--- Name: Server id; Type: DEFAULT; Schema: public; Owner: alhag
---
-
-ALTER TABLE ONLY public."Server" ALTER COLUMN id SET DEFAULT nextval('public."Server_id_seq"'::regclass);
-
-
---
--- Name: ServerInvite id; Type: DEFAULT; Schema: public; Owner: alhag
---
-
-ALTER TABLE ONLY public."ServerInvite" ALTER COLUMN id SET DEFAULT nextval('public."ServerInvite_id_seq"'::regclass);
-
-
---
--- Name: ServerMember id; Type: DEFAULT; Schema: public; Owner: alhag
---
-
-ALTER TABLE ONLY public."ServerMember" ALTER COLUMN id SET DEFAULT nextval('public."ServerMember_id_seq"'::regclass);
-
-
---
--- Name: User id; Type: DEFAULT; Schema: public; Owner: alhag
---
-
-ALTER TABLE ONLY public."User" ALTER COLUMN id SET DEFAULT nextval('public."User_id_seq"'::regclass);
-
 
 --
 -- Data for Name: Channel; Type: TABLE DATA; Schema: public; Owner: alhag
@@ -551,8 +261,10 @@ COPY public."Friend" (id, "userId", "friendId") FROM stdin;
 --
 
 COPY public."FriendRequest" (id, "senderId", "recipientId", status, "createdAt") FROM stdin;
-1	1	4	PENDING	2025-01-03 23:17:21.308
-2	1	4	PENDING	2025-01-03 23:17:37.719
+1	1	4	DECLINED	2025-01-03 23:17:21.308
+2	1	4	DECLINED	2025-01-03 23:17:37.719
+c7260134-9b70-4a36-9c48-5817546b318a	1	4	DECLINED	2025-01-08 22:06:33.865
+01423ee8-bc70-495a-8c93-e58277d7ef71	1	4	DECLINED	2025-01-08 22:11:12.819
 \.
 
 
@@ -612,8 +324,8 @@ COPY public."ServerMember" (id, "userId", "serverId", "joinedAt", "user.onlineSt
 --
 
 COPY public."User" (id, email, "avatarUrl", "createdAt", password, username, "onlineStatus") FROM stdin;
-4	test2@test2	/public/defaultPfp/Solid-Orange.png	2025-01-03 23:15:35.885	$2a$10$dOqkLFHAJKgtBmzFhbxYc.dKR2d08lmlJ7jyRGE.h70yDEoXp.uU2	test2	f
-1	test@test.com	\N	2025-01-03 22:53:25.837	$2a$10$5bR9oFYFxvCwsL50gEhkSO0CaWQWiA9ur5DQ0QuTfM333MtaP/dQq	test	t
+1	test@test.com	/defaultPfp/Solid-Orange.png	2025-01-03 22:53:25.837	$2a$10$5bR9oFYFxvCwsL50gEhkSO0CaWQWiA9ur5DQ0QuTfM333MtaP/dQq	test	t
+4	test2@test2.com	/defaultPfp/Solid-Orange.png	2025-01-03 23:15:35.885	$2a$10$dOqkLFHAJKgtBmzFhbxYc.dKR2d08lmlJ7jyRGE.h70yDEoXp.uU2	test2	f
 \.
 
 
@@ -624,6 +336,7 @@ COPY public."User" (id, email, "avatarUrl", "createdAt", password, username, "on
 COPY public._prisma_migrations (id, checksum, finished_at, migration_name, logs, rolled_back_at, started_at, applied_steps_count) FROM stdin;
 67e2d18d-4ab2-4200-983c-17a8e10162a6	af5bcbb7921880a25f12857577c0646d5be34873dd2d76120cc0ff1f5c75717b	2025-01-03 14:51:23.23539-08	20241028162706_init	\N	\N	2025-01-03 14:51:23.223009-08	1
 2edc83a5-d18a-4bc6-ad18-94caf24dccef	e8e54d687c7742b164a131e15835614b50fdd0961e2b34ad810a978afbea31e4	2025-01-03 14:51:23.299893-08	20241028203317_init	\N	\N	2025-01-03 14:51:23.236294-08	1
+8fd98425-ce29-406b-a6d6-4321361e1eaa	087879d14aa3421ad54af3261a0c4f1df258670574e39fc06ebc8b290730c953	2025-01-03 15:48:07.903504-08	20250103234807_add_uuid_column	\N	\N	2025-01-03 15:48:07.739291-08	1
 aae32ec2-0719-41bb-ac7d-bca0fd15a9a8	629131b06e0bc3b957dfae696a864527e27da40a13c144b8040eea0c4e5344ab	2025-01-03 14:51:23.317333-08	20241031185300_add_recipient_id_and_message_type	\N	\N	2025-01-03 14:51:23.300894-08	1
 5a63abd6-b07e-49c9-9bab-0004b3d6f409	556735fb12ddf3f204736f8940f2ab527a866a19ff00ca588fa27dfb1c905ee3	2025-01-03 14:51:23.321688-08	20241031185431_add_default_message_type	\N	\N	2025-01-03 14:51:23.318444-08	1
 50d2a858-36e1-4a8a-af67-9ee63f350d19	905b9a5769a71443ae5ce21bffdada358bae49899a3f260dcb1534802032141f	2025-01-03 14:51:23.333546-08	20241101201342_add_friend_request_model	\N	\N	2025-01-03 14:51:23.322706-08	1
@@ -636,76 +349,6 @@ e47c6874-3ccb-405a-b210-1ab17957cbeb	f30f0a5e5ff0a3d7cea62cce531260b5774eb249ae8
 beb61a32-9a33-4e4d-bdc1-16d804072d37	35cbea064967128e21ea52e37b69bb1da06c5407727da541d461975dff54279f	2025-01-03 14:51:23.387328-08	20241212194706_add_read_receipt	\N	\N	2025-01-03 14:51:23.376465-08	1
 57bbffe8-b59d-4740-8dc4-0433ccb366c9	55f6b53dc013918e4e8ea420451868127f71fe311af8f4d82216b5039842bea0	2025-01-03 14:51:23.397605-08	20241220205434_remove_role_and_permission_update_roles_in_server_member	\N	\N	2025-01-03 14:51:23.388218-08	1
 \.
-
-
---
--- Name: Channel_id_seq; Type: SEQUENCE SET; Schema: public; Owner: alhag
---
-
-SELECT pg_catalog.setval('public."Channel_id_seq"', 4, true);
-
-
---
--- Name: FriendRequest_id_seq; Type: SEQUENCE SET; Schema: public; Owner: alhag
---
-
-SELECT pg_catalog.setval('public."FriendRequest_id_seq"', 2, true);
-
-
---
--- Name: Friend_id_seq; Type: SEQUENCE SET; Schema: public; Owner: alhag
---
-
-SELECT pg_catalog.setval('public."Friend_id_seq"', 1, false);
-
-
---
--- Name: MessageReadReceipt_id_seq; Type: SEQUENCE SET; Schema: public; Owner: alhag
---
-
-SELECT pg_catalog.setval('public."MessageReadReceipt_id_seq"', 1, false);
-
-
---
--- Name: Message_id_seq; Type: SEQUENCE SET; Schema: public; Owner: alhag
---
-
-SELECT pg_catalog.setval('public."Message_id_seq"', 1, false);
-
-
---
--- Name: Reaction_id_seq; Type: SEQUENCE SET; Schema: public; Owner: alhag
---
-
-SELECT pg_catalog.setval('public."Reaction_id_seq"', 1, false);
-
-
---
--- Name: ServerInvite_id_seq; Type: SEQUENCE SET; Schema: public; Owner: alhag
---
-
-SELECT pg_catalog.setval('public."ServerInvite_id_seq"', 1, false);
-
-
---
--- Name: ServerMember_id_seq; Type: SEQUENCE SET; Schema: public; Owner: alhag
---
-
-SELECT pg_catalog.setval('public."ServerMember_id_seq"', 5, true);
-
-
---
--- Name: Server_id_seq; Type: SEQUENCE SET; Schema: public; Owner: alhag
---
-
-SELECT pg_catalog.setval('public."Server_id_seq"', 2, true);
-
-
---
--- Name: User_id_seq; Type: SEQUENCE SET; Schema: public; Owner: alhag
---
-
-SELECT pg_catalog.setval('public."User_id_seq"', 4, true);
 
 
 --
