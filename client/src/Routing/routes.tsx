@@ -4,8 +4,10 @@ import {
   LoginPage,
   RegisterPage,
   DiscoverPage,
+  ErrorPage,
 } from "../Pages";
 import PrivateRoute from "./PrivateRoute";
+
 
 export const routes = [
   // {
@@ -61,5 +63,10 @@ export const routes = [
   {
     path: "/register",
     element: <RegisterPage />,
+  },
+  // Catch-all route for undefined paths
+  {
+    path: "*",
+    element: <ErrorPage />,
   },
 ];

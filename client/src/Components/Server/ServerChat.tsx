@@ -18,6 +18,8 @@ import { MediaData, MediaType } from "../TenorComponent/Types/tenor";
 import { TypingIndicator } from "./ServerTypingIndicator";
 import { Tooltip } from "react-tooltip";
 import "react-tooltip/dist/react-tooltip.css"; // Import required CSS
+import WumpusSleeping from "../../assets/WumpusSleeping.webp";
+
 interface Message {
   userId: number;
   user: { username: string; avatarUrl: string };
@@ -646,7 +648,19 @@ const ServerChat: React.FC<ChatProps> = ({
 
       {/* Messages Area */}
       {/* Maybe make this an independent component */}
-      <div className="flex-1 overflow-y-auto flex flex-col-reverse mb-2">
+      {/* <div className="flex-1 overflow-y-auto flex flex-col-reverse mb-2"> */}
+      <div
+        className={`flex-1 overflow-y-auto flex flex-col-reverse mb-2 ${
+          messages.length === 0 ? "bg-noise bg-center bg-auto" : ""
+        }`}
+        style={{
+          backgroundImage:
+            messages.length === 0
+              ? // ? "url('/assets/WumpusSleeping.webp')"
+                `url(${WumpusSleeping})`
+              : "none",
+        }}
+      >
         {renderTypingIndicators()}
         <div ref={messagesEndRef} style={{ height: 0 }} />
         {isLoading ? (
@@ -654,7 +668,7 @@ const ServerChat: React.FC<ChatProps> = ({
         ) : error ? (
           <div className="text-center text-red-500">{error}</div>
         ) : messages.length === 0 ? (
-          <div className="text-center text-[#b9bbbe]">No messages yet</div>
+          <div className="text-center text-[#b9bbbe] z-10">No messages yet</div>
         ) : (
           [...messages].reverse().map((msg, index) => {
             const prevMsg =

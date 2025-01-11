@@ -119,7 +119,11 @@ const MemberList: React.FC<MemberListProps> = function ({ serverId }) {
             <div className="relative w-8 h-8">
               {/* <!-- Avatar --> */}
               <img
-                src={user.user.avatarUrl === '' ? defaultAvatar : user.user.avatarUrl}
+                src={
+                  user.user.avatarUrl === ""
+                    ? defaultAvatar
+                    : user.user.avatarUrl
+                }
                 // src={user.user.avatarUrl || defaultAvatar}
 
                 alt="user avatar"

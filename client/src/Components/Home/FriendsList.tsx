@@ -4,7 +4,7 @@ import { useEffect, useState, useCallback } from "react";
 import { useAuth } from "@/AuthContext";
 import defaultAvatar from "/default-avatar.svg";
 import { Link } from "react-router-dom";
-
+import WumpusNoFriends from "../../assets/WumpusNoFriends.png";
 interface Friend {
   id: number;
   username: string;
@@ -35,8 +35,6 @@ export function FriendsList({ filter }: FriendsListProps) {
   const [blockedUsers, setBlockedUsers] = useState<Friend[]>([]);
   const { userId } = useAuth();
   const API_URL = import.meta.env.VITE_API_BASE_URL;
-
-  
 
   const onlineStatusDependency = friends
     .map((user) => user.onlineStatus)
@@ -179,6 +177,15 @@ export function FriendsList({ filter }: FriendsListProps) {
               Pending Friend Requests — {pendingRequests.length}
             </h2>
             {renderPendingRequests()}
+            {pendingRequests.length === 0 && (
+              <div className="flex items-center justify-center h-full">
+                <img
+                  src={WumpusNoFriends}
+                  alt="Wumpus No Friends"
+                  className="max-w-full h-auto"
+                />
+              </div>
+            )}
           </>
         );
       case "online":
@@ -188,6 +195,15 @@ export function FriendsList({ filter }: FriendsListProps) {
               Online — {friends.filter((f) => f.onlineStatus === true).length}
             </h2>
             {renderFriendList(friends.filter((f) => f.onlineStatus === true))}
+            {friends.length === 0 && (
+              <div className="flex items-center justify-center h-full">
+                <img
+                  src={WumpusNoFriends}
+                  alt="Wumpus No Friends"
+                  className="max-w-full h-auto"
+                />
+              </div>
+            )}
           </>
         );
       case "blocked":
@@ -197,6 +213,15 @@ export function FriendsList({ filter }: FriendsListProps) {
               Blocked — {blockedUsers.length}
             </h2>
             {renderFriendList(blockedUsers)}
+            {blockedUsers.length === 0 && (
+              <div className="flex items-center justify-center h-full">
+                <img
+                  src={WumpusNoFriends}
+                  alt="Wumpus No Friends"
+                  className="max-w-full h-auto"
+                />
+              </div>
+            )}
           </>
         );
       case "all":
@@ -209,7 +234,17 @@ export function FriendsList({ filter }: FriendsListProps) {
             >
               All Friends — {friends.length}
             </h2>
+
             {renderFriendList(friends)}
+            {friends.length === 0 && (
+              <div className="flex items-center justify-center h-full">
+                <img
+                  src={WumpusNoFriends}
+                  alt="Wumpus No Friends"
+                  className="max-w-full h-auto"
+                />
+              </div>
+            )}
           </>
         );
     }
@@ -221,3 +256,16 @@ export function FriendsList({ filter }: FriendsListProps) {
     </div>
   );
 }
+//  <div
+//   className={`flex-1 overflow-y-auto ${
+//     friends.length === 0 ? "bg-noise bg-center bg-auto" : ""
+//   }`}
+//   style={{
+//     backgroundImage:
+//       friends.length === 0
+//         ? // ? "url('/assets/WumpusSleeping.webp')"
+//           `url(${WumpusNoFriends})`
+//         : "none",
+//   }}
+// >
+//   {/* </div> */}
