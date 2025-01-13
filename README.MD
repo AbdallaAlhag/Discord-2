@@ -238,6 +238,7 @@ do this near the end:
 - [ ] fix blocked users in backend?, right now just returns an empty array
 - [ ] we can spam friend request lol 
 - [ ] Changed id to String from int in schema so lots of potential bugs
+- [x] Add error page and wumpus background images for empty spaces
 ---
 v2 features:
 - [ ] right click menu (might be part of a version 2 feature)

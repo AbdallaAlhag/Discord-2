@@ -1,4 +1,4 @@
-import AdComponent from "../AdComponent";
+// import AdComponent from "../AdComponent";
 
 const ActiveNow: React.FC = function () {
   return (
@@ -11,7 +11,7 @@ const ActiveNow: React.FC = function () {
           voice—we'll show it here!
         </p>
       </div>
-      <AdComponent adClient="ca-pub-9496966331104914" adSlot="9125565066" />
+      {/* <AdComponent adClient="ca-pub-9496966331104914" adSlot="9125565066" /> */}
     </div>
   );
 };
