@@ -96,7 +96,7 @@ const MemberList: React.FC<MemberListProps> = function ({ serverId }) {
   }, [serverId, onlineStatusDependency]);
 
   return (
-    <div className="w-60 bg-[#2f3136] p-4 hidden lg:block ">
+    <div className="w-60 bg-[#2f3136] p-4 hidden lg:block overflow-y:auto">
       {/* <div className="w-60 bg-[#2f3136] p-4"> */}
       <h3 className="text-[#8d949d] uppercase text-xs font-semibold mb-4">
         Online —{" "}
@@ -120,7 +120,7 @@ const MemberList: React.FC<MemberListProps> = function ({ serverId }) {
               {/* <!-- Avatar --> */}
               <img
                 src={
-                  user.user.avatarUrl === ""
+                  user.user.avatarUrl === "" || user.user.avatarUrl === null
                     ? defaultAvatar
                     : user.user.avatarUrl
                 }

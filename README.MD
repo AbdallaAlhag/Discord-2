@@ -240,7 +240,7 @@ do this near the end:
 - [ ] Changed id to String from int in schema so lots of potential bugs
 - [x] Add error page and wumpus background images for empty spaces
 - [ ] login/register should show custom error messages instead of prisma error messages
-- [ ] UUID can't be converted to numbers so we have to change every id to string. lots of potential bugs coming
+- [x] UUID can't be converted to numbers so we have to change every id to string. lots of potential bugs coming -> fixed around the whole site but future bugs will be here
 ---
 v2 features:
 - [ ] right click menu (might be part of a version 2 feature)

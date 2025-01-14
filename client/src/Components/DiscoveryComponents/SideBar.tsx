@@ -59,7 +59,9 @@ export default function SideBar() {
         </div> */}
         <div className="flex-1">
           <div className="text-white text-sm font-medium">{user?.username}</div>
-          <div className="text-[#b9bbbe] text-xs">#{user?.id}</div>
+          <div className="text-[#b9bbbe] text-xs">
+            #{user?.id?.slice(0, 8)}
+          </div>
         </div>
         <FontAwesomeIcon
           icon={faMicrophone}
