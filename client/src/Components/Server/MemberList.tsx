@@ -96,7 +96,7 @@ const MemberList: React.FC<MemberListProps> = function ({ serverId }) {
   }, [serverId, onlineStatusDependency]);
 
   return (
-    <div className="w-60 bg-[#2f3136] p-4 hidden lg:block overflow-y:auto">
+    <div className="w-60 bg-[#2f3136] p-4 hidden lg:block overflow-y:auto flex-1">
       {/* <div className="w-60 bg-[#2f3136] p-4"> */}
       <h3 className="text-[#8d949d] uppercase text-xs font-semibold mb-4">
         Online —{" "}
@@ -132,7 +132,9 @@ const MemberList: React.FC<MemberListProps> = function ({ serverId }) {
               {/* <!-- Status Indicator --> */}
               <div className="absolute bottom-0 right-0 w-3 h-3 bg-[#23a55a] rounded-full border-2 border-[#2f3136]"></div>
             </div>
-            <span className="text-[#dcddde] ml-2">{user.user.username}</span>
+            <span className="text-[#dcddde] ml-2">
+              {user.user.username.slice(0, 15)}
+            </span>
           </div>
         ))}
       <h3 className="text-[#8d949d] uppercase text-xs font-semibold mb-4">
