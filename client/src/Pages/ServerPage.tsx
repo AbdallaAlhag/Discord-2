@@ -93,7 +93,7 @@ function ServerPage() {
 
   // console.log(serverId, channelId);
   return (
-    <div className="flex h-screen ">
+    <div className="flex h-screen">
       <WebRTCProvider
         socket={socket}
         channelId={voiceChannelId}

@@ -71,7 +71,7 @@ const ServerSidebar: React.FC = () => {
 
   // console.log("Open Server: ", openServer);
   return (
-    <div className="w-[72px] bg-[#202225] flex flex-col items-center py-3 space-y-2">
+    <div className="w-[72px] bg-[#202225] flex flex-col items-center py-3 space-y-2 overflow-y-auto">
       <div className="group relative">
         <div className="relative">
           <div
