@@ -9,7 +9,7 @@ interface MiniProfileModalProps {
   isOpen: boolean;
   onClose: () => void;
   user: {
-    userId: number;
+    userId: string;
     user: {
       username: string;
       onlineStatus: boolean;
@@ -46,7 +46,7 @@ function MiniProfileModal({
   const modalRef = useClickAway(onClose);
   const { userId } = useAuth();
   const [showProfileModal, setShowProfileModal] = useState(false);
-  const [friendData, setFriendData] = useState<number[]>([]);
+  const [friendData, setFriendData] = useState<string[]>([]);
   useEffect(() => {
     if (!isOpen) {
       setShowProfileModal(false);

@@ -149,6 +149,10 @@ export function LoginPage() {
             <p className="text-gray-400">
               Scan this with the Discord-2 mobile app to log in instantly.
             </p>
+            <p className="text-gray-400">
+              This is a personal project created for educational purposes. It is
+              not associated with, endorsed by, or related to Discord.
+            </p>
           </div>
         </div>
       </div>

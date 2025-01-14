@@ -8,8 +8,8 @@ import {
 } from "react";
 
 interface AuthContextProps {
-  userId: number | null;
-  setUserId: (id: number | null) => void;
+  userId: string | null;
+  setUserId: (id: string | null) => void;
   userName: string | null;
   setUserName: (name: string | null) => void;
 }
@@ -21,10 +21,10 @@ interface AuthProviderProps {
 }
 
 export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
-  const [userId, setUserId] = useState<number | null>(() => {
+  const [userId, setUserId] = useState<string | null>(() => {
     // Get initial userId from localStorage
     const storedUserId = localStorage.getItem("userId");
-    return storedUserId ? Number(storedUserId) : null; // Convert to number if exists
+    return storedUserId || null; // Convert to number if exists
   });
   const [userName, setUserName] = useState<string | null>(() => {
     // Get initial userName from localStorage

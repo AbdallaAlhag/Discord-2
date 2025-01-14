@@ -12,7 +12,7 @@ import { useEffect, useState } from "react";
 const API_URL = import.meta.env.VITE_API_BASE_URL;
 
 interface CurrentUser {
-  id: number;
+  id: string;
   username: string;
   avatarUrl: null | string;
 }

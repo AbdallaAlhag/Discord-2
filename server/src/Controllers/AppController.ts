@@ -9,7 +9,8 @@ export const getServersInfo = async (
   next: NextFunction
 ) => {
   try {
-    const userId = Number(req.params.userId);
+    const userId = req.params.userId;
+    console.log(userId);
     const servers = await getServers(userId);
     res.status(200).json({ servers });
   } catch (err) {
@@ -25,7 +26,7 @@ export const getFriendsInfo = async (
   next: NextFunction
 ) => {
   try {
-    const userId = Number(req.params.userId);
+    const userId = req.params.userId;
     const friends = await getFriends(userId);
     res.status(200).json({ friends });
   } catch (err) {
@@ -41,7 +42,7 @@ export const getUserInfo = async (
   next: NextFunction
 ) => {
   try {
-    const userId = Number(req.params.id);
+    const userId = req.params.id;
     const user = await getUser(userId);
     // console.log(user);
     res.status(200).json({ user });
@@ -57,18 +58,18 @@ export const updateUserAvatar = async (
   next: NextFunction
 ) => {
   try {
-    const userId = Number(req.params.id);
+    const userId = req.params.id;
     const { avatarUrl } = req.body;
 
     if (avatarUrl && avatarUrl !== "") {
       await prisma.user.update({
-        where: { id: String(userId) },
+        where: { id: userId },
         data: { avatarUrl: avatarUrl },
       });
     } else {
       // find avatarURL
       const avatarIcon = await prisma.user.findUnique({
-        where: { id: String(userId) },
+        where: { id: userId },
         select: { avatarUrl: true },
       });
       if (
@@ -92,7 +93,7 @@ export const updateUserAvatar = async (
         }
         // reset to default pic
         await prisma.user.update({
-          where: { id: String(userId) },
+          where: { id: userId },
           data: { avatarUrl: "/src/assets/defaultPfp/Solid-Blue.png" },
         });
       }

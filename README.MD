@@ -239,6 +239,8 @@ do this near the end:
 - [ ] we can spam friend request lol 
 - [ ] Changed id to String from int in schema so lots of potential bugs
 - [x] Add error page and wumpus background images for empty spaces
+- [ ] login/register should show custom error messages instead of prisma error messages
+- [ ] UUID can't be converted to numbers so we have to change every id to string. lots of potential bugs coming
 ---
 v2 features:
 - [ ] right click menu (might be part of a version 2 feature)

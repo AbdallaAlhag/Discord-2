@@ -13,11 +13,7 @@ const handleCreateChannelMessage = async (req: Request, res: Response) => {
   const { content, userId, channelId } = req.body;
 
   try {
-    const message = await createChannelMessage(
-      content,
-      userId,
-      Number(channelId)
-    );
+    const message = await createChannelMessage(content, userId, channelId);
     res.status(201).json(message);
   } catch (error) {
     res.status(500).json({ error: "Failed to create channel message" });
@@ -29,7 +25,7 @@ const handleGetChannelMessages = async (req: Request, res: Response) => {
   const { channelId } = req.params;
 
   try {
-    const messages = await getChannelMessages(parseInt(channelId));
+    const messages = await getChannelMessages(channelId);
     res.status(200).json(messages);
   } catch (error) {
     res.status(500).json({ error: "Failed to retrieve channel messages" });
@@ -61,10 +57,7 @@ const handleGetPrivateMessages = async (req: Request, res: Response) => {
   const { userId, friendId } = req.params;
 
   try {
-    const messages = await getPrivateMessages(
-      parseInt(userId),
-      parseInt(friendId)
-    );
+    const messages = await getPrivateMessages(userId, friendId);
     res.status(200).json(messages);
   } catch (error) {
     res.status(500).json({ error: "Failed to retrieve private messages" });
@@ -75,7 +68,7 @@ const handleReadReceipt = async (req: Request, res: Response) => {
   const { messageId, userId } = req.params;
 
   try {
-    await updateReadReceipts(messageId, Number(userId));
+    await updateReadReceipts(messageId, userId);
 
     res.status(200).json({ success: true });
   } catch (error) {

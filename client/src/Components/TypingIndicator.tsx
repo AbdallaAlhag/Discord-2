@@ -4,7 +4,7 @@ interface Friend {
   avatarUrl: string | null;
   createdAt: string;
   email: string;
-  id: number;
+  id: string;
   username: string;
   onlineStatus: boolean;
 }

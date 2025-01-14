@@ -3,14 +3,14 @@ import prisma from "./prisma";
 // Create a message in a channel
 async function createChannelMessage(
   content: string,
-  userId: number,
-  channelId: number
+  userId: string,
+  channelId: string
 ) {
   const message = await prisma.message.create({
     data: {
       content,
-      userId: userId.toString(),
-      channelId: channelId.toString(),
+      userId: userId,
+      channelId: channelId,
       messageType: "CHANNEL",
     },
     include: {
@@ -31,7 +31,7 @@ async function createChannelMessage(
 }
 
 // Get all messages for a channel
-async function getChannelMessages(channelId: number) {
+async function getChannelMessages(channelId: string) {
   return prisma.message.findMany({
     where: {
       channelId: channelId.toString(),
@@ -55,8 +55,8 @@ async function getChannelMessages(channelId: number) {
 // Save a new private message
 async function createPrivateMessage(
   content: string,
-  senderId: number,
-  recipientId: number
+  senderId: string,
+  recipientId: string
 ) {
   try {
     // console.log(
@@ -70,27 +70,27 @@ async function createPrivateMessage(
     prisma.message.create({
       data: {
         content,
-        userId: senderId.toString(),
-        recipientId: recipientId.toString(),
+        userId: senderId,
+        recipientId: recipientId,
         messageType: "PRIVATE",
       },
     });
     const createdMessage = await prisma.message.create({
       data: {
         content,
-        userId: senderId.toString(),
-        recipientId: recipientId.toString(),
+        userId: senderId,
+        recipientId: recipientId,
         messageType: "PRIVATE",
       },
     });
 
     const sender = await prisma.user.findUnique({
-      where: { id: String(senderId) },
+      where: { id: senderId },
       select: { username: true, avatarUrl: true },
     });
 
     const recipient = await prisma.user.findUnique({
-      where: { id: String(recipientId) },
+      where: { id: recipientId },
       select: { username: true },
     });
 
@@ -111,12 +111,12 @@ async function createPrivateMessage(
 }
 
 // Get all private messages between two users
-async function getPrivateMessages(userId: number, friendId: number) {
+async function getPrivateMessages(userId: string, friendId: string) {
   return prisma.message.findMany({
     where: {
       OR: [
-        { userId: String(userId), recipientId: String(friendId) },
-        { userId: String(friendId), recipientId: String(userId) },
+        { userId: userId, recipientId: friendId },
+        { userId: friendId, recipientId: userId },
       ],
       messageType: "PRIVATE",
     },
@@ -130,13 +130,13 @@ async function getPrivateMessages(userId: number, friendId: number) {
   });
 }
 
-const updateReadReceipts = async (messageId: string, userId: number) => {
+const updateReadReceipts = async (messageId: string, userId: string) => {
   try {
     await prisma.messageReadReceipt.upsert({
       where: {
         messageId_userId: {
           messageId: messageId,
-          userId: userId.toString(),
+          userId: userId,
         },
       },
       update: {
@@ -144,7 +144,7 @@ const updateReadReceipts = async (messageId: string, userId: number) => {
       },
       create: {
         messageId: messageId,
-        userId: userId.toString(),
+        userId: userId,
       },
     });
   } catch (error) {

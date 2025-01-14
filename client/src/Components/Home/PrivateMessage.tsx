@@ -13,18 +13,18 @@ interface InviteContent {
 interface Message {
   user?: { username: string; avatarUrl: string };
   username?: string;
-  id: number;
+  id: string;
   content: string | InviteContent;
-  senderId: number;
+  senderId: string;
   createdAt: string;
-  recipientId: number;
+  recipientId: string;
   senderUsername?: string;
   recipientUsername?: string;
   type?: "text" | "invite";
   readReceipts: {
-    id: number;
-    messageId: number;
-    userId: number;
+    id: string;
+    messageId: string;
+    userId: string;
     readAt: Date;
   }[];
 }
@@ -275,7 +275,7 @@ const PrivateMessage: React.FC<PrivateMessageProps> = ({
       <div
         ref={(el) => {
           if (el) {
-            messageRefs.current.set(id, el);
+            messageRefs.current.set(Number(id), el);
           }
         }}
         data-message-id={id}

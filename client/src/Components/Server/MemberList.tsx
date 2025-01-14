@@ -9,7 +9,7 @@ interface MemberListProps {
 
 // I'll to change this later as serverMembers in schema will need to be changed also
 interface serverUserInfo {
-  userId: number;
+  userId: string;
   user: {
     username: string;
     onlineStatus: boolean;

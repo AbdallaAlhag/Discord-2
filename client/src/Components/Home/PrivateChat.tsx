@@ -30,20 +30,20 @@ interface InviteContent {
 interface Message {
   user?: { username: string; avatarUrl: string };
   username?: string;
-  id: number;
-  userId: number;
+  id: string;
+  userId: string;
   content: string | InviteContent;
-  senderId: number;
+  senderId: string;
   createdAt: string;
-  recipientId: number;
+  recipientId: string;
   // senderUsername?: string;
   // senderAvatarUrl?: string;
   recipientUsername?: string;
   type?: "text" | "invite";
   readReceipts: {
-    id: number;
-    messageId: number;
-    userId: number;
+    id: string;
+    messageId: string;
+    userId: string;
     readAt: Date;
   }[];
 }
@@ -52,14 +52,14 @@ interface Friend {
   avatarUrl: string | null;
   createdAt: string;
   email: string;
-  id: number;
+  id: string;
   username: string;
   onlineStatus: boolean;
 }
 const VITE_API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
 interface ChatProps {
-  friendId: number;
+  friendId: string;
   isMobile: boolean;
 }
 
@@ -213,7 +213,7 @@ const PrivateChat: React.FC<ChatProps> = ({ friendId, isMobile }) => {
   }, [userId, friendId]);
 
   const markAsRead = useCallback(
-    async (messageId: string, senderId: number) => {
+    async (messageId: string | null, senderId: string) => {
       if (!socketRef.current) return;
 
       try {
@@ -322,7 +322,7 @@ const PrivateChat: React.FC<ChatProps> = ({ friendId, isMobile }) => {
     });
 
     socketRef.current.on("user_typing", (userId: string) => {
-      if (Number(userId) === friendId) {
+      if (userId === friendId) {
         setFriendTyping(true);
         setTimeout(() => setFriendTyping(false), 3000);
       }
@@ -373,9 +373,9 @@ const PrivateChat: React.FC<ChatProps> = ({ friendId, isMobile }) => {
       "message_read",
       (data: {
         messageId: string;
-        readBy: number;
+        readBy: string;
         readAt: string;
-        senderId: number;
+        senderId: string;
       }) => {
         console.log("Received message read event:", data);
 
@@ -384,9 +384,7 @@ const PrivateChat: React.FC<ChatProps> = ({ friendId, isMobile }) => {
           const updatedMessages = [...prevMessages];
 
           const messageIndex = updatedMessages.findIndex(
-            (msg) =>
-              msg.id === Number(data.messageId) &&
-              msg.senderId === Number(data.senderId)
+            (msg) => msg.id === data.messageId && msg.senderId === data.senderId
           );
           console.log("updatedMessages: ", updatedMessages);
           console.log("message: ", data);
@@ -399,7 +397,7 @@ const PrivateChat: React.FC<ChatProps> = ({ friendId, isMobile }) => {
                 ...(updatedMessages[messageIndex].readReceipts || []),
                 {
                   id: updatedMessages[messageIndex].id,
-                  messageId: Number(data.messageId),
+                  messageId: data.messageId,
                   userId: data.readBy,
                   readAt: new Date(data.readAt),
                 },
@@ -436,9 +434,7 @@ const PrivateChat: React.FC<ChatProps> = ({ friendId, isMobile }) => {
         console.log("entries: ", entries);
         entries.forEach((entry) => {
           if (entry.isIntersecting) {
-            const messageId = Number(
-              entry.target.getAttribute("data-message-id")
-            );
+            const messageId = entry.target.getAttribute("data-message-id");
             const message = unreadMessages.find((msg) => msg.id === messageId);
 
             console.log("here we are");
@@ -446,7 +442,7 @@ const PrivateChat: React.FC<ChatProps> = ({ friendId, isMobile }) => {
               console.log("we got inside which i don't think willl work");
               console.log("message: ", message);
               // Mark the message as read
-              markAsRead(String(messageId), message.senderId);
+              markAsRead(messageId, message.senderId);
 
               // Remove from unread messages
               setUnreadMessages((prev) =>
@@ -465,7 +461,9 @@ const PrivateChat: React.FC<ChatProps> = ({ friendId, isMobile }) => {
     );
 
     // Observe all unread message elements
-    messageRefs.current.forEach((el, messageId) => {
+    messageRefs.current.forEach((el) => {
+      const messageId = el.getAttribute("data-message-id");
+
       if (unreadMessages.some((msg) => msg.id === messageId)) {
         observer.observe(el);
       }

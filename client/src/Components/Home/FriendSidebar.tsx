@@ -11,14 +11,14 @@ import { faHeadphones } from "@fortawesome/free-solid-svg-icons";
 import { Tooltip } from "react-tooltip";
 import "react-tooltip/dist/react-tooltip.css"; // Import required CSS
 interface onlineUsers {
-  id: number;
+  id: string;
   username: string;
   avatarUrl: null | string;
   onlineStatus: boolean;
 }
 
 interface FriendSidebarProps {
-  toggleChatSection: (id: number | null) => void;
+  toggleChatSection: (id: string | null) => void;
 }
 
 export default function FriendSidebar({
@@ -29,7 +29,7 @@ export default function FriendSidebar({
   const [user, setUser] = useState<onlineUsers | null>(null);
   const { userId } = useAuth();
   const API_URL = import.meta.env.VITE_API_BASE_URL;
-  const [activeTab, setActiveTab] = useState<"Friends" | number>("Friends");
+  const [activeTab, setActiveTab] = useState<"Friends" | string>("Friends");
 
   const onlineStatusDependency = friends
     .map((user) => user.onlineStatus)
@@ -61,11 +61,11 @@ export default function FriendSidebar({
     fetchUser();
   }, [API_URL, userId, onlineStatusDependency]);
 
-  const sendFriendRequest = async (friendId: number) => {
+  const sendFriendRequest = async (friendId: string) => {
     try {
       await axios.post(`${API_URL}/friends/request`, {
-        senderId: String(userId),
-        recipientId: String(friendId),
+        senderId: userId,
+        recipientId: friendId,
       });
       alert("Friend request sent");
     } catch (err) {

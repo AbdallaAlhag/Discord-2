@@ -34,7 +34,7 @@ import { Tooltip } from "react-tooltip";
 import "react-tooltip/dist/react-tooltip.css"; // Import required CSS
 
 interface onlineUsers {
-  id: number;
+  id: string;
   username: string;
   avatarUrl: null | string;
   // I'll just find out only the role for the current server
@@ -50,7 +50,7 @@ interface onlineUsers {
 }
 
 type ChannelInfo = {
-  id: number;
+  id: string;
   serverId: number;
   name: string;
   isVoice: boolean;
@@ -58,7 +58,7 @@ type ChannelInfo = {
 }[];
 
 type SingleChannelInfo = {
-  id: number;
+  id: string;
   serverId: number;
   name: string;
   isVoice: boolean;
@@ -82,7 +82,7 @@ const ChannelSidebar: React.FC<{
   setIsVoiceChannelDisplay: React.Dispatch<React.SetStateAction<boolean>>;
   ChannelWebRTC: React.FC;
   socket: Socket;
-  handleVoiceChannelSelect: (channelId: SetStateAction<number | null>) => void;
+  handleVoiceChannelSelect: (channelId: SetStateAction<string | null>) => void;
   isMobile: boolean;
   setShowSidebar: React.Dispatch<React.SetStateAction<boolean>>;
 }> = ({

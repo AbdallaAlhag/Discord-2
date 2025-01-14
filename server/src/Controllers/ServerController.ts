@@ -85,7 +85,7 @@ const handleServerChannelsInfo = async (
   // console.log("Requested serverId:", serverId);
 
   try {
-    const serverChannels = await getServerChannelsInfo(Number(serverId));
+    const serverChannels = await getServerChannelsInfo(serverId);
     // console.log("Server channels:", serverChannels);
     return res.status(201).json(serverChannels); // Ensure a response is always returned
   } catch (error) {
@@ -108,11 +108,7 @@ const handleServerInvite = async (
 
   try {
     // Create the invite in the database
-    const invite = await createServerInvite(
-      parseInt(serverId),
-      parseInt(invitedUserId),
-      parseInt(invitedBy)
-    );
+    const invite = await createServerInvite(serverId, invitedUserId, invitedBy);
 
     // Get the server details for the response
     const server = await prisma.server.findUnique({
@@ -192,7 +188,7 @@ const handleDeleteServer = async (req: Request, res: Response) => {
   // console.log("Requested serverId:", serverId);
 
   try {
-    const deletedServer = await deleteServer(Number(serverId));
+    const deletedServer = await deleteServer(serverId);
     // console.log("Server channels:", serverChannels);
     return res.status(201).json(deletedServer); // Ensure a response is always returned
   } catch (error) {
@@ -208,7 +204,7 @@ const handleLeaveServer = async (req: Request, res: Response) => {
   }
 
   try {
-    await leaveServer(Number(serverId), Number(userId));
+    await leaveServer(serverId, userId);
     // console.log("Server channels:", serverChannels);
     return res.status(201); // Ensure a response is always returned
   } catch (error) {

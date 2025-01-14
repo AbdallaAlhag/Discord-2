@@ -5,8 +5,8 @@ import prisma from "./prisma";
 // Include all channels for each server
 // Include the user's role information in each server
 // Handle errors appropriately
-export const getServers = async (userId: number) => {
-  if (!userId || isNaN(userId)) {
+export const getServers = async (userId: string) => {
+  if (!userId || userId === null) {
     console.error("Invalid userId:", userId);
     throw new Error("Valid userId is required");
   }
@@ -17,7 +17,7 @@ export const getServers = async (userId: number) => {
         members: {
           some: {
             userId: {
-              equals: String(userId),
+              equals: userId,
             },
           },
         },
@@ -36,11 +36,11 @@ export const getServers = async (userId: number) => {
   }
 };
 
-export const getFriends = async (userId: number) => {
+export const getFriends = async (userId: string) => {
   try {
     // Retrieve friends where the user is the initiator or recipient in the Friend relationship
     const userWithFriends = await prisma.user.findUnique({
-      where: { id: userId.toString() },
+      where: { id: userId },
       include: {
         friends: {
           include: {
@@ -100,19 +100,19 @@ export const getFriends = async (userId: number) => {
   }
 };
 
-export const getMessages = async (channelId: number) =>
+export const getMessages = async (channelId: string) =>
   await prisma.message.findMany({
-    where: { channelId: channelId.toString() },
+    where: { channelId: channelId },
     orderBy: { createdAt: "desc" },
     include: { user: true },
   });
 
-export const getChannel = async (channelId: number) =>
-  await prisma.channel.findUnique({ where: { id: String(channelId) } });
+export const getChannel = async (channelId: string) =>
+  await prisma.channel.findUnique({ where: { id: channelId } });
 
-export const getUser = async (userId: number) =>
+export const getUser = async (userId: string) =>
   await prisma.user.findUnique({
-    where: { id: String(userId) },
+    where: { id: userId },
     select: {
       id: true,
       username: true,

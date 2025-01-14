@@ -16,7 +16,7 @@ interface Server {
 
 interface ServerCardProps {
   server: Server;
-  userId: number | null;
+  userId: string | null;
 }
 
 interface ServerHeaderProps {
@@ -28,13 +28,13 @@ interface ServerStatsProps {
   membersOnline: number;
   totalMembers: number;
   isMember: boolean;
-  userId: number | null;
-  serverId: number | null;
+  userId: string | null;
+  serverId: string | null;
   serverGeneralChannel: serverChannel[];
 }
 
 interface serverChannel {
-  id: number;
+  id: string;
 }
 const BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
@@ -74,15 +74,13 @@ export const ServerCard = ({ server, userId }: ServerCardProps) => {
           }
         />
         <ServerStats
-          serverId={Number(server.id)}
+          serverId={server.id}
           serverGeneralChannel={serverGeneralChannel}
           membersOnline={
             server.members.filter((member) => member.user.onlineStatus).length
           }
           totalMembers={server.members.length}
-          isMember={server.members.some(
-            (member) => Number(member.user.id) === userId
-          )}
+          isMember={server.members.some((member) => member.user.id === userId)}
           userId={userId}
         />
       </div>

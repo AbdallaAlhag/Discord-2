@@ -11,7 +11,7 @@ const prisma_1 = __importDefault(require("./prisma"));
 // Include the user's role information in each server
 // Handle errors appropriately
 const getServers = async (userId) => {
-    if (!userId || isNaN(userId)) {
+    if (!userId || userId === null) {
         console.error("Invalid userId:", userId);
         throw new Error("Valid userId is required");
     }

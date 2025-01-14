@@ -69,38 +69,39 @@ let activeRooms = new Map(); // Track active room memberships
 io.on("connection", async (socket) => {
   // console.log(socket.id, " has connected");
   const { userId } = socket.handshake.query;
+  console.log("we got userId: ", userId);
   if (!userId || userId === null) {
     console.log("User connected without userId!");
     return;
   }
 
-  const numericUserId = String(userId);
-  if (isNaN(Number(numericUserId))) {
-    console.error("Invalid userId:", userId);
+  console.log("socket userId: ", userId);
+  if (userId === null) {
+    console.error("Invalid userId for socket:", userId);
     return;
   }
 
   try {
     const userExists = await prisma.user.findUnique({
-      where: { id: numericUserId },
+      where: { id: userId as string },
     });
 
     if (!userExists) {
-      console.error("User not found with ID:", numericUserId);
+      console.error("User not found with ID:", userId);
       return;
     }
 
     await prisma.user.update({
-      where: { id: numericUserId },
+      where: { id: userId as string },
       data: { onlineStatus: true },
     });
-    console.log(`User ${numericUserId} marked as online.`);
+    console.log(`User ${userId} marked as online.`);
   } catch (err) {
     console.error("Error updating user status:", err);
   }
 
   // Join user-specific room
-  userId && socket.join(userId.toString());
+  userId && socket.join(userId);
   activeUsers.set(userId, socket.id);
   // console.log("activeUsers: ", activeUsers);
   // console.log(`User ${userId} connected and joined room`);
@@ -110,10 +111,7 @@ io.on("connection", async (socket) => {
     console.log("messageData: ", messageData);
     if (messageData.recipientId) {
       //       io.to(`${messageData.recipientId}`).to(`${messageData.senderId}`).emit(
-      io.to(messageData.recipientId.toString()).emit(
-        "private_message",
-        messageData
-      );
+      io.to(messageData.recipientId).emit("private_message", messageData);
     }
 
     // Count unread messages for recipient
@@ -128,13 +126,10 @@ io.on("connection", async (socket) => {
     });
 
     // Emit to specific user
-    io.to(messageData.recipientId.toString()).emit(
-      "private-message-notification",
-      {
-        message: messageData,
-        unreadCount: unreadCount,
-      }
-    );
+    io.to(messageData.recipientId).emit("private-message-notification", {
+      message: messageData,
+      unreadCount: unreadCount,
+    });
   });
 
   // Handle server and channel messages
@@ -166,7 +161,7 @@ io.on("connection", async (socket) => {
 
   // Handle typing indicator
   socket.on("typing", (recipientId) => {
-    const recipientSocketId = activeUsers.get(recipientId.toString());
+    const recipientSocketId = activeUsers.get(recipientId);
     if (recipientSocketId) {
       io.to(recipientSocketId).emit("user_typing", userId);
     }
@@ -191,8 +186,8 @@ io.on("connection", async (socket) => {
 
   // Handle read receipt
   socket.on("read_receipt", ({ messageId, senderId, readBy, readAt }) => {
-    console.log("read receipt: ", messageId, readBy.toString());
-    const senderSocketId = activeUsers.get(senderId.toString());
+    console.log("read receipt: ", messageId, readBy);
+    const senderSocketId = activeUsers.get(senderId);
     if (senderSocketId) {
       io.to(senderSocketId).emit("message_read", {
         messageId,

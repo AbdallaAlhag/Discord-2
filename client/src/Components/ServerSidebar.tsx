@@ -12,8 +12,8 @@ import { useParams } from "react-router-dom";
 import { NotificationSidebar } from "./NotificationSidebar";
 
 interface Server {
-  channels: { id: number; name: string; iconUrl: string; createdAt: Date }[];
-  id: number;
+  channels: { id: string; name: string; iconUrl: string; createdAt: Date }[];
+  id: string;
   name: string;
   iconUrl: string;
   createdAt: Date;
@@ -22,7 +22,7 @@ const ServerSidebar: React.FC = () => {
   // const [server, setServer] = useState([]);
   const [server, setServer] = useState<Server[]>([]);
 
-  const [openServer, setOpenServer] = useState<number | null>(null);
+  const [openServer, setOpenServer] = useState<string | null>(null);
   const { userId } = useAuth();
   const API_URL = import.meta.env.VITE_API_BASE_URL;
   const params = useParams();
@@ -40,7 +40,7 @@ const ServerSidebar: React.FC = () => {
           // sort it so global server is first
           const sortedServers = response.data.servers.sort(
             (a: Server, b: Server) =>
-              a.id === globalServerId ? -1 : b.id === globalServerId ? 1 : 0
+              a.name === "Global" ? -1 : b.name === "Global" ? 1 : 0
           );
           setServer(sortedServers);
           setServer(response.data.servers);
@@ -61,8 +61,8 @@ const ServerSidebar: React.FC = () => {
 
   useEffect(() => {
     // console.log(params);
-    if (Object.keys(params).length > 0) {
-      setOpenServer(Number(params.serverId));
+    if (Object.keys(params).length > 0 && params.serverId) {
+      setOpenServer(params.serverId);
     } else {
       setOpenServer(null);
     }
@@ -226,9 +226,9 @@ const ServerSidebar: React.FC = () => {
             className={cn(
               "absolute -left-3 top-1/2 -translate-y-1/2 transition-all duration-200",
               {
-                "opacity-100 h-10": openServer === 0, // Active state styles
+                "opacity-100 h-10": openServer === "0", // Active state styles
                 "group-hover:h-5 group-hover:opacity-100 h-5 opacity-0":
-                  openServer !== 0, // Hover-only styles when not active
+                  openServer !== "0", // Hover-only styles when not active
               },
               "w-1 bg-white rounded-r"
             )}

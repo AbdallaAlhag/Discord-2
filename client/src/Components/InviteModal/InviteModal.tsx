@@ -34,7 +34,7 @@ interface InviteMessage {
     serverId: string;
     inviteCode: string;
     channelName: string;
-    invitedBy: number | null;
+    invitedBy: string | null;
     expiresAt: string;
   };
 }

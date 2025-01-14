@@ -21,13 +21,13 @@ import "react-tooltip/dist/react-tooltip.css"; // Import required CSS
 import WumpusSleeping from "../../assets/WumpusSleeping.webp";
 
 interface Message {
-  userId: number;
+  userId: string;
   user: { username: string; avatarUrl: string };
-  id: number;
+  id: string;
   content: string;
-  senderId: number;
+  senderId: string;
   createdAt: string;
-  recipientId: number;
+  recipientId: string;
   senderUsername: string;
   recipientUsername: string;
 }
@@ -47,10 +47,10 @@ interface MediaItem {
 
 interface serverChannel {
   createdAt: string;
-  id: number;
+  id: string;
   isVoice: boolean;
   name: string;
-  serverId: number;
+  serverId: string;
 }
 
 const ServerChat: React.FC<ChatProps> = ({
@@ -78,7 +78,7 @@ const ServerChat: React.FC<ChatProps> = ({
   const [isTyping, setIsTyping] = useState<boolean>(false);
   const [groupTypingUsers, setGroupTypingUsers] = useState(() => new Map());
 
-  const typingTimeoutRefs = useRef<Map<number | null, NodeJS.Timeout>>(
+  const typingTimeoutRefs = useRef<Map<string | null, NodeJS.Timeout>>(
     new Map()
   );
   const [channelInfo, setChannelInfo] = useState<serverChannel>();
@@ -92,7 +92,7 @@ const ServerChat: React.FC<ChatProps> = ({
       .then((response) => {
         // Correctly filter by channelId or serverId as needed
         const filteredChannels = response.data.channels.filter(
-          (channel: serverChannel) => channel.id === Number(channelId)
+          (channel: serverChannel) => channel.id === channelId
         );
         setChannelInfo(filteredChannels[0]);
       })

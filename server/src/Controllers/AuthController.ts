@@ -154,9 +154,9 @@ export const markOffline = async (
   next: NextFunction
 ) => {
   try {
-    const userId = Number(req.params.userId);
+    const userId = req.params.userId;
     await prisma.user.update({
-      where: { id: String(userId) },
+      where: { id: userId},
       data: { onlineStatus: false },
     });
     res.status(200).json({ success: true });

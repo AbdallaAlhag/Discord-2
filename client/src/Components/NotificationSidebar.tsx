@@ -9,12 +9,12 @@ interface Notification {
   message: {
     content: string;
     createdAt: Date;
-    id: number;
+    id: string;
     // this is who we is seeing it
-    recipientId: number;
+    recipientId: string;
     recipientUsername: string;
     // sender id and user is who sent it
-    senderId: number;
+    senderId: string;
     user: {
       avatarUrl: string;
       username: string;
@@ -32,6 +32,7 @@ export const NotificationSidebar: React.FC = () => {
   //     console.log("notifications: ", notifications);
   //   });
   useEffect(() => {
+    console.log("userId: ", userId);
     const socket = io(VITE_API_BASE_URL, {
       query: { userId },
     });

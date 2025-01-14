@@ -6,7 +6,7 @@ import defaultAvatar from "/default-avatar.svg";
 import { Link } from "react-router-dom";
 import WumpusNoFriends from "../../assets/WumpusNoFriends.png";
 interface Friend {
-  id: number;
+  id: string;
   username: string;
   activity: string;
   avatarUrl?: string;
@@ -15,10 +15,10 @@ interface Friend {
 
 interface FriendRequest {
   avatarUrl: string;
-  id: number;
-  senderId: number;
+  id: string;
+  senderId: string;
   sender: {
-    id: number;
+    id: string;
     username: string;
   };
   status: "pending" | "accepted" | "declined";
@@ -64,7 +64,7 @@ export function FriendsList({ filter }: FriendsListProps) {
   }, [fetchFriendData, onlineStatusDependency]);
 
   const handleFriendRequest = async (
-    requestId: number,
+    requestId: string,
     action: "accept" | "decline"
   ) => {
     try {

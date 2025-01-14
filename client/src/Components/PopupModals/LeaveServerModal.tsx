@@ -8,7 +8,7 @@ interface LeaveServerModalProps {
   onClose: () => void;
   serverName: string;
   serverId: string;
-  userId: number | null;
+  userId: string | null;
 }
 
 const LeaveServerModal: React.FC<LeaveServerModalProps> = ({
