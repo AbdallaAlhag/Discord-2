@@ -11,7 +11,7 @@ import { useState, useEffect } from "react";
 
 function HomePage() {
   const { friendIdLink } = useParams<{ friendIdLink?: string }>();
-  const [chatId, setChatId] = useState<number | null>(null);
+  const [chatId, setChatId] = useState<string | null>(null);
   const [currentFilter, setCurrentFilter] = useState<
     "online" | "all" | "pending" | "blocked"
   >("all");
@@ -28,7 +28,7 @@ function HomePage() {
     return () => window.removeEventListener("resize", handleResize);
   }, []);
 
-  const toggleChatId = (id: number | null) => {
+  const toggleChatId = (id: string | null) => {
     setChatId(id);
     if (isMobile) {
       setShowSidebar(false);

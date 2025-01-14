@@ -3,12 +3,12 @@ import { Socket } from "socket.io-client";
 
 interface UseWebRTCProps {
   socket: Socket | null;
-  channelId: null | number;
-  userId: number | null;
+  channelId: null | string;
+  userId: string | null;
 }
 
 interface StreamMetadata {
-  userId: number | null;
+  userId: string | null;
 }
 
 export const useWebRTC = ({ socket, channelId, userId }: UseWebRTCProps) => {
@@ -74,7 +74,7 @@ export const useWebRTC = ({ socket, channelId, userId }: UseWebRTCProps) => {
     // );
   };
   const createPeerConnection = useCallback(
-    (socketId: string, remoteUserId: number | null) => {
+    (socketId: string, remoteUserId: string | null) => {
       // console.log(
       //   `[DEBUG] Creating peer connection for socketId: ${socketId}, remoteUserId: ${remoteUserId}`
       // );

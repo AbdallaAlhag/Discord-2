@@ -21,7 +21,7 @@ function ServerPage() {
   const [socket, setSocket] = useState<Socket>({} as Socket);
   const { userId } = useAuth();
   const refVoiceChannelDisplay = useRef<HTMLDivElement>(null);
-  const [voiceChannelId, setVoiceChannelId] = useState<number | null>(null);
+  const [voiceChannelId, setVoiceChannelId] = useState<string | null>(null);
   const [openMemberList, setOpenMemberList] = useState(true);
   const [isMobile, setIsMobile] = useState(false);
   const [showSidebar, setShowSidebar] = useState(false);
@@ -43,7 +43,7 @@ function ServerPage() {
   };
 
   const handleVoiceChannelSelect = (
-    channelId: SetStateAction<number | null>
+    channelId: SetStateAction<string | null>
   ) => {
     setVoiceChannelId(channelId);
   };

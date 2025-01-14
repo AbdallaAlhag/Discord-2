@@ -5,8 +5,8 @@ import { WebRTCContext } from "./WebRTCHelper"; // Import your WebRTC context
 
 export const WebRTCProvider: React.FC<{
   socket: Socket;
-  channelId: null | number;
-  userId: number | null;
+  channelId: string | null;
+  userId: string | null;
   type: "video" | "audio";
   children: ReactNode;
 }> = ({ socket, channelId, userId, children }) => {

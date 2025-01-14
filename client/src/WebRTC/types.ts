@@ -2,8 +2,8 @@ import { Socket } from "socket.io-client";
 
 export interface UseWebRTCProps {
   socket: Socket;
-  channelId: string | number;
-  userId: number | null;
+  channelId: string | null;
+  userId: string | null;
   localStream: MediaStream | null;
   remoteStreams: MediaStream[];
   isDeafened: boolean;
@@ -15,7 +15,7 @@ export interface UseWebRTCProps {
   toggleDeafen: () => void;
   toggleMute: () => void;
   toggleVideo: () => void;
-  streamMetadata: WeakMap<MediaStream, { userId: number | null }>;
+  streamMetadata: WeakMap<MediaStream, { userId: string | null }>;
   initializeMedia: () => Promise<void>;
   disInitializeMedia: () => void;
   refreshStreams: () => void;

@@ -26,11 +26,10 @@ import React from "react";
 //   socket: Socket;
 //   channelId: number;
 //   type?: "video" | "audio";
-//   userId: number | null;
 // }
 
 interface StreamMetadata {
-  userId: number;
+  userId: string;
 }
 
 // Header Component
@@ -231,7 +230,7 @@ const Controls: React.FC<ControlButtonProps> = ({
 // Video Component
 const VideoElement: React.FC<{
   stream: MediaStream;
-  userId?: number | null;
+  userId?: string | null;
   muted?: boolean;
   isLocal?: boolean;
   isDeafened?: boolean;
