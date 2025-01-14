@@ -19,7 +19,7 @@ import { TypingIndicator } from "./ServerTypingIndicator";
 import { Tooltip } from "react-tooltip";
 import "react-tooltip/dist/react-tooltip.css"; // Import required CSS
 import WumpusSleeping from "../../assets/WumpusSleeping.webp";
-
+import defaultAvatar from "/default-avatar.svg";
 interface Message {
   userId: string;
   user: { username: string; avatarUrl: string };
@@ -716,7 +716,7 @@ const ServerChat: React.FC<ChatProps> = ({
                 >
                   {isNewGroup ? (
                     <img
-                      src={msg.user?.avatarUrl}
+                      src={msg.user?.avatarUrl || defaultAvatar}
                       alt="user avatar"
                       className="w-10 h-10 rounded-full mr-4"
                     />
