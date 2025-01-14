@@ -100,6 +100,7 @@ const ServerSidebar: React.FC = () => {
                   backgroundColor: "black",
                   color: "white",
                   fontWeight: "bold",
+                  position: "fixed",
                 }}
               />
             </div>
@@ -168,6 +169,7 @@ const ServerSidebar: React.FC = () => {
                     backgroundColor: "black",
                     color: "white",
                     fontWeight: "bold",
+                    position: "fixed",
                   }}
                 />
               </div>
@@ -191,6 +193,7 @@ const ServerSidebar: React.FC = () => {
                 backgroundColor: "black",
                 color: "#3b9c5b",
                 fontWeight: "bold",
+                position: "fixed",
               }}
             />
           </div>
@@ -214,6 +217,7 @@ const ServerSidebar: React.FC = () => {
                 backgroundColor: "black",
                 color: "white",
                 fontWeight: "bold",
+                position: "fixed",
               }}
             />
           </div>
@@ -251,6 +255,7 @@ const ServerSidebar: React.FC = () => {
                   backgroundColor: "black",
                   color: "white",
                   fontWeight: "bold",
+                  position: "fixed",
                 }}
               />
             </div>
