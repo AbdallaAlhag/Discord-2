@@ -1,6 +1,6 @@
 
 # Discord-2
-Live Demo: [Discord-2](https://discord-2.vercel.app/)
+Live Demo: [Discord-2](https://discochatapp.netlify.app/)
 
 A full-stack application inspired by Discord, designed for real-time messaging, server management, and user interactions. This project includes features like voice and video chat, private and server-based messaging, and mobile-friendly designs.
 
