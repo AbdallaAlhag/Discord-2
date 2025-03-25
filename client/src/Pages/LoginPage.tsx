@@ -135,6 +135,7 @@ export function LoginPage() {
                 <Link to="/register" className="text-blue-500 hover:underline">
                   Register
                 </Link>
+                <p>Guest account: test@test.com / test</p>
               </p>
             </form>
           </div>
